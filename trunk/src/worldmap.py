@@ -106,7 +106,7 @@ class Parcel(object):
                 pass
         if (x,y) in self.h: return self.h[(x, y)]
         X, Y = (x + y) / 2, (-x + y) / 2
-        iX, iY = int(X), int(Y)
+        iX, iY = int(X//1), int(Y//1)
         ix, iy = iX - iY, iX + iY
         tX, tY = X - iX, Y - iY
         return ((self.h[(ix,iy)] * (1-tX) + self.h[(ix+1,iy+1)] * tX) * (1-tY) + 
@@ -152,6 +152,10 @@ def dumpparcels():
             del parcels[k]
     cPickle.dump(parcels, open("parcel-dump-test.pkl", "wb"))
 
+def nearesttile(x, y):
+    X, Y = (x + y) / 2, (-x + y) / 2
+    iX, iY = int((X+0.5)//1), int((Y+0.5)//1)
+    return iX - iY, iX + iY
 def height(x, y):
     return parcels[(int(x//pcs), int(y//pcs))].getheight(x, y)
 def iheight(x, y):
@@ -193,6 +197,19 @@ def thinkparcels(dt=0):
             parcelq.sort(key = lambda p: (x0 - p.x0)**2 + (y0-p.y0)**2)
         if time.time() > tf or not parcelq:
             return n
+
+def highlighttile(surf, x, y, looker=None):
+    h, gx, gy, ps = tileinfo(x, y, looker)
+    x0, x1 = min(x for x,y in ps), max(x for x,y in ps)
+    y0, y1 = min(y for x,y in ps), max(y for x,y in ps)
+    s = pygame.Surface(((x1-x0+1), (y1-y0+1))).convert_alpha()
+    s.fill((0,0,0,0))
+    ps = [(x-x0,y-y0) for x,y in ps]
+    pygame.draw.polygon(s, (255, 0, 0, 50), ps)
+    pygame.draw.lines(s, (255, 0, 0, 100), True, ps, 1)
+    surf.blit(s, (x0,y0))
+#    if self.lines:
+#        pygame.draw.lines(lsurf, settings.tbcolor, False, ps[0:3], 1)
 
 
 def tileinfo(x, y, looker=None):
@@ -417,9 +434,12 @@ def choosevalidstart():
 def canbuildhere(x, y):
     return (x + y) % 2 == 0 and iheight(x, y) > 0
 
-def drawscene(screen, entities):
+def drawscene(screen, entities, cursortile = None):
     screen.fill((0,0,0))
     drawpanels(screen, camera.x0//1-settings.sx//2, camera.y0//1-settings.sy // 2, settings.sx, settings.sy)
+    if cursortile:
+        cx, cy = cursortile
+        highlighttile(screen, cx, cy)
     esort = sorted(entities, key = lambda e: -e.y)
     for entity in esort:
         entity.render(screen)
