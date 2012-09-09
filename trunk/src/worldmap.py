@@ -47,7 +47,7 @@ def hcolor(h, gx, gy):
     elif h < 25: r = (100,50,0)
     elif h < 40: r = (100,100,100)
     else: r = (140,140,140)
-    return [int(x*a) for x in r]
+    return [min(max(int(x*a),0),255) for x in r]
 
 # This is a set of cached values to speed up height calculations - don't worry about it.
 dpcache, dpmin, dpmax = {}, 0, 0
@@ -215,8 +215,11 @@ def minichunk(x0, y0):
         s = pygame.Surface((a, a))
 #        arr = pygame.surfarray.pixels3d(s)
         for y in range(a):
-            for x in range(a):
-                s.set_at((x, y), hcolor(iheight(x0*a+x, y0*a+(a-1-y)), 0, 0))
+            for x in range(-1,a):
+                if (x + y) % 2: continue
+                c = hcolor(iheight(x0*a+x, y0*a+(a-1-y)), 0, 0)
+                s.set_at((x, y), c)
+                s.set_at((x+1, y), c)
 #                arr[x,y,:] = hcolor(iheight(x0*a+x, y0*a+(a-1-y)), 0, 0)
         minimaps[(x0,y0)] = s.convert()
 #        print x0, y0, time.time() - t0
