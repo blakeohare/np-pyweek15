@@ -1,4 +1,4 @@
-	import MySQLdb
+import MySQLdb
 
 _connection = None
 _credentials = None
