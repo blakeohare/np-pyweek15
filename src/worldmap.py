@@ -218,10 +218,11 @@ def minichunk(x0, y0):
 def minimap(x, y, w, h):
     s = pygame.Surface((w, h)).convert()
     a = settings.mchunksize
+    # This formula actually doesn't look right to me, but it works, so whatever.
     x0 = int((x-w//2)//a)
     x1 = int((x+w//2)//a)
-    y0 = int((y-h//2)//a) - 1
-    y1 = int((y+h//2)//a) - 1
+    y0 = int((y-h//2+1)//a) - 1
+    y1 = int((y+h//2+1)//a)
     
     for ay in range(y0,y1+1):
         for ax in range(x0,x1+1):
@@ -392,8 +393,9 @@ class WorldViewScene(object):
                 drawbuildingat(screen, btype, x, y, z)
 
         if settings.showminimap:
-            pygame.draw.rect(screen, (255, 255, 255), (10, 10, 40, 40))
-            screen.blit(minimap(int(camera.x0 // settings.tilex), -int(camera.y0 // settings.tiley), 36, 36), (12, 12))
+            a = settings.minimapsize
+            pygame.draw.rect(screen, (255, 255, 255), (10, 10, a + 2, a + 2))
+            screen.blit(minimap(int(camera.x0 // settings.tilex), -int(camera.y0 // settings.tiley), a, a), (11, 11))
 
 
 if __name__ == "__main__":
