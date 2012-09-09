@@ -387,11 +387,52 @@ def drawplatformat(screen, x, y):
     pygame.draw.polygon(screen, (0,70,70), (p0,p1,p2,p3))
 
 
+# How far do you have to go along this track before you hit water?
+def dtrack(x0, y0, track, dmax = 100):
+    n = 0
+    x, y = x0, y0
+    while True:
+        for dx, dy in track:
+            n += 1
+            x += dx
+            y += dy
+            if iheight(x, y) <= 0 or n >= dmax:
+                return n
+
+def validstart(x, y):
+    x, y = int(x//1), int(y//1)
+    # send out feelers in a variety of directions until they hit water
+    if iheight(x, y) < 0: return False
+    waterhits = []
+    for a,b,c,d in [(1,0,0,1), (0,1,-1,0), (-1,0,0,-1), (0,-1,1,0)]:
+        dx, dy = (b,d), (a,c)
+        waterhits.append(dtrack(x, y, [dx]))
+        waterhits.append(dtrack(x, y, [dx,dy]))
+        waterhits.append(dtrack(x, y, [dx,dx,dx,dy]))
+    ws = sorted(waterhits)[3:-3]
+    return ws[0] > 1 and ws[3] > 5 and ws[-3] > 40 and ws[-1] > 60
+
+
+random.seed()
+print("Choosing starting location....")
+while True:
+    guyx = random.randint(-2000, 2000)
+    guyy = random.randint(-2000, 2000)
+    if validstart(guyx, guyy):
+        break
+print("(%s,%s) looks like a good place to start...." % (guyx, guyy))
+
+camera.lookat(guyx, guyy)
+
+
+#exit()
+
+
 # test scene
 class WorldViewScene(object):
     def __init__(self):
         self.next = self
-        self.guyx, self.guyy = 1234, 3456
+        self.guyx, self.guyy = guyx, guyy
         camera.lookat(self.guyx, self.guyy)
         
         self.buildings = []
