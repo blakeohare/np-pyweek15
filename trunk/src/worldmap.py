@@ -1,6 +1,6 @@
 import random, pygame
 from collections import defaultdict
-import camera
+from src import camera
 
 noiseseed = "one way trip"
 nmapsize = 64
@@ -44,13 +44,15 @@ def height0(x, y):
     if h > 0: h -= min(h/2, 20)
     return int(h)
 
-def hcolor(h):
-    if h < 0: return (0,0,100)
-    if h < 4: return (160,160,80)
-    if h < 16: return (90,90,0)
-    if h < 25: return (100,50,0)
-    if h < 40: return (100,100,100)
-    return (140,140,140)
+def hcolor(h, gx, gy):
+    a = 0.8 + 0.04 * gx
+    if h <= 0: r = (0,0,100)
+    elif h < 4: r = (160,160,80)
+    elif h < 16: r = (90,90,0)
+    elif h < 25: r = (100,50,0)
+    elif h < 40: r = (100,100,100)
+    else: r = (140,140,140)
+    return [int(x*a) for x in r]
 
 # This is a set of cached values to speed up height calculations - don't worry about it.
 dpcache, dpmin, dpmax = {}, 0, 0
@@ -70,13 +72,13 @@ def dpextend(x0, x1):
 class Parcel(object):
     def __init__(self, x0, y0):
         self.x0, self.y0 = x0, y0
-        self.h = {}
         self.ready = False
 
     def compute(self):
         dpextend(min(self.x0, self.y0) - 4, max(self.x0, self.y0) + parcelsize + 4)
         yield
         # Determine heights for corners
+        self.h = {}
         for y in range(self.y0 - 2, self.y0 + parcelsize + 4):
             for x in range(self.x0 - 2 + (1 - y % 2), self.x0 + parcelsize + 5, 2):
                 # TODO: easy integer map to actual h values
@@ -86,17 +88,19 @@ class Parcel(object):
                         (noisemap[xx][yy+1] * (1-tx) + noisemap[xx+1][yy+1] * tx) * ty) / f
                 h *= tscale
                 if h > 0: h -= min(h/2, 20)
-                self.h[(x, y)] = int(h)
+                self.h[(x, y)] = max(int(h), 0)
             yield
         self.hcorners = {}
         self.hcmax = {}
+        self.grad = {}
         # Determine heights for tiles
         for y in range(self.y0 - 1, self.y0 + parcelsize + 3):
             for x in range(self.x0 - 1 + (1 - y % 2), self.x0 + parcelsize + 4, 2):
                 hs = self.h[(x-1,y)], self.h[(x,y-1)], self.h[(x+1,y)], self.h[(x,y+1)]
                 self.hcorners[(x,y)] = hs
                 self.hcmax[(x,y)] = max(hs)
-                self.h[(x,y)] = sum(hs)/4
+                self.h[(x,y)] = sum(hs)/4.0
+                self.grad[(x,y)] = hs[2]-hs[0], hs[3]-hs[1]
             yield
         self.ready = True
 
@@ -119,6 +123,12 @@ class Parcel(object):
                 pass
         return self.h[(x, y)]
 
+    def getigrad(self, x, y):
+        if not self.ready:
+            for _ in self.compute():
+                pass
+        return self.grad[(x, y)]
+
 
 class parceldict(defaultdict):
     def __missing__(self, key):
@@ -129,19 +139,28 @@ parcels = parceldict()
 def height(x, y):
     return parcels[(int(x//parcelsize), int(y//parcelsize))].getheight(x, y)
 def iheight(x, y):
-    return parcels[(int(x//parcelsize), int(y//parcelsize))].getheight(int(x//1), int(y//1))
+    return parcels[(int(x//parcelsize), int(y//parcelsize))].getiheight(int(x//1), int(y//1))
+def igrad(x, y):
+    return parcels[(int(x//parcelsize), int(y//parcelsize))].getigrad(int(x//1), int(y//1))
 
 
-def tileps(x, y):
+def tileinfo(x, y):
     x, y = int(x//1), int(y//1)
+    h = iheight(x, y)
+    gx, gy = igrad(x, y)
     ps = []
     ps.append(camera.screenpos(x-1, y, iheight(x-1, y)))
     ps.append(camera.screenpos(x, y-1, iheight(x, y-1)))
     ps.append(camera.screenpos(x+1, y, iheight(x+1, y)))
     ps.append(camera.screenpos(x, y+1, iheight(x, y+1)))
-    return ps
+    return h, gx, gy, ps
 
-
+def minimap(x0, y0, w, h):
+    s = pygame.Surface((w, h)).convert()
+    for y in range(h):
+        for x in range(w):
+            s.set_at((x, y), hcolor(iheight(x0-w//2+x, y0+h//2-y), 0, 0))
+    return s
 
 # test scene
 class WorldViewScene(object):
@@ -149,8 +168,8 @@ class WorldViewScene(object):
         self.next = self
 
     def process_input(self, events, pressed):
-        camera.x0 += 0.3 * (pressed['right'] - pressed['left'])
-        camera.y0 += 0.3 * (pressed['up'] - pressed['down'])
+        camera.x0 += 1.0 * (pressed['right'] - pressed['left'])
+        camera.y0 += 1.0 * (pressed['up'] - pressed['down'])
 
     def update(self):
         pass
@@ -158,15 +177,16 @@ class WorldViewScene(object):
     def render(self, screen):
         screen.fill((0,0,0))
         x0, x1 = camera.xbounds()
-        x0, x1 = int(x0 // 1) - 1, int(x1 // 1) + 1
+        x0, x1 = int(x0 // 1) - 1, int(x1 // 1) + 2
         y0 = int(camera.y0)
         onscreen, y = True, y0
         while onscreen:
             onscreen = False
             for x in range(x0, x1):
                 if (x + y) % 2: continue
-                ps = tileps(x, y)
-                pygame.draw.lines(screen, (100,100,100), True, ps, 1)
+                h, gx, gy, ps = tileinfo(x, y)
+                pygame.draw.polygon(screen, hcolor(h, gx, gy), ps)
+#                pygame.draw.lines(screen, (100,100,100), True, ps, 1)
                 if max(py for px, py in ps) > 0:
                     onscreen = True
             y += 1
@@ -175,11 +195,14 @@ class WorldViewScene(object):
             onscreen = False
             for x in range(x0, x1):
                 if (x + y) % 2: continue
-                ps = tileps(x, y)
-                pygame.draw.lines(screen, (100,100,100), True, ps, 1)
+                h, gx, gy, ps = tileinfo(x, y)
+                pygame.draw.polygon(screen, hcolor(h, gx, gy), ps)
+#                pygame.draw.lines(screen, (100,100,100), True, ps, 1)
                 if min(py for px, py in ps) < 600:
                     onscreen = True
             y -= 1
+        pygame.draw.rect(screen, (255, 255, 255), (10, 10, 40, 40))
+        screen.blit(minimap(int(camera.x0), int(camera.y0), 36, 36), (12, 12))
 
 
 if __name__ == "__main__":
