@@ -152,7 +152,7 @@ def main():
 		
 		length = time.time() - start
 		if length > 0:
-			rscreen.blit(get_text("FPS: " + str(1.0 / length), (255, 0, 0), 18), (4, 4))
+			rscreen.blit(get_text("FPS: %.1f" % (1.0 / length), (255, 0, 0), 18), (4, 4))
 		
 		pygame.display.flip()
 		end = time.time()

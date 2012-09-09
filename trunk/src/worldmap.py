@@ -112,29 +112,27 @@ class Parcel(object):
         return ((self.h[(ix,iy)] * (1-tX) + self.h[(ix+1,iy+1)] * tX) * (1-tY) + 
                 (self.h[(ix-1,iy-1)] * (1-tX) + self.h[(ix,iy+2)] * tX) * tY)
 
-    # x and y must be integers
-    def getiheight(self, x, y):
+    def complete(self):
         if self.compiter:
             for _ in self.compiter:
                 pass
+            self.compiter = None
+
+    # x and y must be integers
+    def getiheight(self, x, y):
+        self.complete()
         return self.h[(x, y)]
 
     def getigrad(self, x, y):
-        if self.compiter:
-            for _ in self.compiter:
-                pass
+        self.complete()
         return self.grad[(x, y)]
 
     def getihcmax(self, x, y):
-        if self.compiter:
-            for _ in self.compiter:
-                pass
+        self.complete()
         return self.hcmax[(x, y)]
 
     def getihcorners(self, x, y):
-        if self.compiter:
-            for _ in self.compiter:
-                pass
+        self.complete()
         return self.hcorners[(x, y)]
 
 
@@ -145,6 +143,14 @@ class parceldict(defaultdict):
         return ret
 parcels = parceldict()
 parcelq = []
+
+def dumpparcels():
+    import cPickle
+    ks = list(parcels)
+    for k in ks:
+        if parcels[k].compiter:
+            del parcels[k]
+    cPickle.dump(parcels, open("parcel-dump-test.pkl", "wb"))
 
 def height(x, y):
     return parcels[(int(x//pcs), int(y//pcs))].getheight(x, y)
@@ -198,12 +204,28 @@ def tileinfo(x, y, looker=None):
     ps.append(looker.screenpos(x, y+1, iheight(x, y+1)))
     return h, gx, gy, ps
 
-def minimap(x0, y0, w, h):
-    # TODO: cache me
+minimaps = {}
+def minichunk(x0, y0):
+    if (x0, y0) not in minimaps:
+        a = settings.mchunksize
+        s = pygame.Surface((a, a)).convert()
+        for y in range(a):
+            for x in range(a):
+                s.set_at((x, a-y-1), hcolor(iheight(x0*a+x, y0*a+y), 0, 0))
+        minimaps[(x0,y0)] = s
+    return minimaps[(x0,y0)]
+# return a minimap centered at (x, y) with size (w, h)
+def minimap(x, y, w, h):
     s = pygame.Surface((w, h)).convert()
-    for y in range(h):
-        for x in range(w):
-            s.set_at((x, y), hcolor(iheight(x0-w//2+x, y0+h//2-y), 0, 0))
+    a = settings.mchunksize
+    x0 = int((x-w//2)//a)
+    x1 = int((x+w//2)//a)
+    y0 = int((y-h//2)//a) - 1
+    y1 = int((y+h//2)//a) - 1
+    
+    for ay in range(y0,y1+1):
+        for ax in range(x0,x1+1):
+            s.blit(minichunk(ax,ay), (ax*a - (x-w//2), -ay*a + y))
     return s
 
 
@@ -345,7 +367,7 @@ class WorldViewScene(object):
 
     def update(self):
         self.guyz = height(self.guyx, self.guyy)
-        camera.track(self.guyx, self.guyy, self.guyz)
+        camera.track(self.guyx, self.guyy, self.guyz, settings.trackvalue)
         addpanels(camera.x0, camera.y0)
         addparcels(camera.x0 / settings.tilex, -camera.y0 / settings.tiley)
 #        print len(panels), len(panelq), thinkpanels(0.005), len(parcels), len(parcelq), thinkparcels(0.005)
@@ -369,9 +391,9 @@ class WorldViewScene(object):
             if y <= self.guyy:
                 drawbuildingat(screen, btype, x, y, z)
 
-
-#        pygame.draw.rect(screen, (255, 255, 255), (10, 10, 40, 40))
-#        screen.blit(minimap(int(camera.x0 // settings.tilex), -int(camera.y0 // settings.tiley), 36, 36), (12, 12))
+        if settings.showminimap:
+            pygame.draw.rect(screen, (255, 255, 255), (10, 10, 40, 40))
+            screen.blit(minimap(int(camera.x0 // settings.tilex), -int(camera.y0 // settings.tiley), 36, 36), (12, 12))
 
 
 if __name__ == "__main__":

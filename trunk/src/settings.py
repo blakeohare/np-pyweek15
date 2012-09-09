@@ -11,7 +11,7 @@ full_screen_mode = False
 # resolution here is the resolution of the virtual window - will be scaled up for display
 wsx, wsy, wsz = 400, 300, 2
 # minimum horizontal resolution in fullscreen mode
-fsmin = 300
+fsmin = 400
 
 
 # pick the best resolution for fullscreen mode
@@ -34,6 +34,9 @@ sx, sy = wsx, wsy
 sz = wsz
 
 
+trackvalue = 0.2
+
+showminimap = False
 
 # screen size for one unit in world coordinates
 tilex, tiley, tilez = 16, 8, 2   
@@ -53,8 +56,12 @@ parcelsize = 40
 # Size of a panel surface
 panelw, panelh = 400, 300
 
-# tile border color with alpha (set to None to disable
-tbcolor = 128, 128, 128, 40
+# Size of a cached minimap chunk
+mchunksize = 20
+
+# tile border color with alpha (set to None to disable)
+tbcolor = 128, 128, 128, 20
+#tbcolor = None
 
 
 
