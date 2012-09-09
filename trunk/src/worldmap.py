@@ -18,10 +18,9 @@ try:
     random.seed(noiseseed, version = 1)
 except TypeError:
     random.seed(noiseseed)
-r = random.randint(0, 99999999)
-assert r == 99082844, "Something wrong with the random number generation. Aborting!"
+assert random.random() == 0.9908284413950574, "Something wrong with the random number generation. Aborting!"
 # Generate the noise map to be used for all terrain
-noisemap = [[random.uniform(-1, 1) for x in range(nmapsize)]
+noisemap = [[random.random() * 2 - 1 for x in range(nmapsize)]
                for y in range(nmapsize)]
 noisemap = [row + row[0:1] for row in noisemap]
 noisemap += noisemap[0:1]
