@@ -1,5 +1,6 @@
-import random
+import random, pygame
 from collections import defaultdict
+import camera
 
 noiseseed = "one way trip"
 nmapsize = 64
@@ -7,7 +8,7 @@ nmapsize = 64
 tf0 = 0.03
 tfactors = 1.000, 1.618, 2.618, 4.236, 6.854, 11.090, 17.944, 29.034
 sealevel = -0.3
-tscale = 40
+tscale = 30
 
 parcelsize = 40
 
@@ -76,13 +77,13 @@ class Parcel(object):
         dpextend(min(self.x0, self.y0) - 4, max(self.x0, self.y0) + parcelsize + 4)
         yield
         # Determine heights for corners
-        for y in range(self.y0 - 2, self.y0 + parcelsize + 3):
-            for x in range(self.x0 - 2 + y % 2, self.x0 + parcelsize + 3, 2):
+        for y in range(self.y0 - 2, self.y0 + parcelsize + 4):
+            for x in range(self.x0 - 2 + (1 - y % 2), self.x0 + parcelsize + 5, 2):
                 # TODO: easy integer map to actual h values
                 h = -sealevel
                 for f, (xx, tx), (yy, ty) in zip(tfactors, dpcache[x], dpcache[y]):
                     h += ((noisemap[xx][yy] * (1-tx) + noisemap[xx+1][yy] * tx) * (1-ty) + 
-                        (noisemap[xx][yy+1] * (1-tx) + noisemap[xx+1][yy+1] * tx) * ty)
+                        (noisemap[xx][yy+1] * (1-tx) + noisemap[xx+1][yy+1] * tx) * ty) / f
                 h *= tscale
                 if h > 0: h -= min(h/2, 20)
                 self.h[(x, y)] = int(h)
@@ -90,8 +91,8 @@ class Parcel(object):
         self.hcorners = {}
         self.hcmax = {}
         # Determine heights for tiles
-        for y in range(self.y0 - 1, self.y0 + parcelsize + 2):
-            for x in range(self.x0 - 1 + y % 2, self.x0 + parcelsize + 2, 2):
+        for y in range(self.y0 - 1, self.y0 + parcelsize + 3):
+            for x in range(self.x0 - 1 + (1 - y % 2), self.x0 + parcelsize + 4, 2):
                 hs = self.h[(x-1,y)], self.h[(x,y-1)], self.h[(x+1,y)], self.h[(x,y+1)]
                 self.hcorners[(x,y)] = hs
                 self.hcmax[(x,y)] = max(hs)
@@ -103,12 +104,20 @@ class Parcel(object):
         if not self.ready:
             for _ in self.compute():
                 pass
+        if (x,y) in self.h: return self.h[(x, y)]
         X, Y = (x + y) / 2, (-x + y) / 2
         iX, iY = int(X), int(Y)
         ix, iy = iX - iY, iX + iY
         tX, tY = X - iX, Y - iY
         return ((self.h[(ix,iy)] * (1-tX) + self.h[(ix+1,iy+1)] * tX) * (1-tY) + 
-                (self.h[(ix-1,iy-1)] * (1-tX) + self.h[(ix,iy+2)] * tX) * tY)
+                (self.h[(ix-1,iy-1)] * (1-tX) + self.h[(ix,iy+2)] * tX) * tY)        
+
+    # x and y must be integers
+    def getiheight(self, x, y):
+        if not self.ready:
+            for _ in self.compute():
+                pass
+        return self.h[(x, y)]
 
 
 class parceldict(defaultdict):
@@ -119,6 +128,59 @@ class parceldict(defaultdict):
 parcels = parceldict()
 def height(x, y):
     return parcels[(int(x//parcelsize), int(y//parcelsize))].getheight(x, y)
+def iheight(x, y):
+    return parcels[(int(x//parcelsize), int(y//parcelsize))].getheight(int(x//1), int(y//1))
+
+
+def tileps(x, y):
+    x, y = int(x//1), int(y//1)
+    ps = []
+    ps.append(camera.screenpos(x-1, y, iheight(x-1, y)))
+    ps.append(camera.screenpos(x, y-1, iheight(x, y-1)))
+    ps.append(camera.screenpos(x+1, y, iheight(x+1, y)))
+    ps.append(camera.screenpos(x, y+1, iheight(x, y+1)))
+    return ps
+
+
+
+# test scene
+class WorldViewScene(object):
+    def __init__(self):
+        self.next = self
+
+    def process_input(self, events, pressed):
+        camera.x0 += 0.3 * (pressed['right'] - pressed['left'])
+        camera.y0 += 0.3 * (pressed['up'] - pressed['down'])
+
+    def update(self):
+        pass
+
+    def render(self, screen):
+        screen.fill((0,0,0))
+        x0, x1 = camera.xbounds()
+        x0, x1 = int(x0 // 1) - 1, int(x1 // 1) + 1
+        y0 = int(camera.y0)
+        onscreen, y = True, y0
+        while onscreen:
+            onscreen = False
+            for x in range(x0, x1):
+                if (x + y) % 2: continue
+                ps = tileps(x, y)
+                pygame.draw.lines(screen, (100,100,100), True, ps, 1)
+                if max(py for px, py in ps) > 0:
+                    onscreen = True
+            y += 1
+        onscreen, y = True, y0 - 1
+        while onscreen:
+            onscreen = False
+            for x in range(x0, x1):
+                if (x + y) % 2: continue
+                ps = tileps(x, y)
+                pygame.draw.lines(screen, (100,100,100), True, ps, 1)
+                if min(py for px, py in ps) < 600:
+                    onscreen = True
+            y -= 1
+
 
 if __name__ == "__main__":
     import pygame

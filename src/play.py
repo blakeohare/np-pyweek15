@@ -1,8 +1,9 @@
 import pygame
 import time
 import os
+from collections import defaultdict
 
-import menus
+import menus, worldmap
 
 # types: key, type, mouseleft, mouseright, mousemove
 # action: left, right, up down, build, enter, demolish
@@ -38,7 +39,7 @@ def main():
 	# TODO: type counter
 	
 	scene = menus.TitleScene()
-	pressed_keys = {}
+	pressed_keys = defaultdict(bool)
 	for ea in event_actions:
 		pressed_keys[ea] = False
 	while True:
@@ -92,3 +93,5 @@ def main():
 		delay = 1.0 / fps - diff
 		if delay > 0:
 			time.sleep(delay)
+		
+		scene = scene.next
