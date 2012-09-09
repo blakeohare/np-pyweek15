@@ -36,7 +36,7 @@ try:
 	# Right now this just wraps a call to str(). I'll ping you before I make the
 	# changes or include an option to use a &debug=1 flag in the URL to fall back
 	# to str() behavior.
-	print util.format_output(output)
+	print util.format_output(output, args.get('debug') == '1')
 	
 	sql.cleanup()
 	
