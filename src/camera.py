@@ -23,4 +23,8 @@ def track(x, y, z = 0, f = 0.05):
 def lookat(x, y, z = 0):
     track(x, y, z, 1)
 
+# whether the point is within margin pixels of the screen
+def isvisible(px, py, margin=100):
+    return -margin <= px <= settings.sx + margin and -margin <= py <= settings.sy + margin
+
 
