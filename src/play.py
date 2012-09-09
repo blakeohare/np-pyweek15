@@ -4,7 +4,7 @@ import os
 from collections import defaultdict
 
 from src import menus
-from src import worldmap
+from src import worldmap, settings
 from src.font import get_text
 # types: key, type, mouseleft, mouseright, mousemove
 # action: left, right, up down, build, enter, demolish
@@ -18,7 +18,11 @@ class MyEvent:
 		self.x = x
 		self.y = y
 
-full_screen_mode = True
+def get_screen():
+	flags = pygame.FULLSCREEN if settings.full_screen_mode else 0
+	screen = pygame.display.set_mode((settings.sx * settings.sz, settings.sy * settings.sz), flags)
+	vscreen = pygame.Surface((settings.sx, settings.sy)).convert()
+	return screen, vscreen
 
 letters = {
 	pygame.K_BACKSPACE: ('bs', 'bs'),
@@ -54,21 +58,18 @@ for letter in range(26):
 _type_delay = [None, 0]
 
 def toggle_full_screen():
-	global full_screen_mode
-	full_screen_mode = not full_screen_mode
-	if full_screen_mode:
-		screen = pygame.display.set_mode((1024, 768), pygame.FULLSCREEN)
+	settings.full_screen_mode = not settings.full_screen_mode
+	if settings.full_screen_mode:
+		settings.sx, settings.sy, settings.sz = settings.fsx, settings.fsy, settings.fsz
 	else:
-		screen = pygame.display.set_mode((800, 600))
-	return screen
+		settings.sx, settings.sy, settings.sz = settings.wsx, settings.wsy, settings.wsz
+	return get_screen()
 
 def main():
 	
 	pygame.init()
-	rscreen = toggle_full_screen()
-	vscreen = pygame.Surface((400, 300))
+	rscreen, vscreen = get_screen()
 	
-	fps = 30
 	last_fps = 30
 	# TODO: type counter
 	
@@ -105,7 +106,7 @@ def main():
 				elif event.key == pygame.K_F1:
 					events.append(MyEvent('key', 'debug', down, 0, 0))
 				elif event.key == pygame.K_F11 and down:
-					rscreen = toggle_full_screen()
+					rscreen, vscreen = toggle_full_screen()
 				elif event.key == pygame.K_LEFT:
 					events.append(MyEvent('key', 'left', down, 0, 0))
 				elif event.key == pygame.K_RIGHT:
@@ -142,8 +143,12 @@ def main():
 		scene.process_input(events, pressed_keys)
 		scene.update()
 		scene.render(vscreen)
-		
-		pygame.transform.scale(vscreen, rscreen.get_size(), rscreen)
+		if settings.sz == 1:
+			rscreen.blit(vscreen, (0,0))
+		elif settings.sz == 2:
+			pygame.transform.scale2x(vscreen, rscreen)
+		else:
+			pygame.transform.scale(vscreen, rscreen.get_size(), rscreen)
 		
 		length = time.time() - start
 		if length > 0:
@@ -153,7 +158,7 @@ def main():
 		end = time.time()
 		
 		diff = end - start
-		delay = 1.0 / fps - diff
+		delay = 1.0 / settings.fps - diff
 		if delay > 0:
 			time.sleep(delay)
 		else:

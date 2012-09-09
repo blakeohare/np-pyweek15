@@ -53,6 +53,9 @@ parcelsize = 40
 # Size of a panel surface
 panelw, panelh = 400, 300
 
+# tile border color with alpha (set to None to disable
+tbcolor = 128, 128, 128, 40
+
 
 
 

@@ -1,18 +1,7 @@
 import random, pygame, time, math
 from collections import defaultdict
-from src import camera
+from src import camera, settings, images
 
-noiseseed = 2117066982  # hash("one way trip")
-nmapsize = 64
-
-tf0 = 0.03
-tfactors = 1.000, 1.618, 2.618, 4.236, 6.854, 11.090, 17.944, 29.034
-sealevel = -0.3
-tscale = 30
-
-parcelsize = 40
-
-panelw, panelh = 400, 300
 
 # Python 2.5 shim
 try:
@@ -23,20 +12,20 @@ except NameError:
 
 # seed the RNG for reproducible noise map
 try:
-    random.seed(noiseseed, version = 1)
+    random.seed(settings.noiseseed, version = 1)
 except TypeError:
-    random.seed(noiseseed)
-assert random.random() == 0.9908284413950574, "Something wrong with the random number generation. Aborting!"
+    random.seed(settings.noiseseed)
+assert random.random() == settings.rngcheck, "Something wrong with the random number generation. Aborting!"
 # Generate the noise map to be used for all terrain
-noisemap = [[random.random() * 2 - 1 for x in range(nmapsize)]
-               for y in range(nmapsize)]
+noisemap = [[(random.random() * 2 - 1) * settings.tscale for x in range(settings.nmapsize)]
+               for y in range(settings.nmapsize)]
 noisemap = [row + row[0:1] for row in noisemap]
 noisemap += noisemap[0:1]
 
 # Reference implementation - slow
 def noisevalue(x, y):
-    x %= nmapsize
-    y %= nmapsize
+    x %= settings.nmapsize
+    y %= settings.nmapsize
     tx, ty = x - int(x), y - int(y)
     x, y = int(x), int(y)
     return ((noisemap[x][y] * (1-tx) + noisemap[x+1][y] * tx) * (1-ty) + 
@@ -44,15 +33,14 @@ def noisevalue(x, y):
 
 # Reference implementation - slow
 def height0(x, y):
-    h = -sealevel
-    for f in tfactors:
-        h += noisevalue(x*f*tf0, y*f*tf0) / f
-    h *= tscale
+    h = -settings.sealevel
+    for f in settings.tfactors:
+        h += noisevalue(x*f*settings.tf0, y*f*settings.tf0) / f
     if h > 0: h -= min(h/2, 20)
     return int(h)
 
 def hcolor(h, gx, gy):
-    a = 0.8 + 0.04 * gx
+    a = 0.8 + 0.08 * gx
     if h <= 0: r = (0,0,100)
     elif h < 4: r = (160,160,80)
     elif h < 16: r = (90,90,0)
@@ -64,7 +52,7 @@ def hcolor(h, gx, gy):
 # This is a set of cached values to speed up height calculations - don't worry about it.
 dpcache, dpmin, dpmax = {}, 0, 0
 def setdp(xx):
-    xs = [xx*f*tf0 % nmapsize for f in tfactors]
+    xs = [xx*f*settings.tf0 % settings.nmapsize for f in settings.tfactors]
     dpcache[xx] = [(int(x), x - int(x)) for x in xs]
 setdp(0)
 def dpextend(x0, x1):
@@ -76,6 +64,7 @@ def dpextend(x0, x1):
         dpmax += 1
         setdp(dpmax)
 
+pcs = settings.parcelsize
 class Parcel(object):
     def __init__(self, x0, y0):
         self.x0, self.y0 = x0, y0
@@ -83,18 +72,17 @@ class Parcel(object):
         self.compiter = self.compute()
 
     def compute(self):
-        dpextend(min(self.x0, self.y0) - 4, max(self.x0, self.y0) + parcelsize + 4)
+        dpextend(min(self.x0, self.y0) - 4, max(self.x0, self.y0) + pcs + 4)
         yield
         # Determine heights for corners
         self.h = {}
-        for y in range(self.y0 - 3, self.y0 + parcelsize + 4):
-            for x in range(self.x0 - 3 + y % 2, self.x0 + parcelsize + 5, 2):
+        for y in range(self.y0 - 3, self.y0 + pcs + 4):
+            for x in range(self.x0 - 3 + y % 2, self.x0 + pcs + 5, 2):
                 # TODO: easy integer map to actual h values
-                h = -sealevel
-                for f, (xx, tx), (yy, ty) in zip(tfactors, dpcache[x], dpcache[y]):
+                h = -settings.sealevel
+                for f, (xx, tx), (yy, ty) in zip(settings.tfactors, dpcache[x], dpcache[y]):
                     h += ((noisemap[xx][yy] * (1-tx) + noisemap[xx+1][yy] * tx) * (1-ty) + 
                         (noisemap[xx][yy+1] * (1-tx) + noisemap[xx+1][yy+1] * tx) * ty) / f
-                h *= tscale
                 if h > 0: h -= min(h/2, 20)
                 self.h[(x, y)] = max(int(h), 0)
             yield
@@ -102,8 +90,8 @@ class Parcel(object):
         self.hcmax = {}
         self.grad = {}
         # Determine heights for tiles
-        for y in range(self.y0 - 2, self.y0 + parcelsize + 3):
-            for x in range(self.x0 - 2 + y % 2, self.x0 + parcelsize + 4, 2):
+        for y in range(self.y0 - 2, self.y0 + pcs + 3):
+            for x in range(self.x0 - 2 + y % 2, self.x0 + pcs + 4, 2):
                 hs = self.h[(x-1,y)], self.h[(x,y-1)], self.h[(x+1,y)], self.h[(x,y+1)]
                 self.hcorners[(x,y)] = hs
                 self.hcmax[(x,y)] = max(hs)
@@ -141,23 +129,23 @@ class Parcel(object):
 class parceldict(defaultdict):
     def __missing__(self, key):
         x, y = key
-        ret = self[key] = Parcel(x*parcelsize, y*parcelsize)
+        ret = self[key] = Parcel(x*pcs, y*pcs)
         return ret
 parcels = parceldict()
 parcelq = []
 
 def height(x, y):
-    return parcels[(int(x//parcelsize), int(y//parcelsize))].getheight(x, y)
+    return parcels[(int(x//pcs), int(y//pcs))].getheight(x, y)
 def iheight(x, y):
-    return parcels[(int(x//parcelsize), int(y//parcelsize))].getiheight(int(x//1), int(y//1))
+    return parcels[(int(x//pcs), int(y//pcs))].getiheight(int(x//1), int(y//1))
 def igrad(x, y):
-    return parcels[(int(x//parcelsize), int(y//parcelsize))].getigrad(int(x//1), int(y//1))
+    return parcels[(int(x//pcs), int(y//pcs))].getigrad(int(x//1), int(y//1))
 def addparcels(x, y):
-    x0, y0 = int(x // parcelsize), int(y // parcelsize)
+    x0, y0 = int(x // pcs), int(y // pcs)
     for x in range(x0-3, x0+4):
         for y in range(y0-3, y0+4):
             if (x,y) not in parcels:
-                p = Parcel(x*parcelsize,y*parcelsize)
+                p = Parcel(x*pcs,y*pcs)
                 parcels[(x,y)] = p
                 parcelq.append(p)
 def thinkparcels(dt=0):
@@ -193,6 +181,7 @@ def tileinfo(x, y, looker=None):
     return h, gx, gy, ps
 
 def minimap(x0, y0, w, h):
+    # TODO: cache me
     s = pygame.Surface((w, h)).convert()
     for y in range(h):
         for x in range(w):
@@ -205,17 +194,22 @@ class Panel(object):
     def __init__(self, x0, y0):
         self.x0 = x0
         self.y0 = y0
+        self.w, self.h = settings.panelw, settings.panelh
         self.ready = False
         self.compiter = self.compute()
 
     def screenpos(self, x, y, z):
-        return int(x * camera.tilex - self.x0 * panelw), int(-self.y0 * panelh - y * camera.tiley - z * camera.tilez)
+        return int(x * settings.tilex - self.x0 * self.w), int(-self.y0 * self.h - y * settings.tiley - z * settings.tilez)
 
     def compute(self):
-        self.surf = pygame.Surface((panelw, panelh))
-        x0 = int(self.x0 * panelw / camera.tilex // 1) - 1
-        x1 = int((self.x0 + 1) * panelw / camera.tilex // 1) + 2
-        y0 = int(-(self.y0 + 1) * panelh / camera.tiley // 1)
+        self.surf = pygame.Surface((self.w, self.h)).convert()
+        self.lines = bool(settings.tbcolor)
+        if self.lines:
+            lsurf = pygame.Surface((self.w, self.h)).convert_alpha()
+            lsurf.fill((0,0,0,0))
+        x0 = int(self.x0 * self.w / settings.tilex // 1) - 1
+        x1 = int((self.x0 + 1) * self.w / settings.tilex // 1) + 2
+        y0 = int(-(self.y0 + 1) * self.h / settings.tiley // 1)
         onscreen, y = True, y0
         while onscreen:
             onscreen = False
@@ -223,11 +217,12 @@ class Panel(object):
                 if (x + y) % 2: continue
                 h, gx, gy, ps = tileinfo(x, y, self)
                 pygame.draw.polygon(self.surf, hcolor(h, gx, gy), ps)
-#                pygame.draw.lines(screen, (100,100,100), True, ps, 1)
+                if self.lines:
+                    pygame.draw.lines(lsurf, settings.tbcolor, False, ps[0:3], 1)
                 if max(py for px, py in ps) > 0:
                     onscreen = True
+                yield
             y += 1
-            yield
         onscreen, y = True, y0 - 1
         while onscreen:
             onscreen = False
@@ -235,11 +230,14 @@ class Panel(object):
                 if (x + y) % 2: continue
                 h, gx, gy, ps = tileinfo(x, y, self)
                 pygame.draw.polygon(self.surf, hcolor(h, gx, gy), ps)
-#                pygame.draw.lines(screen, (100,100,100), True, ps, 1)
-                if min(py for px, py in ps) < panelh:
+                if self.lines:
+                    pygame.draw.lines(lsurf, settings.tbcolor, False, ps[0:3], 1)
+                if min(py for px, py in ps) < self.h:
                     onscreen = True
+                yield
             y -= 1
-            yield
+        if self.lines:
+            self.surf.blit(lsurf, (0,0))
         self.ready = True
 
     def getsurf(self):
@@ -251,13 +249,14 @@ class Panel(object):
 panels = {}
 panelq = []
 def drawpanels(surf, x0, y0, w, h):
-    for x in range(int(x0 // panelw), int((x0 + w) // panelw) + 1):
-        for y in range(int(y0 // panelh), int((y0 + h) // panelh) + 1):
+    for x in range(int(x0 // settings.panelw), int((x0 + w) // settings.panelw) + 1):
+        for y in range(int(y0 // settings.panelh), int((y0 + h) // settings.panelh) + 1):
             if (x,y) not in panels:
                 panels[(x,y)] = Panel(x, y)
-            surf.blit(panels[(x, y)].getsurf(), (x * panelw - x0, y * panelh - y0))
+            s = panels[(x, y)].getsurf()
+            surf.blit(s, (x * settings.panelw - x0, y * settings.panelh - y0))
 def addpanels(x, y):
-    x0, y0 = int(x // panelw), int(y // panelh)
+    x0, y0 = int(x // settings.panelw), int(y // settings.panelh)
     for x in range(x0-2, x0+3):
         for y in range(y0-2, y0+3):
             if (x,y) not in panels:
@@ -282,12 +281,14 @@ def thinkpanels(dt=0):
             return n
 
 
+
+
 # test scene
 class WorldViewScene(object):
     def __init__(self):
         self.next = self
         self.guyx, self.guyy = 1234, 3456
-        camera.x0, camera.y0 = camera.screenpos(self.guyx, self.guyy, 0)
+        camera.lookat(self.guyx, self.guyy)
 
     def process_input(self, events, pressed):
         self.guyx += 0.25 * (pressed['right'] - pressed['left'])
@@ -295,26 +296,22 @@ class WorldViewScene(object):
 
     def update(self):
         self.guyz = height(self.guyx, self.guyy)
-        dx, dy = camera.screenpos(self.guyx, self.guyy, self.guyz)
-        dx -= 200
-        dy -= 150
-        camera.x0 += dx * 0.05
-        camera.y0 += dy * 0.05
+        camera.track(self.guyx, self.guyy, self.guyz)
         addpanels(camera.x0, camera.y0)
-        addparcels(camera.x0 / camera.tilex, -camera.y0 / camera.tiley)
+        addparcels(camera.x0 / settings.tilex, -camera.y0 / settings.tiley)
 #        print len(panels), len(panelq), thinkpanels(0.005), len(parcels), len(parcelq), thinkparcels(0.005)
         thinkparcels(0.005)
         thinkpanels(0.005)
 
     def render(self, screen):
         screen.fill((0,0,0))
-        drawpanels(screen, camera.x0-200, camera.y0-150, 400, 300)
+        drawpanels(screen, camera.x0-settings.sx//2, camera.y0-settings.sy // 2, settings.sx, settings.sy)
         px, py = camera.screenpos(self.guyx, self.guyy, self.guyz)
         pygame.draw.ellipse(screen, (0, 0, 0), (px-4, py-2, 8, 4))
         h = int(abs(10 * math.sin(7 * time.time())))
         pygame.draw.circle(screen, (255, 0, 0), (px, py-4-h), 4)
 #        pygame.draw.rect(screen, (255, 255, 255), (10, 10, 40, 40))
-#        screen.blit(minimap(int(camera.x0 // camera.tilex), -int(camera.y0 // camera.tiley), 36, 36), (12, 12))
+#        screen.blit(minimap(int(camera.x0 // settings.tilex), -int(camera.y0 // settings.tiley), 36, 36), (12, 12))
 
 
 if __name__ == "__main__":
