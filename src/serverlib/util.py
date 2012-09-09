@@ -56,3 +56,10 @@ def serialize_dictionary(thing):
 
 def serialize_none(thing):
 	return 'n!'
+
+def coord_from_tuple(tup):
+	return '%i^%i'%tup
+
+def tuple_from_coord(coord):
+	xval,yval=coord.split('^')
+	return int(xval), int(yval)
