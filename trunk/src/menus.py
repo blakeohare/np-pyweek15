@@ -1,11 +1,13 @@
 from images import get_image
+import worldmap
 
 class TitleScene:
 	def __init__(self):
 		self.next = self
 	
 	def process_input(self, events, pressed_keys):
-		pass
+		if pressed_keys['build']:
+			self.next = worldmap.WorldViewScene()
 	
 	def update(self):
 		pass
