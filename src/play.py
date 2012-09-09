@@ -3,7 +3,8 @@ import time
 import os
 from collections import defaultdict
 
-import menus, worldmap
+import src.menus as menus
+import src.worldmap as worldmap
 
 # types: key, type, mouseleft, mouseright, mousemove
 # action: left, right, up down, build, enter, demolish
