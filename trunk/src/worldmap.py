@@ -14,6 +14,12 @@ parcelsize = 40
 
 panelw, panelh = 400, 300
 
+# Python 2.5 shim
+try:
+    next
+except NameError:
+    def next(i):
+        i.next()
 
 # seed the RNG for reproducible noise map
 try:
@@ -163,7 +169,7 @@ def thinkparcels(dt=0):
         n += 1
         if parcelq[0].compiter:
             try:
-                parcelq[0].compiter.next()
+                next(parcelq[0].compiter)
             except StopIteration:
                 parcelq.pop(0)
         else:
@@ -267,7 +273,7 @@ def thinkpanels(dt=0):
         n += 1
         if panelq[0].compiter:
             try:
-                panelq[0].compiter.next()
+                next(panelq[0].compiter)
             except StopIteration:
                 panelq.pop(0)
         else:
