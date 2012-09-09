@@ -20,6 +20,36 @@ class MyEvent:
 
 full_screen_mode = True
 
+letters = {
+	pygame.K_LEFTBRACKET: '[{',
+	pygame.K_RIGHTBRACKET: ']}',
+	pygame.K_SEMICOLON: ';:',
+	pygame.K_QUOTE: "'"+'"',
+	pygame.K_BACKSLASH: "\\|",
+	pygame.K_0: '0)',
+	pygame.K_1: '1!',
+	pygame.K_2: '2@',
+	pygame.K_3: '3#',
+	pygame.K_4: '4$',
+	pygame.K_5: '5%',
+	pygame.K_6: '6^',
+	pygame.K_7: '7&',
+	pygame.K_8: '8*',
+	pygame.K_9: '9(',
+	pygame.K_MINUS: '-_',
+	pygame.K_EQUALS: '=+',
+	pygame.K_BACKQUOTE: '`~',
+	pygame.K_COMMA: ",<",
+	pygame.K_PERIOD: ".>",
+	pygame.K_QUESTION: "/?",
+	pygame.K_SPACE: '  '
+}
+meh = 'abcdefghijklmnopqrstuvwxyz'
+for letter in range(26):
+	letters[pygame.K_a + letter] = meh[letter] + meh[letter].upper()
+
+_type_delay = {}
+
 def toggle_full_screen():
 	global full_screen_mode
 	full_screen_mode = not full_screen_mode
@@ -78,10 +108,23 @@ def main():
 				if len(events) > 0 and events[-1].type == 'key':
 					pressed_keys[events[-1].action] = events[-1].down
 				
-				# TODO: typing events
+				typed = letters.get(event.key, None)
+				if typed != None:
+					if down:
+						letter = typed[shift]
+						events.append(MyEvent('type', letter, True, 0, 0))
+						_type_delay[letter] = 0
+					else:
+						if _type_delay.get(letter) != None:
+							_type_delay.pop(letter)
+				
 				# TODO: mouse events
-				# TODO: full screen event
 		
+		for k in _type_delay.keys():
+			_type_delay[k] += 1
+			d = _type_delay[k]
+			if d > 20 and d % 3 == 0:
+				events.append(MyEvent('type', k, True, 0, 0))
 		
 		scene.process_input(events, pressed_keys)
 		scene.update()
