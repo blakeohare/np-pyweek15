@@ -8,7 +8,7 @@ y0 = 0
 
 # Give screen coordinates given world coordinates
 def screenpos(x, y, z = 0):
-    return int(x * settings.tilex - x0//1 + settings.sx/2), int(-y * settings.tiley - y0//1 - z * settings.tilez + settings.sy/2)
+    return int((x * settings.tilex)//1 - x0//1 + settings.sx//2), int(-(y * settings.tiley)//1 - y0//1 - (z * settings.tilez)//1 + settings.sy//2)
 
 # Move the camera in the direction of the given world coordinates
 def track(x, y, z = 0, f = 0.05):

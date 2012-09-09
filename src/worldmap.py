@@ -354,7 +354,7 @@ class WorldViewScene(object):
 
     def render(self, screen):
         screen.fill((0,0,0))
-        drawpanels(screen, camera.x0-settings.sx//2, camera.y0-settings.sy // 2, settings.sx, settings.sy)
+        drawpanels(screen, camera.x0//1-settings.sx//2, camera.y0//1-settings.sy // 2, settings.sx, settings.sy)
         # background buildings
         for btype, x, y, z in self.buildings:
             if y > self.guyy:
