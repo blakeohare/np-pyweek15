@@ -1,50 +1,43 @@
 import sql
 import util
+from serverlib import authenticate
 
 # ideally add a separate module for each command
 
 def do_things(action, args):
 	
-	output = { 'success': False, 'message': "Unrecognized command" }
-	
-	if action == 'register':
-		user = args.get('user', '')
-		password = args.get('password', '')
-		if sql.query('select user_id from user where name=%s',(user,) ):
-			output={'success':False}
-		else:
-			user_id=add_user(user, password)
-			if user_id:
-				output = {'success':True}
+	if action == 'echo':
+		return { 'success': True, 'data': args.get('data', None) }
+	elif action == 'authenticate':
+		return authenticate.heavy_authenticate(args.get('user', ''), args.get('password', ''), True)
+	else:
+		user_id = util.parseInt(args.get('user_id', 0))
+		if authenticate.light_authenticate(user_id, args.get('password', '')):
+			if action == 'poll':
+				return { 'success':True, 'sectors': build_sector_response(args)}
+			elif action == 'build':
+				token=args.get('client_token')
+				success=False;
+				if token:
+					duplicate=sql.query('select author_token from event where author_token=%s',token)
+					if not duplicate:
+						#add it to the table, I guess?
+						sector='0^0'
+						type=args.get('type')
+						if sector is None:
+							sector = 'NULL'
+						data='No data yet'
+						sql.insert('insert into event (author_token, sector_xy,type,data) values (%s,%s,%s,%s)',(token, sector,type,data))
+						success=True
+					return {'success':success,'sectors':build_sector_response(args)}
+					
+				else:
+					output = {'success':False}
 			else:
-				output = {'success':False}
-		
-	elif action == 'poll':
-		output={'success':True,'sectors':build_sector_response(args)}
-	elif action == 'echo':
-		output = { 'success': True, 'data': args.get('data', None) }
-	elif action == 'build':
-		if authenticate(args):
-			token=args.get('client_token')
-			success=False;
-			if token:
-				duplicate=sql.query('select author_token from event where author_token=%s',token)
-				if not duplicate:
-					#add it to the table, I guess?
-					sector='0^0'
-					type=args.get('type')
-					if sector is None:
-						sector = 'NULL'
-					data='No data yet'
-					sql.insert('insert into event (author_token, sector_xy,type,data) values (%s,%s,%s,%s)',(token, sector,type,data))
-					success=True
-			output={'success':success,'sectors':build_sector_response(args)}
-			
+				return { 'success': False, 'message': "Unrecognized command" }
 		else:
-			output = {'success':False}
-	# et cetera
+			return { 'success': False, 'message': "Invalid username/password." }
 	
-	return output
 
 
 def build_poll_update(args, output):
@@ -84,15 +77,6 @@ def add_to_dictlist(dictlist,key,value):
 		items.append(value)
 	else:
 		dictlist[key]=[value]
-			
-#checks args instead of value because we'll use for lots of things
-def authenticate(args):
-	user=args.get('user')
-	password=args.get('password')
-	if user and password:
-		if sql.query('select * from user where name=%s and value=%s', (user,args)):
-			return True
-	return False
 
 def add_user(user, password):
 	sector='0^0'

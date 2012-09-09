@@ -18,6 +18,7 @@ try:
 	
 	# Connect to SQL database. 
 	stuff = protected.get_credentials()
+	sql.connect(stuff['host'], stuff['user'], stuff['password'], stuff['database'])
 	
 	action = args.get('action', '')
 	output = executor.do_things(action, args)

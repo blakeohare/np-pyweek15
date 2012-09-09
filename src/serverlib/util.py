@@ -63,3 +63,9 @@ def coord_from_tuple(tup):
 def tuple_from_coord(coord):
 	xval,yval=coord.split('^')
 	return int(xval), int(yval)
+
+def parseInt(value):
+	try:
+		return int(value)
+	except:
+		return 0
