@@ -2,7 +2,7 @@ import random, pygame
 from collections import defaultdict
 from src import camera
 
-noiseseed = "one way trip"
+noiseseed = 2117066982  # hash("one way trip")
 nmapsize = 64
 
 tf0 = 0.03
