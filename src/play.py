@@ -98,7 +98,8 @@ class PlayScene(object):
 		worldmap.killtime(0.01)
 	
 	def render(self, screen):
-		worldmap.drawscene(screen, self.buildings + self.sprites)
+		cursortile = worldmap.nearesttile(self.you.x, self.you.y)
+		worldmap.drawscene(screen, self.buildings + self.sprites, cursortile)
 		if settings.showminimap:
 			worldmap.drawminimap(screen)
 
