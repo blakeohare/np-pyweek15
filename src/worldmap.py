@@ -1,4 +1,4 @@
-import random, pygame, time
+import random, pygame, time, math
 from collections import defaultdict
 from src import camera
 
@@ -87,8 +87,8 @@ class Parcel(object):
         yield
         # Determine heights for corners
         self.h = {}
-        for y in range(self.y0 - 2, self.y0 + parcelsize + 4):
-            for x in range(self.x0 - 2 + (1 - y % 2), self.x0 + parcelsize + 5, 2):
+        for y in range(self.y0 - 3, self.y0 + parcelsize + 4):
+            for x in range(self.x0 - 3 + y % 2, self.x0 + parcelsize + 5, 2):
                 # TODO: easy integer map to actual h values
                 h = -sealevel
                 for f, (xx, tx), (yy, ty) in zip(tfactors, dpcache[x], dpcache[y]):
@@ -102,8 +102,8 @@ class Parcel(object):
         self.hcmax = {}
         self.grad = {}
         # Determine heights for tiles
-        for y in range(self.y0 - 1, self.y0 + parcelsize + 3):
-            for x in range(self.x0 - 1 + (1 - y % 2), self.x0 + parcelsize + 4, 2):
+        for y in range(self.y0 - 2, self.y0 + parcelsize + 3):
+            for x in range(self.x0 - 2 + y % 2, self.x0 + parcelsize + 4, 2):
                 hs = self.h[(x-1,y)], self.h[(x,y-1)], self.h[(x+1,y)], self.h[(x,y+1)]
                 self.hcorners[(x,y)] = hs
                 self.hcmax[(x,y)] = max(hs)
@@ -122,7 +122,7 @@ class Parcel(object):
         ix, iy = iX - iY, iX + iY
         tX, tY = X - iX, Y - iY
         return ((self.h[(ix,iy)] * (1-tX) + self.h[(ix+1,iy+1)] * tX) * (1-tY) + 
-                (self.h[(ix-1,iy-1)] * (1-tX) + self.h[(ix,iy+2)] * tX) * tY)        
+                (self.h[(ix-1,iy-1)] * (1-tX) + self.h[(ix,iy+2)] * tX) * tY)
 
     # x and y must be integers
     def getiheight(self, x, y):
@@ -286,12 +286,20 @@ def thinkpanels(dt=0):
 class WorldViewScene(object):
     def __init__(self):
         self.next = self
+        self.guyx, self.guyy = 1234, 3456
+        camera.x0, camera.y0 = camera.screenpos(self.guyx, self.guyy, 0)
 
     def process_input(self, events, pressed):
-        camera.x0 += 21. * (pressed['right'] - pressed['left'])
-        camera.y0 -= 10.5 * (pressed['up'] - pressed['down'])
+        self.guyx += 0.25 * (pressed['right'] - pressed['left'])
+        self.guyy += 0.25 * (pressed['up'] - pressed['down'])
 
     def update(self):
+        self.guyz = height(self.guyx, self.guyy)
+        dx, dy = camera.screenpos(self.guyx, self.guyy, self.guyz)
+        dx -= 200
+        dy -= 150
+        camera.x0 += dx * 0.05
+        camera.y0 += dy * 0.05
         addpanels(camera.x0, camera.y0)
         addparcels(camera.x0 / camera.tilex, -camera.y0 / camera.tiley)
 #        print len(panels), len(panelq), thinkpanels(0.005), len(parcels), len(parcelq), thinkparcels(0.005)
@@ -301,6 +309,10 @@ class WorldViewScene(object):
     def render(self, screen):
         screen.fill((0,0,0))
         drawpanels(screen, camera.x0-200, camera.y0-150, 400, 300)
+        px, py = camera.screenpos(self.guyx, self.guyy, self.guyz)
+        pygame.draw.ellipse(screen, (0, 0, 0), (px-4, py-2, 8, 4))
+        h = int(abs(10 * math.sin(7 * time.time())))
+        pygame.draw.circle(screen, (255, 0, 0), (px, py-4-h), 4)
 #        pygame.draw.rect(screen, (255, 255, 255), (10, 10, 40, 40))
 #        screen.blit(minimap(int(camera.x0 // camera.tilex), -int(camera.y0 // camera.tiley), 36, 36), (12, 12))
 
