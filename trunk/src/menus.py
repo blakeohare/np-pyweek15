@@ -6,7 +6,7 @@ class TitleScene:
 		self.next = self
 	
 	def process_input(self, events, pressed_keys):
-		if pressed_keys['build']:
+		if pressed_keys['debug']:
 			self.next = worldmap.WorldViewScene()
 	
 	def update(self):

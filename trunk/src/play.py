@@ -8,7 +8,7 @@ from src import worldmap
 from src.font import get_text
 # types: key, type, mouseleft, mouseright, mousemove
 # action: left, right, up down, build, enter, demolish
-event_actions = 'left, right, up down, build, enter, demolish'.split(', ')
+event_actions = 'left, right, up down, build, enter, demolish, debug'.split(', ')
 class MyEvent:
 	def __init__(self, type, action, down, x, y):
 		self.type = type
@@ -60,6 +60,8 @@ def main():
 					return
 				elif event.key == pygame.K_F4 and alt:
 					return
+				elif event.key == pygame.K_F1:
+					events.append(MyEvent('key', 'debug', down, 0, 0))
 				elif event.key == pygame.K_F11 and down:
 					rscreen = toggle_full_screen()
 				elif event.key == pygame.K_LEFT:
@@ -90,7 +92,6 @@ def main():
 		length = time.time() - start
 		if length > 0:
 			rscreen.blit(get_text("FPS: " + str(1.0 / length), (255, 0, 0), 18), (4, 4))
-		
 		
 		pygame.display.flip()
 		end = time.time()
