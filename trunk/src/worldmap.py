@@ -125,6 +125,18 @@ class Parcel(object):
                 pass
         return self.grad[(x, y)]
 
+    def getihcmax(self, x, y):
+        if self.compiter:
+            for _ in self.compiter:
+                pass
+        return self.hcmax[(x, y)]
+
+    def getihcorners(self, x, y):
+        if self.compiter:
+            for _ in self.compiter:
+                pass
+        return self.hcorners[(x, y)]
+
 
 class parceldict(defaultdict):
     def __missing__(self, key):
@@ -138,6 +150,12 @@ def height(x, y):
     return parcels[(int(x//pcs), int(y//pcs))].getheight(x, y)
 def iheight(x, y):
     return parcels[(int(x//pcs), int(y//pcs))].getiheight(int(x//1), int(y//1))
+# maximum height of any of this tile's 4 corners
+def ihcmax(x, y):
+    return parcels[(int(x//pcs), int(y//pcs))].getihcmax(int(x//1), int(y//1))
+# heights of the four corners
+def ihcorners(x, y):
+    return parcels[(int(x//pcs), int(y//pcs))].getihcorners(int(x//1), int(y//1))
 def igrad(x, y):
     return parcels[(int(x//pcs), int(y//pcs))].getigrad(int(x//1), int(y//1))
 def addparcels(x, y):
@@ -281,6 +299,23 @@ def thinkpanels(dt=0):
             return n
 
 
+# test building drawing - will definitely change
+def drawbuildingat(screen, btype, x, y, z):
+    px, py = camera.screenpos(x, y, z)
+    if not camera.isvisible(px, py, 100):
+        return
+    drawplatformat(screen, x, y)
+    img = images.get_image("buildings/%s.png" % btype)
+    ix, iy = img.get_size()
+    screen.blit(img, (px-ix//2, py-iy+ix//4))
+    screen.set_at((px, py), (255,128,0))
+
+def drawplatformat(screen, x, y):
+    z0, z1, z2, z3 = ihcorners(x, y)
+    zm = max((z0, z1, z2, z3))
+    ps = [camera.screenpos(a,b,c) for a,b,c in
+            ((x,y+1,zm), (x-1,y,zm), (x-1,y,z0), (x,y-1,z1), (x+1,y,z2), (x+1,y,zm))]
+    pygame.draw.polygon(screen, (0,100,100), ps)
 
 
 # test scene
@@ -289,6 +324,16 @@ class WorldViewScene(object):
         self.next = self
         self.guyx, self.guyy = 1234, 3456
         camera.lookat(self.guyx, self.guyy)
+        
+        self.buildings = []
+        for j in range(100):
+            y = int(self.guyy // 1) + random.randint(-50, 50)
+            x = int(self.guyx // 1) + random.randint(-50, 50)
+            if (x + y) % 2: continue
+            z = ihcmax(x, y)
+            if z <= 0: continue
+            btype = random.choice(["hq", "greenhouse"])
+            self.buildings.append((btype, x, y, z))
 
     def process_input(self, events, pressed):
         self.guyx += 0.25 * (pressed['right'] - pressed['left'])
@@ -306,10 +351,21 @@ class WorldViewScene(object):
     def render(self, screen):
         screen.fill((0,0,0))
         drawpanels(screen, camera.x0-settings.sx//2, camera.y0-settings.sy // 2, settings.sx, settings.sy)
+        # background buildings
+        for btype, x, y, z in self.buildings:
+            if y > self.guyy:
+                drawbuildingat(screen, btype, x, y, z)
+        # bouncy ball
         px, py = camera.screenpos(self.guyx, self.guyy, self.guyz)
         pygame.draw.ellipse(screen, (0, 0, 0), (px-4, py-2, 8, 4))
         h = int(abs(10 * math.sin(7 * time.time())))
         pygame.draw.circle(screen, (255, 0, 0), (px, py-4-h), 4)
+        # foreground buildings
+        for btype, x, y, z in self.buildings:
+            if y <= self.guyy:
+                drawbuildingat(screen, btype, x, y, z)
+
+
 #        pygame.draw.rect(screen, (255, 255, 255), (10, 10, 40, 40))
 #        screen.blit(minimap(int(camera.x0 // settings.tilex), -int(camera.y0 // settings.tiley), 36, 36), (12, 12))
 
