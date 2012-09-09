@@ -1,7 +1,7 @@
 # Singleton module that controls camera view
 
 
-tilex, tiley, tilez = 32, 16, 4   # pixel sizes for one tile
+tilex, tiley, tilez = 16, 8, 2   # pixel sizes for one tile
 
 
 x0 = 0

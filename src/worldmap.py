@@ -1,4 +1,4 @@
-import random, pygame
+import random, pygame, time
 from collections import defaultdict
 from src import camera
 
@@ -11,6 +11,8 @@ sealevel = -0.3
 tscale = 30
 
 parcelsize = 40
+
+panelw, panelh = 400, 300
 
 
 # seed the RNG for reproducible noise map
@@ -72,6 +74,7 @@ class Parcel(object):
     def __init__(self, x0, y0):
         self.x0, self.y0 = x0, y0
         self.ready = False
+        self.compiter = self.compute()
 
     def compute(self):
         dpextend(min(self.x0, self.y0) - 4, max(self.x0, self.y0) + parcelsize + 4)
@@ -104,8 +107,8 @@ class Parcel(object):
         self.ready = True
 
     def getheight(self, x, y):
-        if not self.ready:
-            for _ in self.compute():
+        if self.compiter:
+            for _ in self.compiter:
                 pass
         if (x,y) in self.h: return self.h[(x, y)]
         X, Y = (x + y) / 2, (-x + y) / 2
@@ -117,14 +120,14 @@ class Parcel(object):
 
     # x and y must be integers
     def getiheight(self, x, y):
-        if not self.ready:
-            for _ in self.compute():
+        if self.compiter:
+            for _ in self.compiter:
                 pass
         return self.h[(x, y)]
 
     def getigrad(self, x, y):
-        if not self.ready:
-            for _ in self.compute():
+        if self.compiter:
+            for _ in self.compiter:
                 pass
         return self.grad[(x, y)]
 
@@ -135,23 +138,52 @@ class parceldict(defaultdict):
         ret = self[key] = Parcel(x*parcelsize, y*parcelsize)
         return ret
 parcels = parceldict()
+parcelq = []
+
 def height(x, y):
     return parcels[(int(x//parcelsize), int(y//parcelsize))].getheight(x, y)
 def iheight(x, y):
     return parcels[(int(x//parcelsize), int(y//parcelsize))].getiheight(int(x//1), int(y//1))
 def igrad(x, y):
     return parcels[(int(x//parcelsize), int(y//parcelsize))].getigrad(int(x//1), int(y//1))
+def addparcels(x, y):
+    x0, y0 = int(x // parcelsize), int(y // parcelsize)
+    for x in range(x0-3, x0+4):
+        for y in range(y0-3, y0+4):
+            if (x,y) not in parcels:
+                p = Parcel(x*parcelsize,y*parcelsize)
+                parcels[(x,y)] = p
+                parcelq.append(p)
+def thinkparcels(dt=0):
+    if not parcelq:
+        return 0
+    tf = time.time() + dt if dt else 0
+    n = 0
+    while True:
+        n += 1
+        if parcelq[0].compiter:
+            try:
+                parcelq[0].compiter.next()
+            except StopIteration:
+                parcelq.pop(0)
+        else:
+            parcelq.pop(0)
+        if time.time() > tf or not parcelq:
+            return n
 
 
-def tileinfo(x, y):
+
+
+def tileinfo(x, y, looker=None):
+    looker = looker or camera
     x, y = int(x//1), int(y//1)
     h = iheight(x, y)
     gx, gy = igrad(x, y)
     ps = []
-    ps.append(camera.screenpos(x-1, y, iheight(x-1, y)))
-    ps.append(camera.screenpos(x, y-1, iheight(x, y-1)))
-    ps.append(camera.screenpos(x+1, y, iheight(x+1, y)))
-    ps.append(camera.screenpos(x, y+1, iheight(x, y+1)))
+    ps.append(looker.screenpos(x-1, y, iheight(x-1, y)))
+    ps.append(looker.screenpos(x, y-1, iheight(x, y-1)))
+    ps.append(looker.screenpos(x+1, y, iheight(x+1, y)))
+    ps.append(looker.screenpos(x, y+1, iheight(x, y+1)))
     return h, gx, gy, ps
 
 def minimap(x0, y0, w, h):
@@ -161,47 +193,108 @@ def minimap(x0, y0, w, h):
             s.set_at((x, y), hcolor(iheight(x0-w//2+x, y0+h//2-y), 0, 0))
     return s
 
+
+# A cached version of the landscape, for fast blitting
+class Panel(object):
+    def __init__(self, x0, y0):
+        self.x0 = x0
+        self.y0 = y0
+        self.ready = False
+        self.compiter = self.compute()
+
+    def screenpos(self, x, y, z):
+        return int(x * camera.tilex - self.x0 * panelw), int(-self.y0 * panelh - y * camera.tiley - z * camera.tilez)
+
+    def compute(self):
+        self.surf = pygame.Surface((panelw, panelh))
+        x0 = int(self.x0 * panelw / camera.tilex // 1) - 1
+        x1 = int((self.x0 + 1) * panelw / camera.tilex // 1) + 2
+        y0 = int(-(self.y0 + 1) * panelh / camera.tiley // 1)
+        onscreen, y = True, y0
+        while onscreen:
+            onscreen = False
+            for x in range(x0, x1):
+                if (x + y) % 2: continue
+                h, gx, gy, ps = tileinfo(x, y, self)
+                pygame.draw.polygon(self.surf, hcolor(h, gx, gy), ps)
+#                pygame.draw.lines(screen, (100,100,100), True, ps, 1)
+                if max(py for px, py in ps) > 0:
+                    onscreen = True
+            y += 1
+            yield
+        onscreen, y = True, y0 - 1
+        while onscreen:
+            onscreen = False
+            for x in range(x0, x1):
+                if (x + y) % 2: continue
+                h, gx, gy, ps = tileinfo(x, y, self)
+                pygame.draw.polygon(self.surf, hcolor(h, gx, gy), ps)
+#                pygame.draw.lines(screen, (100,100,100), True, ps, 1)
+                if min(py for px, py in ps) < panelh:
+                    onscreen = True
+            y -= 1
+            yield
+        self.ready = True
+
+    def getsurf(self):
+        if self.compiter:
+            for _ in self.compiter:
+                pass
+        return self.surf
+
+panels = {}
+panelq = []
+def drawpanels(surf, x0, y0, w, h):
+    for x in range(int(x0 // panelw), int((x0 + w) // panelw) + 1):
+        for y in range(int(y0 // panelh), int((y0 + h) // panelh) + 1):
+            if (x,y) not in panels:
+                panels[(x,y)] = Panel(x, y)
+            surf.blit(panels[(x, y)].getsurf(), (x * panelw - x0, y * panelh - y0))
+def addpanels(x, y):
+    x0, y0 = int(x // panelw), int(y // panelh)
+    for x in range(x0-2, x0+3):
+        for y in range(y0-2, y0+3):
+            if (x,y) not in panels:
+                p = Panel(x,y)
+                panels[(x,y)] = p
+                panelq.append(p)
+def thinkpanels(dt=0):
+    if not panelq:
+        return 0
+    tf = time.time() + dt if dt else 0
+    n = 0
+    while True:
+        n += 1
+        if panelq[0].compiter:
+            try:
+                panelq[0].compiter.next()
+            except StopIteration:
+                panelq.pop(0)
+        else:
+            panelq.pop(0)
+        if time.time() > tf or not panelq:
+            return n
+
+
 # test scene
 class WorldViewScene(object):
     def __init__(self):
         self.next = self
 
     def process_input(self, events, pressed):
-        camera.x0 += 1.0 * (pressed['right'] - pressed['left'])
-        camera.y0 += 1.0 * (pressed['up'] - pressed['down'])
+        camera.x0 += 21. * (pressed['right'] - pressed['left'])
+        camera.y0 -= 10.5 * (pressed['up'] - pressed['down'])
 
     def update(self):
-        pass
+        addpanels(camera.x0, camera.y0)
+        addparcels(camera.x0 / camera.tilex, -camera.y0 / camera.tiley)
+#        print len(panels), len(panelq), thinkpanels(0.005), len(parcels), len(parcelq), thinkparcels(0.005)
 
     def render(self, screen):
         screen.fill((0,0,0))
-        x0, x1 = camera.xbounds()
-        x0, x1 = int(x0 // 1) - 1, int(x1 // 1) + 2
-        y0 = int(camera.y0)
-        onscreen, y = True, y0
-        while onscreen:
-            onscreen = False
-            for x in range(x0, x1):
-                if (x + y) % 2: continue
-                h, gx, gy, ps = tileinfo(x, y)
-                pygame.draw.polygon(screen, hcolor(h, gx, gy), ps)
-#                pygame.draw.lines(screen, (100,100,100), True, ps, 1)
-                if max(py for px, py in ps) > 0:
-                    onscreen = True
-            y += 1
-        onscreen, y = True, y0 - 1
-        while onscreen:
-            onscreen = False
-            for x in range(x0, x1):
-                if (x + y) % 2: continue
-                h, gx, gy, ps = tileinfo(x, y)
-                pygame.draw.polygon(screen, hcolor(h, gx, gy), ps)
-#                pygame.draw.lines(screen, (100,100,100), True, ps, 1)
-                if min(py for px, py in ps) < 600:
-                    onscreen = True
-            y -= 1
-        pygame.draw.rect(screen, (255, 255, 255), (10, 10, 40, 40))
-        screen.blit(minimap(int(camera.x0), int(camera.y0), 36, 36), (12, 12))
+        drawpanels(screen, camera.x0-200, camera.y0-150, 400, 300)
+#        pygame.draw.rect(screen, (255, 255, 255), (10, 10, 40, 40))
+#        screen.blit(minimap(int(camera.x0 // camera.tilex), -int(camera.y0 // camera.tiley), 36, 36), (12, 12))
 
 
 if __name__ == "__main__":
