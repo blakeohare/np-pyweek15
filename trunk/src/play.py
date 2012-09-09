@@ -3,9 +3,9 @@ import time
 import os
 from collections import defaultdict
 
-import src.menus as menus
-import src.worldmap as worldmap
-
+from src import menus
+from src import worldmap
+from src.font import get_text
 # types: key, type, mouseleft, mouseright, mousemove
 # action: left, right, up down, build, enter, demolish
 event_actions = 'left, right, up down, build, enter, demolish'.split(', ')
@@ -36,7 +36,7 @@ def main():
 	vscreen = pygame.Surface((400, 300))
 	
 	fps = 30
-	
+	last_fps = 30
 	# TODO: type counter
 	
 	scene = menus.TitleScene()
@@ -87,6 +87,11 @@ def main():
 		
 		pygame.transform.scale(vscreen, rscreen.get_size(), rscreen)
 		
+		length = time.time() - start
+		if length > 0:
+			rscreen.blit(get_text("FPS: " + str(1.0 / length), (255, 0, 0), 18), (4, 4))
+		
+		
 		pygame.display.flip()
 		end = time.time()
 		
@@ -94,5 +99,7 @@ def main():
 		delay = 1.0 / fps - diff
 		if delay > 0:
 			time.sleep(delay)
-		
+		else:
+			last_fps = 1.0 / diff
+			
 		scene = scene.next
