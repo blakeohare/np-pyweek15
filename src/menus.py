@@ -195,7 +195,6 @@ class TitleScene(UiScene):
 		if self.auth_request != None and self.auth_request.has_response():
 			print "Got the following response:", self.auth_request.response, self.auth_request.get_response()
 			self.auth_request = None
-		worldmap.killtime(0.05)
 	
 	def login_pressed(self):
 		raw_users = util.read_file('users.txt')
@@ -219,6 +218,7 @@ class TitleScene(UiScene):
 	
 	def process_input(self, events, pressed_keys):
 		if pressed_keys['debug']:
-			self.next = worldmap.WorldViewScene()
+			from src import play
+			self.next = play.PlayScene()
 		UiScene.process_input(self, events, pressed_keys)
 	

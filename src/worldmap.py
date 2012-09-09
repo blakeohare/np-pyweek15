@@ -76,7 +76,7 @@ class Parcel(object):
         yield
         # Determine heights for corners
         self.h = {}
-        for y in range(self.y0 - 3, self.y0 + pcs + 4):
+        for y in range(self.y0 - 3, self.y0 + pcs + 5):
             for x in range(self.x0 - 3 + y % 2, self.x0 + pcs + 5, 2):
                 # TODO: easy integer map to actual h values
                 h = -settings.sealevel
@@ -90,7 +90,7 @@ class Parcel(object):
         self.hcmax = {}
         self.grad = {}
         # Determine heights for tiles
-        for y in range(self.y0 - 2, self.y0 + pcs + 3):
+        for y in range(self.y0 - 2, self.y0 + pcs + 4):
             for x in range(self.x0 - 2 + y % 2, self.x0 + pcs + 4, 2):
                 hs = self.h[(x-1,y)], self.h[(x,y-1)], self.h[(x+1,y)], self.h[(x,y+1)]
                 self.hcorners[(x,y)] = hs
@@ -173,23 +173,26 @@ def addparcels(x, y):
                 parcels[(x,y)] = p
                 parcelq.append(p)
 def thinkparcels(dt=0):
+    x0, y0 = int(camera.x0 / settings.tilex // pcs), int(-camera.y0 / settings.tiley // pcs)
     if not parcelq:
         return 0
     tf = time.time() + dt if dt else 0
     n = 0
     while True:
         n += 1
+        topop = False
         if parcelq[0].compiter:
             try:
                 next(parcelq[0].compiter)
             except StopIteration:
-                parcelq.pop(0)
+                topop = True
         else:
+            topop = True
+        if topop:
             parcelq.pop(0)
+            parcelq.sort(key = lambda p: (x0 - p.x0)**2 + (y0-p.y0)**2)
         if time.time() > tf or not parcelq:
             return n
-
-
 
 
 def tileinfo(x, y, looker=None):
@@ -249,11 +252,12 @@ def thinkminimap(dt=0):
     tf = 0
     n = 0
     x0 = int(camera.x0 / settings.tilex // settings.mchunksize)
-    y0 = int(-camera.y0 // settings.tiley // settings.mchunksize)
+    y0 = int(-camera.y0 / settings.tiley // settings.mchunksize)
     for dx in range(-4, 5):
         for dy in range(-4, 5):
-            minichunk(x0+dx, y0+dy)
-            n += 1
+            if (x0+dx, y0+dy) not in minimaps:
+                minichunk(x0+dx, y0+dy)
+                n += 1
             if time.time() > tf:
                 return n
 
@@ -332,19 +336,24 @@ def addpanels(x, y):
                 panels[(x,y)] = p
                 panelq.append(p)
 def thinkpanels(dt=0):
+    x0, y0 = int(camera.x0 // settings.panelw), int(camera.y0 // settings.panelh)
     if not panelq:
         return 0
     tf = time.time() + dt if dt else 0
     n = 0
     while True:
         n += 1
+        topop = False
         if panelq[0].compiter:
             try:
                 next(panelq[0].compiter)
             except StopIteration:
-                panelq.pop(0)
+                topop = True
         else:
+            topop = True
+        if topop:
             panelq.pop(0)
+            panelq.sort(key = lambda p: (x0 - p.x0) ** 2 + (y0 - p.y0) ** 2)
         if time.time() > tf or not panelq:
             return n
 
@@ -363,28 +372,6 @@ def killtime(dt=0):
         if not m: break
         n += m
     return n
-
-# test building drawing - will definitely change
-def drawbuildingat(screen, btype, x, y, z):
-    px, py = camera.screenpos(x, y, z)
-    if not camera.isvisible(px, py, 100):
-        return
-    drawplatformat(screen, x, y)
-    img = images.get_image("buildings/%s.png" % btype)
-    ix, iy = img.get_size()
-    screen.blit(img, (px-ix//2, py-iy+ix//4))
-
-def drawplatformat(screen, x, y):
-    z0, z1, z2, z3 = ihcorners(x, y)
-    zm = max((z0, z1, z2, z3))
-    p0,p1,p2,p3,p4,p5,p6 = [camera.screenpos(a,b,c) for a,b,c in
-            ((x-1,y,zm), (x,y-1,zm), (x+1,y,zm), (x,y+1,zm), (x-1,y,z0), (x,y-1,z1), (x+1,y,z2))]
-    # left
-    pygame.draw.polygon(screen, (0,100,100), (p0,p4,p5,p1))
-    # right
-    pygame.draw.polygon(screen, (0,50,50), (p1,p5,p6,p2))
-    # top
-    pygame.draw.polygon(screen, (0,70,70), (p0,p1,p2,p3))
 
 
 # How far do you have to go along this track before you hit water?
@@ -412,70 +399,32 @@ def validstart(x, y):
     ws = sorted(waterhits)[3:-3]
     return ws[0] > 1 and ws[3] > 5 and ws[-3] > 40 and ws[-1] > 60
 
+def choosevalidstart():
+    random.seed()
+    print("Choosing starting location....")
+    while True:
+        x = random.randint(-2000, 2000)
+        y = random.randint(-2000, 2000)
+        if validstart(x, y):
+            break
+    print("(%s,%s) looks like a good place to start...." % (x, y))
+    return x, y
 
-random.seed()
-print("Choosing starting location....")
-while True:
-    guyx = random.randint(-2000, 2000)
-    guyy = random.randint(-2000, 2000)
-    if validstart(guyx, guyy):
-        break
-print("(%s,%s) looks like a good place to start...." % (guyx, guyy))
+# Obviously doesn't take into account whether there's anything already built there
+def canbuildhere(x, y):
+    return (x + y) % 2 == 0 and iheight(x, y) > 0
 
-camera.lookat(guyx, guyy)
+def drawscene(screen, entities):
+    screen.fill((0,0,0))
+    drawpanels(screen, camera.x0//1-settings.sx//2, camera.y0//1-settings.sy // 2, settings.sx, settings.sy)
+    esort = sorted(entities, key = lambda e: -e.y)
+    for entity in esort:
+        entity.render(screen)
 
-
-#exit()
-
-
-# test scene
-class WorldViewScene(object):
-    def __init__(self):
-        self.next = self
-        self.guyx, self.guyy = guyx, guyy
-        camera.lookat(self.guyx, self.guyy)
-        
-        self.buildings = []
-        for j in range(100):
-            y = int(self.guyy // 1) + random.randint(-50, 50)
-            x = int(self.guyx // 1) + random.randint(-50, 50)
-            if (x + y) % 2: continue
-            z = ihcmax(x, y)
-            if z <= 0: continue
-            btype = random.choice(["hq", "greenhouse"])
-            self.buildings.append((btype, x, y, z))
-
-    def process_input(self, events, pressed):
-        self.guyx += 0.25 * (pressed['right'] - pressed['left'])
-        self.guyy += 0.25 * (pressed['up'] - pressed['down'])
-
-    def update(self):
-        self.guyz = height(self.guyx, self.guyy)
-        camera.track(self.guyx, self.guyy, self.guyz, settings.trackvalue)
-#        print len(panels), len(panelq), thinkpanels(0.005), len(parcels), len(parcelq), thinkparcels(0.005)
-        killtime(0.005)
-
-    def render(self, screen):
-        screen.fill((0,0,0))
-        drawpanels(screen, camera.x0//1-settings.sx//2, camera.y0//1-settings.sy // 2, settings.sx, settings.sy)
-        # background buildings
-        for btype, x, y, z in self.buildings:
-            if y > self.guyy:
-                drawbuildingat(screen, btype, x, y, z)
-        # bouncy ball
-        px, py = camera.screenpos(self.guyx, self.guyy, self.guyz)
-        pygame.draw.ellipse(screen, (0, 0, 0), (px-4, py-2, 8, 4))
-        h = int(abs(10 * math.sin(7 * time.time())))
-        pygame.draw.circle(screen, (255, 0, 0), (px, py-4-h), 4)
-        # foreground buildings
-        for btype, x, y, z in self.buildings:
-            if y <= self.guyy:
-                drawbuildingat(screen, btype, x, y, z)
-
-        if settings.showminimap:
-            a = settings.minimapsize
-            pygame.draw.rect(screen, (255, 255, 255), (10, 10, a + 2, a + 2))
-            screen.blit(minimap(int(camera.x0 // settings.tilex), -int(camera.y0 // settings.tiley), a, a), (11, 11))
+def drawminimap(screen):
+    a = settings.minimapsize
+    pygame.draw.rect(screen, (255, 255, 255), (10, 10, a + 2, a + 2))
+    screen.blit(minimap(int(camera.x0 // settings.tilex), -int(camera.y0 // settings.tiley), a, a), (11, 11))
 
 
 if __name__ == "__main__":

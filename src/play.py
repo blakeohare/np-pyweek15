@@ -4,7 +4,7 @@ import os
 from collections import defaultdict
 
 from src import menus
-from src import worldmap, settings
+from src import worldmap, settings, sprite, building
 from src.font import get_text
 # types: key, type, mouseleft, mouseright, mousemove
 # action: left, right, up down, build, enter, demolish
@@ -64,6 +64,43 @@ def toggle_full_screen():
 	else:
 		settings.sx, settings.sy, settings.sz = settings.wsx, settings.wsy, settings.wsz
 	return get_screen()
+
+
+# Was this supposed to go somewhere else?
+class PlayScene(object):
+	def __init__(self):
+		self.next = self
+		x0, y0 = worldmap.choosevalidstart()
+		self.you = sprite.You(x0, y0)
+		self.you.lookatme()
+		self.sprites = [self.you]
+		# Put down some random buildings OBVIOUSLY THIS IS JUST FOR TESTING
+		self.buildings = []
+		import random
+		for j in range(100):
+			x = x0 + random.randint(-50, 50)
+			y = y0 + random.randint(-50, 50)
+			if not worldmap.canbuildhere(x, y): continue
+			Btype = random.choice([building.HQ, building.Greenhouse])
+			self.buildings.append(Btype(x, y))
+
+	def process_input(self, events, pressed):
+		dx, dy = (pressed['right'] - pressed['left']), (pressed['up'] - pressed['down'])
+		if dx and dy:
+			dx *= 0.707
+			dy *= 0.707
+		self.you.move(dx, dy)
+
+	def update(self):
+		for building in self.buildings: building.update()
+		for sprite in self.sprites: sprite.update()
+		self.you.trackme()
+		worldmap.killtime(0.01)
+	
+	def render(self, screen):
+		worldmap.drawscene(screen, self.buildings + self.sprites)
+		if settings.showminimap:
+			worldmap.drawminimap(screen)
 
 def main():
 	
