@@ -289,6 +289,8 @@ class WorldViewScene(object):
         addpanels(camera.x0, camera.y0)
         addparcels(camera.x0 / camera.tilex, -camera.y0 / camera.tiley)
 #        print len(panels), len(panelq), thinkpanels(0.005), len(parcels), len(parcelq), thinkparcels(0.005)
+        thinkparcels(0.005)
+        thinkpanels(0.005)
 
     def render(self, screen):
         screen.fill((0,0,0))
