@@ -38,7 +38,7 @@ def main():
 	# TODO: type counter
 	
 	scene = menus.TitleScene()
-	
+	pressed_keys = {}
 	while True:
 		start = time.time()
 		
@@ -69,12 +69,15 @@ def main():
 				elif event.key == pygame.K_SPACE:
 					events.append(MyEvent('key', 'build', down, 0, 0))
 				
+				if len(events) > 0 and events[-1].type == 'key':
+					pressed_keys[events[-1].action] = events[-1].down
+				
 				# TODO: typing events
 				# TODO: mouse events
 				# TODO: full screen event
 		
 		
-		scene.process_input(events)
+		scene.process_input(events, pressed_keys)
 		scene.update()
 		scene.render(vscreen)
 		
