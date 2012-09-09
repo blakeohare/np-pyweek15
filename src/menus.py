@@ -191,6 +191,7 @@ class TitleScene(UiScene):
 			self.button.disable()
 		else:
 			self.button.enable()
+		worldmap.killtime(0.05)
 	
 	def login_pressed(self):
 		print("login pressed")

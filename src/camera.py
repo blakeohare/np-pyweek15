@@ -27,4 +27,4 @@ def lookat(x, y, z = 0):
 def isvisible(px, py, margin=100):
     return -margin <= px <= settings.sx + margin and -margin <= py <= settings.sy + margin
 
-
+lookat(1234, 3456)

@@ -73,11 +73,11 @@ def main():
 	last_fps = 30
 	# TODO: type counter
 	
-	scene = menus.TitleScene()
+	scene = menus.TitleScene()  # can be set to None to quit
 	pressed_keys = defaultdict(bool)
 	for ea in event_actions:
 		pressed_keys[ea] = False
-	while True:
+	while scene:
 		start = time.time()
 		
 		events = []
@@ -87,7 +87,7 @@ def main():
 		alt = pressed[pygame.K_LALT] or pressed[pygame.K_RALT]
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
-				return
+				scene = None
 			elif event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION):
 				x = vscreen.get_width() * event.pos[0] // rscreen.get_width()
 				y = vscreen.get_height() * event.pos[1] // rscreen.get_height()
@@ -100,9 +100,9 @@ def main():
 			elif event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
 				down = event.type == pygame.KEYDOWN
 				if event.key == pygame.K_ESCAPE:
-					return
+					scene = None
 				elif event.key == pygame.K_F4 and alt:
-					return
+					scene = None
 				elif event.key == pygame.K_F1:
 					events.append(MyEvent('key', 'debug', down, 0, 0))
 				elif event.key == pygame.K_F11 and down:
@@ -132,6 +132,7 @@ def main():
 						_type_delay[0] = None
 				
 				# TODO: mouse events
+		if not scene: break
 		
 		if _type_delay[0] != None:
 			_type_delay[1] += 1
@@ -165,3 +166,5 @@ def main():
 			last_fps = 1.0 / diff
 			
 		scene = scene.next
+	if settings.dumpmap:
+		worldmap.dumpmap()

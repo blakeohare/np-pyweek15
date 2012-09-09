@@ -37,7 +37,8 @@ sz = wsz
 trackvalue = 0.2
 
 showminimap = True
-minimapsize = 60
+minimapsize = 64
+dumpmap = False
 
 # screen size for one unit in world coordinates
 tilex, tiley, tilez = 16, 8, 2   
