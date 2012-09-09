@@ -207,28 +207,55 @@ def tileinfo(x, y, looker=None):
 minimaps = {}
 def minichunk(x0, y0):
     if (x0, y0) not in minimaps:
+#        t0 = time.time()
         a = settings.mchunksize
-        s = pygame.Surface((a, a)).convert()
+        s = pygame.Surface((a, a))
+#        arr = pygame.surfarray.pixels3d(s)
         for y in range(a):
             for x in range(a):
-                s.set_at((x, a-y-1), hcolor(iheight(x0*a+x, y0*a+y), 0, 0))
-        minimaps[(x0,y0)] = s
+                s.set_at((x, y), hcolor(iheight(x0*a+x, y0*a+(a-1-y)), 0, 0))
+#                arr[x,y,:] = hcolor(iheight(x0*a+x, y0*a+(a-1-y)), 0, 0)
+        minimaps[(x0,y0)] = s.convert()
+#        print x0, y0, time.time() - t0
     return minimaps[(x0,y0)]
 # return a minimap centered at (x, y) with size (w, h)
 def minimap(x, y, w, h):
     s = pygame.Surface((w, h)).convert()
     a = settings.mchunksize
-    # This formula actually doesn't look right to me, but it works, so whatever.
     x0 = int((x-w//2)//a)
     x1 = int((x+w//2)//a)
-    y0 = int((y-h//2+1)//a) - 1
-    y1 = int((y+h//2+1)//a)
-    
+    y0 = int((y-h//2)//a)
+    y1 = int((y+h//2)//a)
     for ay in range(y0,y1+1):
         for ax in range(x0,x1+1):
-            s.blit(minichunk(ax,ay), (ax*a - (x-w//2), -ay*a + y))
+            s.blit(minichunk(ax,ay), (ax*a - (x-w//2), (-ay-1)*a + y + h//2))
     return s
-
+def dumpmap():
+    if not minimaps: return
+    x0 = min(x for x,y in minimaps)
+    x1 = max(x for x,y in minimaps) + 1
+    y0 = min(y for x,y in minimaps)
+    y1 = max(y for x,y in minimaps) + 1
+    a = settings.mchunksize
+    s = pygame.Surface((a*(x1-x0), a*(y1-y0)))
+    s.fill((0,0,0))
+    for x in range(x0, x1):
+        for y in range(y0, y1):
+            if (x,y) not in minimaps: continue
+            s.blit(minimaps[(x,y)], (a*(x-x0), a*(y1-1-y)))
+    pygame.image.save(s, "map.png")
+def thinkminimap(dt=0):
+    tf = time.time() + dt if dt else 0
+    tf = 0
+    n = 0
+    x0 = int(camera.x0 / settings.tilex // settings.mchunksize)
+    y0 = int(-camera.y0 // settings.tiley // settings.mchunksize)
+    for dx in range(-4, 5):
+        for dy in range(-4, 5):
+            minichunk(x0+dx, y0+dy)
+            n += 1
+            if time.time() > tf:
+                return n
 
 # A cached version of the landscape, for fast blitting
 class Panel(object):
@@ -321,6 +348,21 @@ def thinkpanels(dt=0):
         if time.time() > tf or not panelq:
             return n
 
+# Call this function when you've got a little time to kill and you might as well
+# be doing something useful.
+def killtime(dt=0):
+    addpanels(camera.x0, camera.y0)
+    addparcels(camera.x0 / settings.tilex, -camera.y0 / settings.tiley)
+    tf = time.time() + dt
+    n = 0
+    while time.time() < tf:
+        dt = tf - time.time()
+        m = thinkparcels(0.5 * dt)
+        m += thinkpanels(0.4 * dt) 
+        m += thinkminimap(0.1 * dt)
+        if not m: break
+        n += m
+    return n
 
 # test building drawing - will definitely change
 def drawbuildingat(screen, btype, x, y, z):
@@ -369,11 +411,8 @@ class WorldViewScene(object):
     def update(self):
         self.guyz = height(self.guyx, self.guyy)
         camera.track(self.guyx, self.guyy, self.guyz, settings.trackvalue)
-        addpanels(camera.x0, camera.y0)
-        addparcels(camera.x0 / settings.tilex, -camera.y0 / settings.tiley)
 #        print len(panels), len(panelq), thinkpanels(0.005), len(parcels), len(parcelq), thinkparcels(0.005)
-        thinkparcels(0.005)
-        thinkpanels(0.005)
+        killtime(0.005)
 
     def render(self, screen):
         screen.fill((0,0,0))
