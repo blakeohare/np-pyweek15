@@ -6,7 +6,7 @@ import menus
 
 # types: key, type, mouseleft, mouseright, mousemove
 # action: left, right, up down, build, enter, demolish
-
+event_actions = 'left, right, up down, build, enter, demolish'.split(', ')
 class MyEvent:
 	def __init__(self, type, action, down, x, y):
 		self.type = type
@@ -39,6 +39,8 @@ def main():
 	
 	scene = menus.TitleScene()
 	pressed_keys = {}
+	for ea in event_actions:
+		pressed_keys[ea] = False
 	while True:
 		start = time.time()
 		
