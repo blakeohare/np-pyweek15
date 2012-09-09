@@ -308,14 +308,18 @@ def drawbuildingat(screen, btype, x, y, z):
     img = images.get_image("buildings/%s.png" % btype)
     ix, iy = img.get_size()
     screen.blit(img, (px-ix//2, py-iy+ix//4))
-    screen.set_at((px, py), (255,128,0))
 
 def drawplatformat(screen, x, y):
     z0, z1, z2, z3 = ihcorners(x, y)
     zm = max((z0, z1, z2, z3))
-    ps = [camera.screenpos(a,b,c) for a,b,c in
-            ((x,y+1,zm), (x-1,y,zm), (x-1,y,z0), (x,y-1,z1), (x+1,y,z2), (x+1,y,zm))]
-    pygame.draw.polygon(screen, (0,100,100), ps)
+    p0,p1,p2,p3,p4,p5,p6 = [camera.screenpos(a,b,c) for a,b,c in
+            ((x-1,y,zm), (x,y-1,zm), (x+1,y,zm), (x,y+1,zm), (x-1,y,z0), (x,y-1,z1), (x+1,y,z2))]
+    # left
+    pygame.draw.polygon(screen, (0,100,100), (p0,p4,p5,p1))
+    # right
+    pygame.draw.polygon(screen, (0,50,50), (p1,p5,p6,p2))
+    # top
+    pygame.draw.polygon(screen, (0,70,70), (p0,p1,p2,p3))
 
 
 # test scene
