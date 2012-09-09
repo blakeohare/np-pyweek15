@@ -1,7 +1,10 @@
+import time
 import pygame
 from src.images import get_image
 from src import worldmap
 from src.font import get_text
+from src import util
+from src import network
 
 class Element:
 	def __init__(self, type, x, y):
@@ -37,11 +40,10 @@ class Image(Element):
 		screen.blit(self.img, (self.x, self.y))
 
 class TextBox(Element):
-	def __init__(self, x, y, width, password, watermark='', starting_text=''):
+	def __init__(self, x, y, width, watermark='', starting_text=''):
 		Element.__init__(self, "TextBox", x, y)
 		self.width = width
 		self.height = 18
-		self.password = password
 		self.box = pygame.Rect(self.x, self.y, self.width, self.height)
 		self.counter = 0
 		self.text = starting_text
@@ -59,8 +61,6 @@ class TextBox(Element):
 			text = self.watermark
 			color = (80, 80, 80)
 			farleft = True
-		elif self.password:
-			text = '*' * len(text)
 		
 		t = get_text(text, color, 16)
 		screen.blit(t, (self.x + 2, self.y + 4))
@@ -178,12 +178,12 @@ class Button(Element):
 class TitleScene(UiScene):
 	def __init__(self):
 		UiScene.__init__(self)
-		self.username = TextBox(20, 200, 100, False, "Username")
+		self.username = TextBox(20, 200, 100, "Username")
 		self.add_element(Image(0, 0, 'title.png'))
 		self.add_element(self.username)
-		#self.add_element(TextBox(20, 230, 100, True, "Password"))
 		self.button = Button(20, 230, "Login", self.login_pressed, False)
 		self.add_element(self.button)
+		self.auth_request = None
 	
 	def update(self):
 		UiScene.update(self)
@@ -191,10 +191,31 @@ class TitleScene(UiScene):
 			self.button.disable()
 		else:
 			self.button.enable()
+		
+		if self.auth_request != None and self.auth_request.has_response():
+			print "Got the following response:", self.auth_request.response, self.auth_request.get_response()
+			self.auth_request = None
 		worldmap.killtime(0.05)
 	
 	def login_pressed(self):
-		print("login pressed")
+		raw_users = util.read_file('users.txt')
+		if raw_users == None:
+			users = []
+		else:
+			users = util.trim(raw_users).split('\n')
+		user_lookup = {}
+		for user in users:
+			name = util.trim(user[32:])
+			password = user[:32].lower()
+			user_lookup[name] = password
+		
+		user = self.username.text
+		password = user_lookup.get(user, None)
+		if password == None:
+			password = util.md5(str(time.time()) + "leprechauns")
+			raw_users += "\n" + password + user
+			util.write_file('users.txt', raw_users)
+		self.auth_request = network.send_authenticate(user, password)
 	
 	def process_input(self, events, pressed_keys):
 		if pressed_keys['debug']:
