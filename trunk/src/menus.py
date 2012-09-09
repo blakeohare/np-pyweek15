@@ -1,5 +1,5 @@
-from images import get_image
-import worldmap
+from src.images import get_image
+from src import worldmap
 
 class TitleScene:
 	def __init__(self):
