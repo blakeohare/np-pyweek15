@@ -21,6 +21,9 @@ class MyEvent:
 full_screen_mode = True
 
 letters = {
+	pygame.K_BACKSPACE: ('bs', 'bs'),
+	pygame.K_TAB: ('tab', "TAB"),
+	pygame.K_RETURN: ('enter', 'enter'),
 	pygame.K_LEFTBRACKET: '[{',
 	pygame.K_RIGHTBRACKET: ']}',
 	pygame.K_SEMICOLON: ';:',
@@ -48,7 +51,7 @@ meh = 'abcdefghijklmnopqrstuvwxyz'
 for letter in range(26):
 	letters[pygame.K_a + letter] = meh[letter] + meh[letter].upper()
 
-_type_delay = {}
+_type_delay = [None, 0]
 
 def toggle_full_screen():
 	global full_screen_mode
@@ -84,6 +87,15 @@ def main():
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				return
+			elif event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION):
+				x = vscreen.get_width() * event.pos[0] // rscreen.get_width()
+				y = vscreen.get_height() * event.pos[1] // rscreen.get_height()
+				if event.type == pygame.MOUSEMOTION:
+					events.append(MyEvent('mousemove', None, False, x, y))
+				else:
+					down = event.type == pygame.MOUSEBUTTONDOWN
+					left = event.button == 1
+					events.append(MyEvent('mouseleft' if left else 'mouseright', None, down, x, y))
 			elif event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
 				down = event.type == pygame.KEYDOWN
 				if event.key == pygame.K_ESCAPE:
@@ -113,16 +125,17 @@ def main():
 					if down:
 						letter = typed[shift]
 						events.append(MyEvent('type', letter, True, 0, 0))
-						_type_delay[letter] = 0
+						_type_delay[0] = letter
+						_type_delay[1] = 0
 					else:
-						if _type_delay.get(letter) != None:
-							_type_delay.pop(letter)
+						_type_delay[0] = None
 				
 				# TODO: mouse events
 		
-		for k in _type_delay.keys():
-			_type_delay[k] += 1
-			d = _type_delay[k]
+		if _type_delay[0] != None:
+			_type_delay[1] += 1
+			k = _type_delay[0]
+			d = _type_delay[1]
 			if d > 20 and d % 3 == 0:
 				events.append(MyEvent('type', k, True, 0, 0))
 		
