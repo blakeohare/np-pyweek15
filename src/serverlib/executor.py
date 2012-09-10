@@ -20,7 +20,7 @@ def do_things(action, args):
 		if authenticate.light_authenticate(user_id, args.get('password', '')):
 			if action == 'poll':
 				
-				return poll.do_poll(args.get('sectors'))
+				return poll.do_poll(user_id, args.get('sectors'))
 			elif action == 'build':
 				from serverlib import build
 				return build.do_build(
