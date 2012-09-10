@@ -1,3 +1,6 @@
+
+from src import util
+
 import sys
 if sys.version > '3':
 	from urllib.request import urlopen
@@ -137,14 +140,19 @@ def send_authenticate(username, password):
 def send_poll(user_id, password, sectors_you_care_about, last_ids_by_sector):
 	nsectors = {}
 	for sector in sectors_you_care_about:
-		x,y = sector.split('^')
-		x = int(x)
-		y = int(y)
+		if '^' in str(sector):
+			x,y = util.totuple(sector)
+		else:
+			x,y = sector
+		
 		for dx in (-1, 0, 1):
 			for dy in (-1, 0, 1):
-				nsectors[str(x + dx) + '^' + str(y + dy)] = True
+				nsectors[(x + dx, y + dy)] = True
 	s_r = []
 	for s in nsectors.keys():
 		last_id = last_ids_by_sector.get(s, 0)
-		s_r.append(str(last_id) + '^' + s)
+		s_r.append(str(last_id) + '^' + util.fromtuple(s))
 	return _send_command('poll', { 'sectors': ','.join(s_r) }, user_id, password)
+
+def send_username_fetch(user_ids):
+	return _send_command('getuser', { 'user_id_list': ','.join(map(str, user_ids)) })
