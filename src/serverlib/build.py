@@ -2,7 +2,7 @@ from serverlib import poll
 from serverlib import sql
 from serverlib import util
 
-def do_build(user_id, client_token, last_id, sector, loc, type):
+def do_build(user_id, client_token, last_id, sector, loc, type, poll_afterwards=True):
 	sector = util.tsanitize(sector)
 	loc = util.tsanitize(loc)
 	last_id = util.parseInt(last_id)
@@ -14,9 +14,10 @@ def do_build(user_id, client_token, last_id, sector, loc, type):
 			event_id = sql.insert(
 				'INSERT INTO `event` (`client_token`, `sector_xy`, `user_id`, `data`) VALUES (%s, %s, %s, %s)', (client_token, sector, user_id, data))
 			sql.insert('INSERT INTO `structure` (`type`, `sector_xy`, `loc_xy`, `user_id`, `event_id`) VALUES (%s, %s, %s, %s, %s)', (type, sector, loc, user_id, event_id))
-		return poll.do_poll(str(last_id) + '^' + sector)
+		if poll_afterwards:
+			return poll.do_poll(str(last_id) + '^' + sector)
 	else:
-		output = { 'success':False, 'message': "missing client token" }
+		return { 'success':False, 'message': "missing client token" }
 
 def validate_building(type, sector, coordinate):
 	#for now, having those is enough
