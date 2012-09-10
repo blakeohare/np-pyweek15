@@ -21,6 +21,8 @@ class MagicPotato:
 		self.player_name_search = []
 		
 	def apply_poll_data(self, poll):
+		if not poll.get('success', False): return
+		
 		for sector_data in poll.get('sectors', []):
 			id = util.totuple(sector_data.get('id', None))
 			if sector_data.get('all', False):

@@ -137,22 +137,35 @@ def send_echo(stuff):
 def send_authenticate(username, password):
 	return _send_command('authenticate', { 'user': username, 'password': password })
 
-def send_poll(user_id, password, sectors_you_care_about, last_ids_by_sector):
+def send_poll(user_id, password, sector_you_care_about, last_ids_by_sector):
+	sectors = _get_poll_args(sector_you_care_about, last_ids_by_sector)
+	return _send_command('poll', { 'sectors': sectors }, user_id, password)
+
+def _get_poll_args(sector, last_ids_by_sector):
 	nsectors = {}
-	for sector in sectors_you_care_about:
-		if '^' in str(sector):
-			x,y = util.totuple(sector)
-		else:
-			x,y = sector
-		
-		for dx in (-1, 0, 1):
-			for dy in (-1, 0, 1):
-				nsectors[(x + dx, y + dy)] = True
+	if '^' in str(sector):
+		x,y = util.totuple(sector)
+	else:
+		x,y = sector
+	
+	for dx in (-1, 0, 1):
+		for dy in (-1, 0, 1):
+			nsectors[(x + dx, y + dy)] = True
 	s_r = []
 	for s in nsectors.keys():
 		last_id = last_ids_by_sector.get(s, 0)
 		s_r.append(str(last_id) + '^' + util.fromtuple(s))
-	return _send_command('poll', { 'sectors': ','.join(s_r) }, user_id, password)
+	return ','.join(s_r)
 
 def send_username_fetch(user_ids):
 	return _send_command('getuser', { 'user_id_list': ','.join(map(str, user_ids)) })
+
+def send_build(user_id, password, type, sector_x, sector_y, loc_x, loc_y, sector_you_care_about, last_ids_by_sector, client_token):
+	poll_sectors = _get_poll_args(sector_you_care_about, last_ids_by_sector)
+	return _send_command('build', {
+		'type': type,
+		'sector': util.fromtuple((sector_x, sector_y)),
+		'loc': util.fromtuple((loc_x, loc_y)),
+		'client_token': client_token,
+		'poll_sectors': poll_sectors
+		}, user_id, password)
