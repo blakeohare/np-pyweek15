@@ -5,6 +5,7 @@ from src import worldmap
 from src.font import get_text
 from src import util
 from src import network
+from src import playscene
 
 class Element:
 	def __init__(self, type, x, y):
@@ -144,6 +145,14 @@ class UiScene:
 							self.cycle_focus(1)
 						elif key == 'TAB':
 							self.cycle_focus(-1)
+						elif key == 'enter':
+							self.cycle_focus(1)
+							while True:
+								nfocus = self.get_focused_item()
+								if nfocus == focused or nfocus.type == "Button":
+									break
+							if nfocus.type == "Button":
+								nfocus.handler()
 						else:
 							focused.text += key
 	
@@ -193,7 +202,16 @@ class TitleScene(UiScene):
 			self.button.enable()
 		
 		if self.auth_request != None and self.auth_request.has_response():
-			print "Got the following response:", self.auth_request.response, self.auth_request.get_response()
+			response = self.auth_request.get_response()
+			if not response.get('success', False):
+				response.get('message', "Server made an unrecognized response")
+			else:
+				hq = response.get('hq')
+				sector = hq[0]
+				loc = hq[1]
+				user_id = response.get('user_id', 0)
+				is_new = response.get('is_new', False)
+				self.next = playscene.LoadingScene(user_id, self.password, sector, loc, is_new)
 			self.auth_request = None
 	
 	def login_pressed(self):
@@ -215,6 +233,7 @@ class TitleScene(UiScene):
 			raw_users += "\n" + password + user
 			util.write_file('users.txt', raw_users)
 		self.auth_request = network.send_authenticate(user, password)
+		self.password = password
 	
 	def process_input(self, events, pressed_keys):
 		if pressed_keys['debug']:

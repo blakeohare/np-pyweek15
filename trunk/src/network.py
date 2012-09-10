@@ -1,12 +1,20 @@
-import urllib
+import sys
+if sys.version > '3':
+	from urllib.request import urlopen
+	from urllib.parse import urlencode
+else:
+	from urllib import urlopen
+	from urllib import urlencode
 import threading
+
+
 
 class Request(threading.Thread):
 	def __init__(self, action, args, user, password):
 		threading.Thread.__init__(self)
 		self.args = {'action': action}
 		if user != None:
-			self.args['user'] = user
+			self.args['user_id'] = user
 		if password != None:
 			self.args['password'] = password
 		for key in args:
@@ -19,14 +27,17 @@ class Request(threading.Thread):
 	def run(self):
 		is_error = False
 		data = None
-		try:
-			url = 'http://pyweek15.nfshost.com/server.py?' + urllib.urlencode(self.args)
+		if True:#try:
+			url = 'http://pyweek15.nfshost.com/server.py?' + urlencode(self.args)
 			print("Sending: " + url)
-			c = urllib.urlopen(url)
-			data = c.read()
+			c = urlopen(url)
+			raw_bytes = c.read()
+			if 'bytes' in str(type(raw_bytes)): # Ugh, new Python 3 annoyance I learned just now
+				raw_bytes = raw_bytes.decode('utf-8')
+			data = deserialize_thing(raw_bytes)
 			c.close()
-			
-		except:
+		else: #except:
+			data = { 'success': False, 'message': "Server did not respond" }
 			is_error = True
 		
 		self.lock.acquire(True)
@@ -41,12 +52,16 @@ class Request(threading.Thread):
 	
 	def get_response(self):
 		try:
-			return deserialize_thing(self.response)
+			return self.response
 		except:
 			return { 'success': False, 'message': "unknown server response: " + str(self.response) }
 	
 	def is_error(self):
 		return self.error
+	
+	def get_error(self):
+		if self.hasresponse:
+			return self.response.get("message", "Unknown error has occurred.")
 	
 	def send(self):
 		self.start()
@@ -73,7 +88,9 @@ def read_till_bang(stream, index):
 	index[0] += 1
 	return ''.join(output)
 
-def deserialize_thing(string, index=[0]):
+def deserialize_thing(string, index=None):
+	if index == None:
+		index = [0]
 	if index[0] >= len(string): return None
 	t = string[index[0]]
 	index[0] += 1
@@ -83,7 +100,10 @@ def deserialize_thing(string, index=[0]):
 	if t in 'ilfsb':
 		x = read_till_bang(string, index)
 		if t == 'i': return int(x)
-		if t == 'l': return long(x)
+		if t == 'l':
+			if sys.version > '3':
+				return int(x)
+			return long(x)
 		if t == 'f': return float(x)
 		if t == 's': return x
 		if t == 'b': return x == '1'
@@ -109,4 +129,19 @@ def send_echo(stuff):
 	return _send_command("echo", { 'data': stuff })
 
 def send_authenticate(username, password):
-	return _send_command('authenticate', {}, username, password)
+	return _send_command('authenticate', { 'user': username, 'password': password })
+
+def send_poll(user_id, password, sectors_you_care_about, last_ids_by_sector):
+	nsectors = {}
+	for sector in sectors_you_care_about:
+		x,y = sector.split('^')
+		x = int(x)
+		y = int(y)
+		for dx in (-1, 0, 1):
+			for dy in (-1, 0, 1):
+				nsectors[str(x + dx) + '^' + str(y + dy)] = True
+	s_r = []
+	for s in nsectors.keys():
+		last_id = last_ids_by_sector.get(s, 0)
+		s_r.append(str(last_id) + '^' + s)
+	return _send_command('poll', { 'sectors': ','.join(s_r) }, user_id, password)
