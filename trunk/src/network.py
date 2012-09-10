@@ -35,6 +35,9 @@ class Request(threading.Thread):
 			if 'bytes' in str(type(raw_bytes)): # Ugh, new Python 3 annoyance I learned just now
 				raw_bytes = raw_bytes.decode('utf-8')
 			data = deserialize_thing(raw_bytes)
+			print("RECEIVED: ", data)
+			if data == None:
+				print("RAW DATA:", raw_bytes)
 			c.close()
 		else: #except:
 			data = { 'success': False, 'message': "Server did not respond" }
