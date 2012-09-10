@@ -3,7 +3,8 @@ from src import worldmap, camera, images
 
 class Structure(object):
 	# TODO: handle buildings with bigger footprints than 1x1
-	def __init__(self, x, y, z=None):
+	def __init__(self, user_id, x, y, z=None):
+		self.user_id = user_id
 		self.x, self.y = worldmap.toRender(x, y)
 		self.z = worldmap.iheight(x, y) if z is None else z
     
@@ -50,13 +51,13 @@ class Turret(Structure):
 class WaterTreatment(Structure):
 	btype = "watertreatment"
 
-def create(type, x, y):
-	if type == 'farm': return Farm(x, y)
-	if type == 'greenhouse': return Greenhouse(x, y)
-	if type == 'hq': return HQ(x, y)
-	if type == 'medicaltent': return MedicalTent(x, y)
-	if type == 'quarry': return Quarry(x, y)
-	if type == 'radar': return Radar(x, y)
-	if type == 'turret': return Turret(x, y)
-	if type == 'watertreatment': return WaterTreatment(x, y)
+def create(user_id, type, x, y):
+	if type == 'farm': return Farm(user_id, x, y)
+	if type == 'greenhouse': return Greenhouse(user_id, x, y)
+	if type == 'hq': return HQ(user_id, x, y)
+	if type == 'medicaltent': return MedicalTent(user_id, x, y)
+	if type == 'quarry': return Quarry(user_id, x, y)
+	if type == 'radar': return Radar(user_id, x, y)
+	if type == 'turret': return Turret(user_id, x, y)
+	if type == 'watertreatment': return WaterTreatment(user_id, x, y)
 	return None

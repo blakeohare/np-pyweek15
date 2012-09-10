@@ -2,6 +2,7 @@ from src import structure
 from src import worldmap
 from src import camera
 from src import util
+from src import network
 
 _size = {
 	'farm': 2
@@ -16,7 +17,9 @@ class MagicPotato:
 		self.buildings_by_coord = {}
 		self.buildings_by_sector = {}
 		self.last_id_by_sector = {}
-	
+		self.player_names = {}
+		self.player_name_search = []
+		
 	def apply_poll_data(self, poll):
 		for sector_data in poll.get('sectors', []):
 			id = util.totuple(sector_data.get('id', None))
@@ -65,7 +68,7 @@ class MagicPotato:
 		ay = sy * 60 + y
 		size = _size.get(type, 1)
 		
-		s = structure.create(type, ax, ay)
+		s = structure.create(user_id, type, ax, ay)
 		sector = (sx, sy)
 		list = self.buildings_by_sector.get(sector, [])
 		self.buildings_by_sector[sector] = list
@@ -98,3 +101,28 @@ class MagicPotato:
 			hackityhackhack += sector
 		
 		return hackityhackhack
+	
+	def update(self):
+		i = 0
+		while i < len(self.player_name_search):
+			request = self.player_name_search[i]
+			if request.has_response():
+				self.player_name_search = self.player_name_search[:i] + self.player_name_search[i + 1:]
+				names = request.get_response()
+				if names.get('success', False):
+					for user in names.get('users', []):
+						id = int(user[0])
+						name = user[1]
+						self.player_names[id] = name
+			else:
+				i += 1
+	
+	def get_user_name(self, user_id):
+		default_name = "?"*8
+		name = self.player_names.get(user_id, None)
+		if name == None:
+			self.player_names[user_id] = default_name
+			self.player_name_search.append(
+				network.send_username_fetch([user_id]))
+			return default_name
+		return name
