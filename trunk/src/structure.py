@@ -1,17 +1,17 @@
 import pygame
-from src import worldmap, camera, images
+from src import camera, images, terrain
 
 class Structure(object):
 	# TODO: handle buildings with bigger footprints than 1x1
 	def __init__(self, user_id, x, y, z=None):
 		self.user_id = user_id
-		self.x, self.y = worldmap.toRender(x, y)
-		self.z = worldmap.iheight(x, y) if z is None else z
+		self.x, self.y = terrain.toRender(x, y)
+		self.z = terrain.iheight(x, y) if z is None else z
     
 	def renderplatform(self, screen):
 		# TODO: this should probably be cached into an image
 		x, y = self.x, self.y
-		z0, z1, z2, z3 = worldmap.ihcorners(x, y)
+		z0, z1, z2, z3 = terrain.ihcorners(x, y)
 		zm = max((z0, z1, z2, z3))
 		p0,p1,p2,p3,p4,p5,p6 = [camera.screenpos(a,b,c) for a,b,c in
 				((x-1,y,zm), (x,y-1,zm), (x+1,y,zm), (x,y+1,zm), (x-1,y,z0), (x,y-1,z1), (x+1,y,z2))]

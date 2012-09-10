@@ -1,9 +1,6 @@
 # Module-level globals to keep constants in one handy place
 # Attention players: don't mess with these settings!
 
-import pygame
-
-
 fps = 30   # maximum actual framerate
 
 full_screen_mode = False
@@ -13,9 +10,9 @@ wsx, wsy, wsz = 400, 300, 2
 # minimum horizontal resolution in fullscreen mode
 fsmin = 400
 
-
 # pick the best resolution for fullscreen mode
 def getfs():
+	import pygame
 	pygame.display.init()
 	modes = pygame.display.list_modes()
 	if not modes: return wsx, wsy, wsz
@@ -25,7 +22,10 @@ def getfs():
 	x, y = min(modes)
 	z = max(n for n in (1,2,3,4,5,6,7,8) if x % n == 0 and y % n == 0 and fsmin * n <= x)
 	return int(x//z), int(y//z), z
-fsx, fsy, fsz = getfs()
+try:
+	fsx, fsy, fsz = getfs()
+except ImportError:
+	fsx, fsy, fsz = wsx, wsy, wsz
 
 # size of the (un-zoomed) screen
 sx, sy = wsx, wsy

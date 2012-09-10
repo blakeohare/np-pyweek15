@@ -4,7 +4,7 @@ import os
 from collections import defaultdict
 
 from src import menus
-from src import worldmap, settings, sprite, structure
+from src import worldmap, settings, sprite, structure, terrain
 from src.font import get_text
 # types: key, type, mouseleft, mouseright, mousemove
 # action: left, right, up down, build, enter, demolish
@@ -70,19 +70,12 @@ def toggle_full_screen():
 class PlayScene(object):
 	def __init__(self):
 		self.next = self
-		x0, y0 = worldmap.choosevalidstart()
+		x0, y0 = terrain.choosevalidstart()
 		self.you = sprite.You(x0, y0)
 		self.you.lookatme()
 		self.sprites = [self.you]
 		# Put down some random structures OBVIOUSLY THIS IS JUST FOR TESTING
 		self.structures = []
-		import random
-		for j in range(100):
-			x = x0 + random.randint(-50, 50)
-			y = y0 + random.randint(-50, 50)
-			if not worldmap.canbuildhere(x, y): continue
-			Btype = random.choice([structure.HQ, structure.Greenhouse])
-			self.structures.append(Btype(x, y))
 
 	def process_input(self, events, pressed):
 		dx, dy = (pressed['right'] - pressed['left']), (pressed['up'] - pressed['down'])
@@ -98,11 +91,11 @@ class PlayScene(object):
 		worldmap.killtime(0.01)
 	
 	def render(self, screen):
-		cursortile = worldmap.nearesttile(self.you.x, self.you.y)
+		cursortile = terrain.nearesttile(self.you.x, self.you.y)
 		worldmap.drawscene(screen, self.structures + self.sprites, cursortile)
 		if settings.showminimap:
 			worldmap.drawminimap(screen)
-		ax, ay = worldmap.toModel(*cursortile)
+		ax, ay = terrain.toModel(*cursortile)
 		screen.blit(get_text("Position: %s %s" % (int(ax//1), int(ay//1)), (255, 0, 0), 18), (4, settings.sy-22))
 
 def main():
