@@ -1,14 +1,16 @@
 import pygame
+import time
 
-from src import util
-from src import network
-from src import worldmap
-from src.font import get_text
-from src import sprite
-from src import structure
 from src import camera
 from src import data
+from src import network
 from src import settings
+from src import sprite
+from src import structure
+from src import util
+from src import worldmap
+
+from src.font import get_text
 from src.images import get_image
 
 
@@ -21,7 +23,7 @@ class LoadingScene:
 		self.new = new
 		self.sector = sector
 		self.loc = loc
-		self.poll = network.send_poll(user_id, password, [sector], {})
+		self.poll = network.send_poll(user_id, password, sector, {})
 		self.potato = data.MagicPotato()
 		self.loading_x = 200 - get_text("Loading..", (255, 255, 255), 22).get_width() // 2
 	
@@ -59,14 +61,22 @@ class PlayScene:
 		self.player = sprite.You(self.cx, self.cy + 1)
 		self.sprites = [self.player]
 		self.poll_countdown = 0
-		self.poll = None
+		self.poll = []
 		self.toolbar = ToolBar()
 		self.last_width = 400
+		self.build_mode = None
+		self.client_token = [
+			util.md5(str(time.time()) + "client token for session" + str(self.user_id))[:10],
+			1]
+	
+	def get_new_client_token(self):
+		self.client_token[1] += 1
+		return self.client_token[0] + '^' + str(self.client_token[1])
 	
 	def process_input(self, events, pressed):
 		direction = ''
 		dx, dy = 0, 0
-		v = .1
+		v = .15
 		if pressed['up']: dy += v
 		if pressed['down']: dy -= v
 		if pressed['left']: dx -= v
@@ -81,25 +91,49 @@ class PlayScene:
 					self.toolbar.click(event.x, event.y, self.last_width, self)
 			elif event.type == 'mousemove':
 				self.toolbar.hover(event.x, event.y, self.last_width)
-		
+			elif event.type == 'key':
+				if event.down and event.action == 'build':
+					if self.build_mode != None:
+						self.build_thing(self.build_mode)
+	
+	def build_thing(self, type):
+		# TODO: verify you can build this item
+		sx,sy = self.get_current_sector()
+		x,y = self.player.getModelXY()
+		client_token = self.get_new_client_token()
+		self.poll.append(
+			network.send_build(
+				self.user_id, self.password,
+				type,
+				int(sx), int(sy), int(x % 60), int(y % 60), (int(sx), int(sy)), self.potato.last_id_by_sector, client_token)
+			)
+			
+	
+	def get_current_sector(self):
+		x,y = self.player.getModelXY()
+		return (int(x // 60), int(y // 60))
+	
 	def update(self):
 		self.potato.update()
 		self.player.update()
 		self.poll_countdown -= 1
-		if self.poll_countdown < 0 and self.poll == None:
-			nearby = []
-			xy = self.player.getModelXY()
-			sector = (int(xy[0] // 60), int(xy[1] // 60))
-			self.poll = network.send_poll(
+		if self.poll_countdown < 0 and len(self.poll) == 0:
+			self.poll.append(network.send_poll(
 				self.user_id, self.password,
-				[sector],
-				self.potato.last_id_by_sector)
+				self.get_current_sector(),
+				self.potato.last_id_by_sector))
 		
-		if self.poll != None and self.poll.has_response():
-			self.potato.apply_poll_data(self.poll.get_response())
-			self.poll = None
+		i = 0
+		while i < len(self.poll):
+			if self.poll[i].has_response():
+				if not self.poll[i].is_error():
+					self.potato.apply_poll_data(self.poll[i].get_response())
+				self.poll = self.poll[:i] + self.poll[i + 1:]
+			else:
+				i += 1
+		
+		if len(self.poll) == 0 and self.poll_countdown < 0:
 			self.poll_countdown = 10 * settings.fps
-			
 		
 	def render(self, screen):
 		self.last_width = screen.get_width()
@@ -187,7 +221,7 @@ class ToolBar:
 		elif id == 100 and self.mode == None:	
 			self.press_exit(playscene)
 		elif id > 0:
-			self.press_button(id)
+			self.press_button(id, playscene)
 	
 	def press_exit(self, playscene):
 		playscene.next = None
@@ -196,20 +230,39 @@ class ToolBar:
 		self.hovering = self.find_button(x, y, screen_width)
 		
 	def press_back(self):
-		if self.mode == 'build':
+		if self.mode == None:
+			pass # how did you get here?
+		elif self.mode == 'build':
 			self.mode = None
-		elif self.mode in ('build_landing', 'build_agriculture'):
+		elif self.mode.startswith('era_'):
 			self.mode = 'build'
+		elif self.mode.startswith('build_'):
+			id = self.mode.split('_')[1]
+			s = structure.get_structure_by_id(id)
+			self.mode = 'era_' + s[1]
+		
 	
-	def press_button(self, column):
+	def press_button(self, column, playscene):
+		playscene.build_mode = None
 		if self.mode == None:
 			if column == 1:
 				self.mode = 'build'
 		elif self.mode == 'build':
 			if column == 1:
-				self.mode = 'build_landing'
+				self.mode = 'era_landing'
 			elif column == 2:
-				self.mode = 'build_agriculture'
+				self.mode = 'era_agriculture'
+		elif self.mode.startswith('era_'):
+			era = self.mode.split('_')[1]
+			structures = structure.get_eras()[era]
+			index = column - 1
+			if index < len(structures):
+				s = structures[index]
+				self.mode = 'build_' + s[0]
+				playscene.build_mode = s[0]
+				# TODO: verify you have resources
+				# Otherwise play an error noise and a 
+				# "You require more vespene gas"
 				
 	
 	def render(self, screen):
@@ -220,20 +273,30 @@ class ToolBar:
 			self.draw_button('main_build', 1, screen)
 			self.draw_button('main_demolish', 2, screen)
 			self.draw_button('main_exit', 100, screen)
-		if self.mode == 'build':
+		elif self.mode == 'build':
 			self.draw_button('back', 0, screen)
 			self.draw_button('era_landing', 1, screen)
 			self.draw_button('era_agriculture', 2, screen)
-		if self.mode == 'build_landing':
+		elif self.mode.startswith('era'):
+			era = self.mode.split('_')[1]
+			structures = structure.get_eras()[era]
 			self.draw_button('back', 0, screen)
-			self.draw_button('build_greenhouse', 1, screen)
-			self.draw_button('build_medicaltent', 2, screen)
-			self.draw_button('build_turret', 3, screen)
-		if self.mode == 'build_agriculture':
+			i = 1
+			for s in structures:
+				self.draw_button('build_' + s[0], i, screen)
+				i += 1
+			
+		elif self.mode.startswith('build_'):
+			id = self.mode.split('_')[1]
+			s = structure.get_structure_by_id(id)
 			self.draw_button('back', 0, screen)
-			self.draw_button('build_farm', 1, screen)
-			self.draw_button('build_quarry', 2, screen)
-			self.draw_button('build_watertreatment', 3, screen)
+			text = get_text("Build " + s[7], (255, 255, 255), 24)
+			screen.blit(text, (40, 9))
+			button = self.buttons['build_' + id]
+			r = screen.blit(button, (screen.get_width() - button.get_width() - 8, 5))
+			pygame.draw.rect(screen, (0, 128, 255), r, 1)
+			# TODO: show costs
+			
 			
 	def draw_button(self, id, index, screen):
 		y = 5

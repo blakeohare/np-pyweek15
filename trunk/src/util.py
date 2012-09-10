@@ -11,7 +11,8 @@ def trim(string):
 
 
 def md5(thing):
-	return hashlib.md5(str(thing)).hexdigest()
+	thing = str(thing).encode('utf-8')
+	return hashlib.md5(thing).hexdigest()
 
 def read_file(path):
 	if os.path.exists(path):

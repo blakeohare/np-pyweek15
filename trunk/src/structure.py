@@ -62,8 +62,8 @@ def create(user_id, type, x, y):
 	if type == 'watertreatment': return WaterTreatment(user_id, x, y)
 	return None
 
-LANDING_ERA = "Landing"
-AGRICULTURAL = "Agricultural"
+LANDING_ERA = "landing"
+AGRICULTURAL = "agriculture"
 
 _structure_info = [
 	# columns:
@@ -74,21 +74,33 @@ _structure_info = [
 	# - food
 	# - water
 	# - minerals
-	['farm', AGRICULTURAL, ['medicaltent'], 0, 0, 50, 25],
-	['greenhouse', LANDING_ERA, [], 2, 0, 10, 0],
-	['hq', None, [], 0, 0, 0],
-	['medicaltent', LANDING_ERA, [], 1, 25, 50, 0],
-	['quarry', AGRICULTURAL, ['medicaltent'], 0, 0, 25, 200],
-	['turret', LANDING_ERA, [], 3, 0, 0, 0],
-	['watertreatment', AGRICULTURAL, ['medicaltent'], 0, 0, 300, 100]
+	# - formatted description
+	# - long description
+	['farm', AGRICULTURAL, ['medicaltent'], 0, 0, 50, 25, "Farm", "beans and carrots, oh my"],
+	['greenhouse', LANDING_ERA, [], 2, 0, 10, 0, "Green House", "Yay. Kale."],
+	['hq', None, [], 0, 0, 0, "Headquarters", "stores your precious ship plans"],
+	['medicaltent', LANDING_ERA, [], 1, 25, 50, 0, "Medical Tent", "Fixes papercuts and heartburn"],
+	['quarry', AGRICULTURAL, ['medicaltent'], 0, 0, 25, 200, "Quarry", "Produces stone"],
+	['turret', LANDING_ERA, [], 3, 0, 0, 0, "Turret", "Bang bang!"],
+	['watertreatment', AGRICULTURAL, ['medicaltent'], 0, 0, 300, 100, "Water Treament Facility", "Produces more usable water"]
 ]
 
 _structure_by_era = {}
+_structure_by_id = {}
 for structure in _structure_info:
 	key = structure[1]
 	if _structure_by_era.get(key) == None:
 		_structure_by_era[key] = []
 	_structure_by_era[key].append(structure)
+	_structure_by_id[structure[0]] = structure
 
 def get_eras():
 	return _structure_by_era
+
+def get_era_formatted_name(shortname):
+	if shortname == LANDING_ERA: return "Landing Equipment"
+	if shortname == AGRICULTURE_ERA: return "Agriculture"
+	return '????'
+
+def get_structure_by_id(id):
+	return _structure_by_id[id]
