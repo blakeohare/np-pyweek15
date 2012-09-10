@@ -63,7 +63,9 @@ mchunksize = 20
 
 # tile border color with alpha (set to None to disable)
 tbcolor = 128, 128, 128, 20
-#tbcolor = None
+tbcolor = None
+
+usetgradient = True
 
 
 
