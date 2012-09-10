@@ -208,9 +208,6 @@ def highlighttile(surf, x, y, looker=None):
     pygame.draw.polygon(s, (255, 0, 0, 50), ps)
     pygame.draw.lines(s, (255, 0, 0, 100), True, ps, 1)
     surf.blit(s, (x0,y0))
-#    if self.lines:
-#        pygame.draw.lines(lsurf, settings.tbcolor, False, ps[0:3], 1)
-
 
 def tileinfo(x, y, looker=None):
     looker = looker or camera
@@ -293,6 +290,27 @@ class Panel(object):
     def screenpos(self, x, y, z):
         return int(x * settings.tilex - self.x0 * self.w), int(-self.y0 * self.h - y * settings.tiley - z * settings.tilez)
 
+    def putterrain(self, surf, h, g, ps):
+        if not settings.usetgradient or h <= 0:
+            return pygame.draw.polygon(surf, hcolor(h, g, 0), ps)
+        tgrad = images.get_image("terrain-gradient.png")
+        xs, ys = zip(*ps)
+        x0, y0, x1, y1 = min(xs), min(ys), max(xs), max(ys)
+        xs = [x-x0 for x in xs]
+        ys = [y-y0 for y in ys]
+        xc = 200 + int(g * 25)
+        yc = 360 - int(h * 10)
+        w, h = x1-x0+1, y1-y0+1
+        s = pygame.Surface((w, h)).convert()
+        mask = pygame.Surface((w, h)).convert()
+        mask.fill((255,0,255))
+        mask.set_colorkey((0,0,0))
+        pygame.draw.polygon(mask, (0,0,0), [(x-x0,y-y0) for x,y in ps])
+        s.blit(tgrad, (-xc, -yc))
+        s.blit(mask, (0,0))
+        s.set_colorkey((255,0,255))
+        surf.blit(s, (x0, y0))
+
     def compute(self):
         self.surf = pygame.Surface((self.w, self.h)).convert()
         self.lines = bool(settings.tbcolor)
@@ -308,7 +326,7 @@ class Panel(object):
             for x in range(x0, x1):
                 if (x + y) % 2: continue
                 h, gx, gy, ps = tileinfo(x, y, self)
-                pygame.draw.polygon(self.surf, hcolor(h, gx, gy), ps)
+                self.putterrain(self.surf, h, gx, ps)
                 if self.lines:
                     pygame.draw.lines(lsurf, settings.tbcolor, False, ps[0:3], 1)
                 if max(py for px, py in ps) > 0:
@@ -321,7 +339,7 @@ class Panel(object):
             for x in range(x0, x1):
                 if (x + y) % 2: continue
                 h, gx, gy, ps = tileinfo(x, y, self)
-                pygame.draw.polygon(self.surf, hcolor(h, gx, gy), ps)
+                self.putterrain(self.surf, h, gx, ps)
                 if self.lines:
                     pygame.draw.lines(lsurf, settings.tbcolor, False, ps[0:3], 1)
                 if min(py for px, py in ps) < self.h:
