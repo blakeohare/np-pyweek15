@@ -30,7 +30,7 @@ def add_user(user, password):
 
 
 def light_authenticate(user_id, password):
-	result = sql.query("SELECT `user_id`, `password` FROM `user` WHERE `name`=%s LIMIT 1",(user,) )
+	result = sql.query("SELECT `user_id`, `password` FROM `user` WHERE `user_id`=%s LIMIT 1",(user_id,) )
 	if len(result) == 0:
 		return False
 	return result[0]['password'] == password
