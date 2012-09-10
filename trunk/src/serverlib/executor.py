@@ -31,20 +31,14 @@ def do_things(action, args):
 					args.get('loc'),
 					args.get('type'))
 				
-			elif action == 'destroy':
-				token=args.get('client_token')
-				success=False;
-				if token:
-					duplicate=sql.query('select author_token from event where author_token=%s',token)
-					sector=args['sector']
-					coordinate=args['loc']
-					if not duplicate:
-						data='Destroyat:%s,%s'%(sector, coordinate)
-						event_id=sql.insert('insert into event (author_token, sector_xy,type,data) values (%s,%s,%s,%s)',(token, sector,type,data))
-						sql.query('delete from structure where sector_xy=%s and xy=%s',sector,coordinate)
-					return {'success':success, 'sectors':build_sector_response(args)}
-				else:
-					output = {'success':False}
+			elif action == 'demolish':
+				from serverlib import demolish
+				return demolish.do_demolish(
+					user_id,
+					args.get('last_id'),
+					args.get('sector'),
+					args.get('loc'),
+					args.get('client_token'))
 			else:
 				return { 'success': False, 'message': "Unrecognized command" }
 		else:
