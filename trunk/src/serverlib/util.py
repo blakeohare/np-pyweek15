@@ -1,3 +1,8 @@
+import hashlib
+
+def md5(thing):
+	return hashlib.md5(str(thing)).hexdigest()
+
 def format_output(thing, debug):
 	if debug:
 		return str(thing).replace('\n', '<br />')
