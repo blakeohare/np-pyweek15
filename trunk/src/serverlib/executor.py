@@ -11,6 +11,10 @@ def do_things(action, args):
 		return { 'success': True, 'data': args.get('data', None) }
 	elif action == 'authenticate':
 		return authenticate.heavy_authenticate(args.get('user', ''), args.get('password', ''), True)
+	elif action == 'getuser':
+		from serverlib import getuser
+		return getuser.get_user(args.get('user_id_list', None))
+		
 	else:
 		user_id = util.parseInt(args.get('user_id', 0))
 		if authenticate.light_authenticate(user_id, args.get('password', '')):
