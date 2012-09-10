@@ -69,3 +69,11 @@ def parseInt(value):
 		return int(value)
 	except:
 		return 0
+
+def get_structure_size(type):
+	if type in ('turret', 'hq'):
+		return 1
+	return 1
+
+def tsanitize(string):
+	return '^'.join(map(lambda x:str(int(x)), string.split('^')))
