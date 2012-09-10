@@ -39,6 +39,14 @@ def height0(x, y):
     if h > 0: h -= min(h/2, 20)
     return int(h)
 
+
+# Convert between axis-aligned (render) coordinates and tilted (model) coordinates
+def toModel(x, y):
+    return (x-y)/2, (-x-y)/2
+def toRender(X, Y):
+    return X-Y, -X-Y
+
+
 def hcolor(h, gx, gy):
     a = 0.8 + 0.08 * gx
     if h <= 0: r = (0,0,100)
