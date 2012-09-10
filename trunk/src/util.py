@@ -25,3 +25,7 @@ def write_file(path, contents):
 	c = open(path, 'wt')
 	c.write(contents)
 	c.close()
+
+def totuple(stringpair):
+	x,y = stringpair.split('^')
+	return (int(x), int(y))

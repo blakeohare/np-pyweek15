@@ -1,10 +1,10 @@
 import pygame
 from src import worldmap, camera, images
 
-class Building(object):
+class Structure(object):
 	# TODO: handle buildings with bigger footprints than 1x1
 	def __init__(self, x, y, z=None):
-		self.x, self.y = x, y
+		self.x, self.y = worldmap.toRender(x, y)
 		self.z = worldmap.iheight(x, y) if z is None else z
     
 	def renderplatform(self, screen):
@@ -33,9 +33,30 @@ class Building(object):
 	def update(self):
 		pass
 
-class HQ(Building):
-	btype = "hq"
-
-class Greenhouse(Building):
+class Farm(Structure):
+	btype = "farm"
+class Greenhouse(Structure):
 	btype = "greenhouse"
+class HQ(Structure):
+	btype = "hq"
+class MedicalTent(Structure):
+	btype = "medicaltent"
+class Quarry(Structure):
+	btype = "quarry"
+class Radar(Structure):
+	btype = "radar"
+class Turret(Structure):
+	btype = "turret"
+class WaterTreatment(Structure):
+	btype = "watertreatment"
 
+def create(type, x, y):
+	if type == 'farm': return Farm(x, y)
+	if type == 'greenhouse': return Greenhouse(x, y)
+	if type == 'hq': return HQ(x, y)
+	if type == 'medicaltent': return MedicalTent(x, y)
+	if type == 'quarry': return Quarry(x, y)
+	if type == 'radar': return Radar(x, y)
+	if type == 'turret': return Turret(x, y)
+	if type == 'watertreatment': return WaterTreatment(x, y)
+	return None

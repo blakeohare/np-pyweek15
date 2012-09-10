@@ -4,7 +4,7 @@ import os
 from collections import defaultdict
 
 from src import menus
-from src import worldmap, settings, sprite, building
+from src import worldmap, settings, sprite, structure
 from src.font import get_text
 # types: key, type, mouseleft, mouseright, mousemove
 # action: left, right, up down, build, enter, demolish
@@ -74,15 +74,15 @@ class PlayScene(object):
 		self.you = sprite.You(x0, y0)
 		self.you.lookatme()
 		self.sprites = [self.you]
-		# Put down some random buildings OBVIOUSLY THIS IS JUST FOR TESTING
-		self.buildings = []
+		# Put down some random structures OBVIOUSLY THIS IS JUST FOR TESTING
+		self.structures = []
 		import random
 		for j in range(100):
 			x = x0 + random.randint(-50, 50)
 			y = y0 + random.randint(-50, 50)
 			if not worldmap.canbuildhere(x, y): continue
-			Btype = random.choice([building.HQ, building.Greenhouse])
-			self.buildings.append(Btype(x, y))
+			Btype = random.choice([structure.HQ, structure.Greenhouse])
+			self.structures.append(Btype(x, y))
 
 	def process_input(self, events, pressed):
 		dx, dy = (pressed['right'] - pressed['left']), (pressed['up'] - pressed['down'])
@@ -92,14 +92,14 @@ class PlayScene(object):
 		self.you.move(dx, dy)
 
 	def update(self):
-		for building in self.buildings: building.update()
+		for structure in self.structures: structure.update()
 		for sprite in self.sprites: sprite.update()
 		self.you.trackme()
 		worldmap.killtime(0.01)
 	
 	def render(self, screen):
 		cursortile = worldmap.nearesttile(self.you.x, self.you.y)
-		worldmap.drawscene(screen, self.buildings + self.sprites, cursortile)
+		worldmap.drawscene(screen, self.structures + self.sprites, cursortile)
 		if settings.showminimap:
 			worldmap.drawminimap(screen)
 		ax, ay = worldmap.toModel(*cursortile)
