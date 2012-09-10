@@ -61,3 +61,34 @@ def create(user_id, type, x, y):
 	if type == 'turret': return Turret(user_id, x, y)
 	if type == 'watertreatment': return WaterTreatment(user_id, x, y)
 	return None
+
+LANDING_ERA = "Landing"
+AGRICULTURAL = "Agricultural"
+
+_structure_info = [
+	# columns:
+	# - type
+	# - era
+	# - required structures
+	# - limit
+	# - food
+	# - water
+	# - minerals
+	['farm', AGRICULTURAL, ['medicaltent'], 0, 0, 50, 25],
+	['greenhouse', LANDING_ERA, [], 2, 0, 10, 0],
+	['hq', None, [], 0, 0, 0],
+	['medicaltent', LANDING_ERA, [], 1, 25, 50, 0],
+	['quarry', AGRICULTURAL, ['medicaltent'], 0, 0, 25, 200],
+	['turret', LANDING_ERA, [], 3, 0, 0, 0],
+	['watertreatment', AGRICULTURAL, ['medicaltent'], 0, 0, 300, 100]
+]
+
+_structure_by_era = {}
+for structure in _structure_info:
+	key = structure[1]
+	if _structure_by_era.get(key) == None:
+		_structure_by_era[key] = []
+	_structure_by_era[key].append(structure)
+
+def get_eras():
+	return _structure_by_era
