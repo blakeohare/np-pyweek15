@@ -188,7 +188,7 @@ class TitleScene(UiScene):
 	def __init__(self):
 		UiScene.__init__(self)
 		self.username = TextBox(20, 200, 100, "Username")
-		self.add_element(Image(0, 0, 'title.png'))
+		self.add_element(Image(0, 0, 'title.jpg'))
 		self.add_element(self.username)
 		self.button = Button(20, 230, "Login", self.login_pressed, False)
 		self.add_element(self.button)
