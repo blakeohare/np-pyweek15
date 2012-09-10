@@ -218,6 +218,7 @@ class TitleScene(UiScene):
 		raw_users = util.read_file('users.txt')
 		if raw_users == None:
 			users = []
+			raw_users = ''
 		else:
 			users = util.trim(raw_users).split('\n')
 		user_lookup = {}
