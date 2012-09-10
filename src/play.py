@@ -102,6 +102,8 @@ class PlayScene(object):
 		worldmap.drawscene(screen, self.buildings + self.sprites, cursortile)
 		if settings.showminimap:
 			worldmap.drawminimap(screen)
+		ax, ay = worldmap.toModel(*cursortile)
+		screen.blit(get_text("Position: %s %s" % (int(ax//1), int(ay//1)), (255, 0, 0), 18), (4, settings.sy-22))
 
 def main():
 	
