@@ -15,7 +15,7 @@ def do_build(user_id, client_token, last_id, sector, loc, type, poll_afterwards=
 				'INSERT INTO `event` (`client_token`, `sector_xy`, `user_id`, `data`) VALUES (%s, %s, %s, %s)', (client_token, sector, user_id, data))
 			sql.insert('INSERT INTO `structure` (`type`, `sector_xy`, `loc_xy`, `user_id`, `event_id`) VALUES (%s, %s, %s, %s, %s)', (type, sector, loc, user_id, event_id))
 		if poll_afterwards:
-			return poll.do_poll(str(last_id) + '^' + sector)
+			return poll.do_poll(user_id, str(last_id) + '^' + sector)
 	else:
 		return { 'success':False, 'message': "missing client token" }
 

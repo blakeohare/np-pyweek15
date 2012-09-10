@@ -1,6 +1,6 @@
 from serverlib import sql
 
-def do_poll(sector_args):
+def do_poll(user_id, sector_args):
 	output = { 'success': True }
 	sectors = []
 	for sector in sector_args.split(','):
@@ -35,6 +35,7 @@ def do_poll(sector_args):
 				sector_data['events'] = all_events
 				events_db = sql.query("SELECT `event_id`, `client_token`, `user_id`, `data` FROM `event` WHERE `sector_xy` = %s AND `event_id` > " + str(last_id), (sector_id,))
 				for event in events_db:
+					data = event['data']
 					client_token = event['client_token'] if event['user_id'] == user_id else None
 					e = [event['event_id'], client_token, event['user_id'], data]
 					all_events.append(e)
