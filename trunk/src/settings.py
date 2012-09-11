@@ -34,6 +34,8 @@ sx, sy = wsx, wsy
 sz = wsz
 
 
+cursorgridsize = 4
+
 trackvalue = 0.2
 
 showminimap = True
