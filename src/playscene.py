@@ -9,6 +9,7 @@ from src import sprite
 from src import structure
 from src import util
 from src import worldmap
+from src import terrain
 
 from src.font import get_text
 from src.images import get_image
@@ -167,7 +168,7 @@ class PlayScene:
 					(structure.x - cx) * 16 + 200 - img.get_width() // 2,
 					(-structure.y + cy) * 8 + 150 + 40])
 		# TODO: Ask Cosmo about the cursor crashing
-		worldmap.drawscene(screen, self.sprites + structures)#, (int(cx), int(cy)))
+		worldmap.drawscene(screen, self.sprites + structures, terrain.nearesttile((cx), (cy)))
 		for label in labels:
 			screen.blit(label[0], (label[1], label[2]))
 		mx, my = self.player.getModelXY()
