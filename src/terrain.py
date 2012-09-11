@@ -6,9 +6,13 @@ from src import settings, camera
 
 # Convert between axis-aligned (render) coordinates and tilted (model) coordinates
 def toModel(x, y):
-    return (x-y)/2, (-x-y)/2
+    y -= 1
+    return (x-y) / 2.0, (-x-y) / 2.0
 def toRender(X, Y):
-    return X-Y, -X-Y
+    return X-Y, -X-Y + 1
+def toCenterRender(x, y):
+    x, y = toRender(x, y)
+    return int(x), int(y - 1)
 
 # Python 2.5 shim
 try:
