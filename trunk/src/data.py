@@ -62,26 +62,33 @@ class MagicPotato:
 								self.remove_structure(id, x, y)
 	
 	def get_building_selection(self, mx, my):
+		
 		imx = int(mx // 1)
 		imy = int(my // 1)
 		
+		adj = (-1, 0, 1)
+		
 		bbc = self.buildings_by_coord
 		
-		tx = 0
-		ty = 0
+		buildings = []
+		for dx in adj:
+			for dy in adj:
+				x = imx + dx
+				y = imy + dy
+				building = bbc.get((x, y))
+				if building != None:
+					buildings.append((x, y, building))
 		
-		dx = mx - imx
-		dy = my - imy
-		if dx < .2:
-			tx = -1
-		elif dx > .8:
-			tx = 1
-		if dy < .2:
-			ty = -1
-		elif dy > .8:
-			ty = 1
-		
-		b = bbc.get((imx + tx, imy + ty), None)
+		b = None
+		for building in buildings:
+			left = building[0] - .3
+			right = building[0] + 1.3
+			top = building[1] - .3
+			bottom = building[1] + 1.3
+			
+			if mx > left and mx < right and my > top and my < bottom:
+				b = building[2]
+				break
 		
 		if self.active_selection != None:
 			self.active_selection.selected = False
