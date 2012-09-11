@@ -60,8 +60,29 @@ class MagicPotato:
 									type = parts[0]
 									loc = util.totuple(parts[1])
 									self.add_structure(user_id, type, id[0], id[1], loc[0], loc[1])
+							elif datakey == 'demolish':
+								x, y = map(int, datavalue.split('^'))
+								self.remove_structure(id, x, y)
 			
-	
+	def remove_structure(self, sector, x, y):
+		i = 0
+		buildings = self.buildings_by_sector[sector]
+		while i < len(buildings):
+			building = buildings[i]
+			bx, by = building.getModelXY()
+			if bx == x and by == y:
+				self.buildings_by_sector[sector] = buildings[:i] + buildings[i + 1:]
+				size = structure.get_structure_size(building.type)
+				for px in range(size):
+					for py in range(size):
+						key = (bx + px, by + py)
+						if key in self.buildings_by_coord:
+							self.buildings_by_coord.pop(key)
+				break
+			i += 1
+		
+		
+		
 	def add_structure(self, user_id, type, sx, sy, x, y):
 		#if self.buildings_by_id.get(id, None) != None: return
 		# TODO: determine if building already exists by alternate means
@@ -91,9 +112,9 @@ class MagicPotato:
 				self.buildings_by_sector[sector] = list
 				list.append(s)
 		
-		for x in range(x, x + size):
-			for y in range(y, y + size):
-				self.buildings_by_coord[(x, y)] = s
+		for px in range(size):
+			for py in range(size):
+				self.buildings_by_coord[(ax + px, ay + py)] = s
 	
 	def get_structures_for_screen(self, cx, cy):
 		

@@ -95,6 +95,20 @@ class PlayScene:
 				if event.down and event.action == 'build':
 					if self.build_mode != None:
 						self.build_thing(self.build_mode)
+					elif self.toolbar.mode == 'demolish':
+						x, y = self.player.getModelXY()
+						self.blow_stuff_up(x, y)
+	
+	def blow_stuff_up(self, x, y):
+		col = int(x)
+		row = int(y)
+		sx = col // 60
+		sy = row // 60
+		x = col % 60
+		y = col % 60
+		network.send_demolish(
+			self.user_id, self.password,
+			sx, sy, x, y, self.get_new_client_token())
 	
 	def build_thing(self, type):
 		# TODO: verify you can build this item
@@ -232,7 +246,7 @@ class ToolBar:
 	def press_back(self):
 		if self.mode == None:
 			pass # how did you get here?
-		elif self.mode == 'build':
+		elif self.mode in ('build', 'demolish'):
 			self.mode = None
 		elif self.mode.startswith('era_'):
 			self.mode = 'build'
@@ -247,6 +261,8 @@ class ToolBar:
 		if self.mode == None:
 			if column == 1:
 				self.mode = 'build'
+			elif column == 2:
+				self.mode = 'demolish'
 		elif self.mode == 'build':
 			if column == 1:
 				self.mode = 'era_landing'

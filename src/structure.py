@@ -1,4 +1,5 @@
 import pygame
+import util
 from src import camera, images, terrain
 
 class Structure(object):
@@ -7,6 +8,10 @@ class Structure(object):
 		self.user_id = user_id
 		self.x, self.y = terrain.toRender(x, y)
 		self.z = terrain.iheight(x, y) if z is None else z
+
+	# north point
+	def getModelXY(self):
+		return terrain.toModel(self.x, self.y)
     
 	def renderplatform(self, screen):
 		# TODO: this should probably be cached into an image
@@ -21,7 +26,7 @@ class Structure(object):
 		pygame.draw.polygon(screen, (0,50,50), (p1,p5,p6,p2))
 		# top
 		pygame.draw.polygon(screen, (0,70,70), (p0,p1,p2,p3))
-    
+
 	def render(self, screen):
 		px, py = camera.screenpos(self.x, self.y, self.z)
 		if not camera.isvisible(px, py, 100):
@@ -76,13 +81,13 @@ _structure_info = [
 	# - minerals
 	# - formatted description
 	# - long description
-	['farm', AGRICULTURAL, ['medicaltent'], 0, 0, 50, 25, "Farm", "beans and carrots, oh my"],
-	['greenhouse', LANDING_ERA, [], 2, 0, 10, 0, "Green House", "Yay. Kale."],
-	['hq', None, [], 0, 0, 0, "Headquarters", "stores your precious ship plans"],
-	['medicaltent', LANDING_ERA, [], 1, 25, 50, 0, "Medical Tent", "Fixes papercuts and heartburn"],
-	['quarry', AGRICULTURAL, ['medicaltent'], 0, 0, 25, 200, "Quarry", "Produces stone"],
-	['turret', LANDING_ERA, [], 3, 0, 0, 0, "Turret", "Bang bang!"],
-	['watertreatment', AGRICULTURAL, ['medicaltent'], 0, 0, 300, 100, "Water Treament Facility", "Produces more usable water"]
+	['farm', AGRICULTURAL, ['medicaltent'], 0, 0, 50, 25, "Farm", "beans and carrots, oh my", 2],
+	['greenhouse', LANDING_ERA, [], 2, 0, 10, 0, "Green House", "Yay. Kale.", 1],
+	['hq', None, [], 0, 0, 0, "Headquarters", "stores your precious ship plans", 1],
+	['medicaltent', LANDING_ERA, [], 1, 25, 50, 0, "Medical Tent", "Fixes papercuts and heartburn", 1],
+	['quarry', AGRICULTURAL, ['medicaltent'], 0, 0, 25, 200, "Quarry", "Produces stone", 2],
+	['turret', LANDING_ERA, [], 3, 0, 0, 0, "Turret", "Bang bang!", 1],
+	['watertreatment', AGRICULTURAL, ['medicaltent'], 0, 0, 300, 100, "Water Treament Facility", "Produces more usable water", 2]
 ]
 
 _structure_by_era = {}
@@ -104,3 +109,7 @@ def get_era_formatted_name(shortname):
 
 def get_structure_by_id(id):
 	return _structure_by_id[id]
+
+
+def get_structure_size(type):
+	return _structure_by_id[type][11]
