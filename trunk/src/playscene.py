@@ -97,6 +97,7 @@ class PlayScene:
 						self.build_thing(self.build_mode)
 					elif self.toolbar.mode == 'demolish':
 						x, y = self.player.getModelXY()
+						
 						self.blow_stuff_up(x, y)
 	
 	def blow_stuff_up(self, x, y):
@@ -105,7 +106,7 @@ class PlayScene:
 		sx = col // 60
 		sy = row // 60
 		x = col % 60
-		y = col % 60
+		y = row % 60
 		network.send_demolish(
 			self.user_id, self.password,
 			sx, sy, x, y, self.get_new_client_token())
@@ -154,8 +155,6 @@ class PlayScene:
 		cx = self.player.x
 		cy = self.player.y
 		camera.lookat(cx, cy)
-		#print cx, cy, self.player.getModelXY()
-		# TODO: Ask Cosmo about the cursor crashing
 		structures = self.potato.get_structures_for_screen(cx, cy)
 		labels = []
 		for structure in structures:
@@ -167,6 +166,7 @@ class PlayScene:
 					img,
 					(structure.x - cx) * 16 + 200 - img.get_width() // 2,
 					(-structure.y + cy) * 8 + 150 + 40])
+		# TODO: Ask Cosmo about the cursor crashing
 		worldmap.drawscene(screen, self.sprites + structures)#, (int(cx), int(cy)))
 		for label in labels:
 			screen.blit(label[0], (label[1], label[2]))
@@ -293,6 +293,10 @@ class ToolBar:
 			self.draw_button('back', 0, screen)
 			self.draw_button('era_landing', 1, screen)
 			self.draw_button('era_agriculture', 2, screen)
+		elif self.mode == 'demolish':
+			self.draw_button('back', 0, screen)
+			text = get_text("Demolish", (255, 255, 255), 24)
+			screen.blit(text, (40, 9))
 		elif self.mode.startswith('era'):
 			era = self.mode.split('_')[1]
 			structures = structure.get_eras()[era]

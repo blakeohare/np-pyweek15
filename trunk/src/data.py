@@ -65,10 +65,14 @@ class MagicPotato:
 								self.remove_structure(id, x, y)
 			
 	def remove_structure(self, sector, x, y):
+		x += sector[0] * 60
+		y += sector[1] * 60
+		
 		i = 0
 		buildings = self.buildings_by_sector[sector]
 		while i < len(buildings):
 			building = buildings[i]
+			
 			bx, by = building.getModelXY()
 			if bx == x and by == y:
 				self.buildings_by_sector[sector] = buildings[:i] + buildings[i + 1:]

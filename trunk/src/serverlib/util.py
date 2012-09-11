@@ -76,7 +76,7 @@ def parseInt(value):
 		return 0
 
 def get_structure_size(type):
-	if type in ('watertreatment'):
+	if type in ('watertreatment', 'quarry', 'farm'):
 		return 2
 	if type in ('turret', 'hq'):
 		return 1
