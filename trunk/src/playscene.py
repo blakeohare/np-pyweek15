@@ -126,8 +126,6 @@ class PlayScene:
 							self.blow_stuff_up(x, y)
 		you_x, you_y = terrain.toiModel(self.player.x, self.player.y)
 		selected_building = self.potato.get_building_selection(you_x, you_y)
-		if selected_building != None:
-			print selected_building
 		
 	def blow_stuff_up(self, x, y):
 		col = util.floor(x)
