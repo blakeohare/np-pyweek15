@@ -49,14 +49,20 @@ rngcheck = 0.9908284413950574   # random.seed(noiseseed) ; random.random()
 nmapsize = 64
 tf0 = 0.03
 tfactors = 1.000, 1.618, 2.618, 4.236, 6.854, 11.090, 17.944, 29.034
-sealevel = -0.3
-tscale = 30
+# ", ".join(["%.2f" % (random.random() * 256) for _ in range(8)])
+toffsets = 140.08, 192.23, 234.93, 139.46, 105.50, 81.69, 152.01, 226.66
+sealevel = -0.33
+tscale = 16
+tstepsize = 0.3
+tsteps = 16, 20
 
 # Size of a cached parcel
 parcelsize = 40
 
 # Size of a panel surface
 panelw, panelh = 400, 300
+
+lightx, lighty = 0.1, 0.1
 
 # Size of a cached minimap chunk
 mchunksize = 20
