@@ -2,6 +2,7 @@ import pygame
 from src import camera, images, terrain, util
 
 class Structure(object):
+	minicolor = 192, 192, 192
 	# TODO: handle buildings with bigger footprints than 1x1
 	def __init__(self, user_id, x, y, z=None):
 		self.user_id = user_id
@@ -34,6 +35,13 @@ class Structure(object):
 		img = images.get_image("buildings/%s.png" % self.btype)
 		ix, iy = img.get_size()
 		screen.blit(img, (px-ix//2, py-iy+ix//4))
+
+	# Draw onto the minimap
+	def drawmini(self, surf, x0, y0):
+		px, py = int((self.x - x0)//1), int((-self.y + y0)//1)
+		pygame.draw.line(surf, self.minicolor, (px-1,py), (px+1,py))
+		pygame.draw.line(surf, self.minicolor, (px,py-1), (px,py+1))
+
 
 	def update(self):
 		pass

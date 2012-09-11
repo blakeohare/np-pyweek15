@@ -40,6 +40,7 @@ trackvalue = 0.2
 
 showminimap = True
 minimapsize = 64
+minimappos = -72, -72
 dumpmap = False
 
 # screen size for one unit in world coordinates

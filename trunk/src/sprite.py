@@ -25,9 +25,15 @@ class Sprite(object):
 	def setModelXY(self, x, y):
 		self.x, self.y = terrain.toRender(self.x, self.y)
 
+	def drawmini(self, surf, x0, y0):
+		px, py = int((self.x - x0)//1), int((-self.y + y0)//1)
+		pygame.draw.line(surf, self.minicolor, (px-1,py), (px+1,py))
+		pygame.draw.line(surf, self.minicolor, (px,py-1), (px,py+1))
+
 # Just a bouncing ball for now
 class You(Sprite):
 	v = 0.4  # tiles per frame
+	minicolor = 255, 0, 0  # color on the minimap
 
 	def move(self, dx, dy):
 		self.x += dx * self.v

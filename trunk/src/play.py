@@ -94,7 +94,7 @@ class PlayScene(object):
 		cursortile = terrain.nearesttile(self.you.x, self.you.y)
 		worldmap.drawscene(screen, self.structures + self.sprites, (self.you.x, self.you.y))
 		if settings.showminimap:
-			worldmap.drawminimap(screen)
+			worldmap.drawminimap(screen, [self.you])
 		ax, ay = terrain.toModel(*cursortile)
 		screen.blit(get_text("Position: %s %s" % (int(ax//1), int(ay//1)), (255, 0, 0), 18), (4, settings.sy-22))
 
@@ -179,8 +179,6 @@ def main():
 		scene.render(vscreen)
 		if settings.sz == 1:
 			rscreen.blit(vscreen, (0,0))
-		elif settings.sz == 2:
-			pygame.transform.scale2x(vscreen, rscreen)
 		else:
 			pygame.transform.scale(vscreen, rscreen.get_size(), rscreen)
 		
