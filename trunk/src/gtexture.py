@@ -108,7 +108,8 @@ def putterrain(surf, h, h0, g, ps):
 
 def hcolor(h, h0, g):
 	if h > 0: h0 = max(h0, 1)
-	a = 1.0 + 0.04 * (g-10)
+	g = g / 0.1 if h0 > 0 else 0
 	c = grads[max(a for a in grads if a <= h0)][0]
-	return [int(a*x) for x in c]
+	f = min(max(1.0 + 0.04 * (g-10), 0), 1)
+	return [int(f*x) for x in c]
 
