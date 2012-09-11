@@ -10,6 +10,7 @@ from src import structure
 from src import util
 from src import worldmap
 from src import terrain
+from src import battle
 
 from src.font import get_text
 from src.images import get_image
@@ -69,38 +70,44 @@ class PlayScene:
 		self.client_token = [
 			util.md5(str(time.time()) + "client token for session" + str(self.user_id))[:10],
 			1]
+		self.battle = None
 	
 	def get_new_client_token(self):
 		self.client_token[1] += 1
 		return self.client_token[0] + '^' + str(self.client_token[1])
 	
 	def process_input(self, events, pressed):
-		direction = ''
-		dx, dy = 0, 0
-		v = .15
-		if pressed['up']: dy += v
-		if pressed['down']: dy -= v
-		if pressed['left']: dx -= v
-		if pressed['right']: dx += v
+		if self.battle != None:
+			self.battle.process_input(events, pressed)
+		else:
+			direction = ''
+			dx, dy = 0, 0
+			v = .15
+			if pressed['up']: dy += v
+			if pressed['down']: dy -= v
+			if pressed['left']: dx -= v
+			if pressed['right']: dx += v
+			
+			self.player.x += dx
+			self.player.y += dy
+			
+			for event in events:
+				if event.type == 'mouseleft':
+					if event.down:
+						self.toolbar.click(event.x, event.y, self.last_width, self)
+				elif event.type == 'mousemove':
+					self.toolbar.hover(event.x, event.y, self.last_width)
+				elif event.type == 'key':
+					if event.down and event.action == 'debug':
+						self.battle = battle.Battle(self.user_id, None)
+					elif event.down and event.action == 'build':
+						if self.build_mode != None:
+							self.build_thing(self.build_mode)
+						elif self.toolbar.mode == 'demolish':
+							x, y = self.player.getModelXY()
+							
+							self.blow_stuff_up(x, y)
 		
-		self.player.x += dx
-		self.player.y += dy
-		
-		for event in events:
-			if event.type == 'mouseleft':
-				if event.down:
-					self.toolbar.click(event.x, event.y, self.last_width, self)
-			elif event.type == 'mousemove':
-				self.toolbar.hover(event.x, event.y, self.last_width)
-			elif event.type == 'key':
-				if event.down and event.action == 'build':
-					if self.build_mode != None:
-						self.build_thing(self.build_mode)
-					elif self.toolbar.mode == 'demolish':
-						x, y = self.player.getModelXY()
-						
-						self.blow_stuff_up(x, y)
-	
 	def blow_stuff_up(self, x, y):
 		col = int(x)
 		row = int(y)
@@ -131,7 +138,6 @@ class PlayScene:
 	
 	def update(self):
 		self.potato.update()
-		self.player.update()
 		self.poll_countdown -= 1
 		if self.poll_countdown < 0 and len(self.poll) == 0:
 			self.poll.append(network.send_poll(
@@ -152,6 +158,14 @@ class PlayScene:
 			self.poll_countdown = 10 * settings.fps
 		worldmap.killtime(0.01)  # Helps remove jitter when exploring
 		
+		if self.battle != None:
+			self.battle.update()
+			if self.battle.is_complete():
+				# TODO: do logic to apply results
+				self.battle = None
+		
+		self.player.update()
+		
 	def render(self, screen):
 		self.last_width = screen.get_width()
 		cx = self.player.x
@@ -169,6 +183,9 @@ class PlayScene:
 					(structure.x - cx) * 16 + 200 - img.get_width() // 2,
 					(-structure.y + cy) * 8 + 150 + 40])
 		entities = structures + self.sprites
+		if self.battle != None:
+			entities += self.battle.get_sprites()
+		
 		worldmap.drawscene(screen, entities, (cx, cy))
 		for label in labels:
 			screen.blit(label[0], (label[1], label[2]))
@@ -185,6 +202,23 @@ class PlayScene:
 		coords = get_text("R: (%0.1f, %0.1f) M: (%0.1f, %0.1f)"%(cx, cy, mx, my), (255, 255, 0), 16)
 		screen.blit(coords, (5, screen.get_height() - 5 - coords.get_height()))
 		self.toolbar.render(screen)
+		if self.battle != None:
+			data = self.battle.bytes_stolen()
+			
+			if self.battle.is_computer_attacking():
+				text = "Bytes lost: " + str(data)
+				color = (255, 0, 0)
+			else:
+				text = "Bytes learned: " + str(data)
+				color = (0, 100, 255)
+			if data == 0:
+				text = "Attack in progress"
+			
+			text = get_text(text, color, 22)
+			x = ((screen.get_width() - text.get_width()) // 2)
+			y = screen.get_height() * 4 // 5
+			screen.blit(text, (x, y))
+			
 
 class ToolBar:
 	def __init__(self):
