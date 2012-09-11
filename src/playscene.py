@@ -124,7 +124,7 @@ class PlayScene:
 							x, y = self.player.getModelXY()
 							
 							self.blow_stuff_up(x, y)
-		you_x, you_y = terrain.toiModel(self.player.x, self.player.y)
+		you_x, you_y = terrain.toModel(self.player.x, self.player.y)
 		selected_building = self.potato.get_building_selection(you_x, you_y)
 		
 	def blow_stuff_up(self, x, y):
@@ -211,7 +211,8 @@ class PlayScene:
 		if settings.showminimap:
 		    worldmap.drawminimap(screen, entities)
 		mx, my = self.player.getModelXY()
-		coords = get_text("R: (%0.1f, %0.1f) M: (%0.1f, %0.1f)"%(cx, cy, mx, my), (255, 255, 0), 16)
+		lx, ly = int(mx // 1), int(my // 1)
+		coords = get_text("R: (%0.1f, %0.1f) M: (%0.1f, %0.1f) L: (%i, %i)" % (cx, cy, mx, my, lx, ly), (255, 255, 0), 16)
 		screen.blit(coords, (5, screen.get_height() - 5 - coords.get_height()))
 		self.toolbar.render(screen)
 		if self.battle != None:
