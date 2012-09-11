@@ -6,6 +6,7 @@ class Structure(object):
 	# TODO: handle buildings with bigger footprints than 1x1
 	def __init__(self, user_id, x, y, z=None):
 		self.user_id = user_id
+		self.selected = False
 		self.x, self.y = terrain.toCenterRender(x, y)
 		self.z = terrain.iheight(x, y) if z is None else z
 
@@ -32,7 +33,8 @@ class Structure(object):
 		if not camera.isvisible(px, py, 100):
 			return
 		self.renderplatform(screen)
-		img = images.get_image("buildings/%s.png" % self.btype)
+		path = "buildings/selection/%s.png" if self.selected else "buildings/%s.png"
+		img = images.get_image(path % self.btype)
 		ix, iy = img.get_size()
 		screen.blit(img, (px-ix//2, py-iy+ix//4))
 

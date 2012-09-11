@@ -15,6 +15,7 @@ class MagicPotato:
 		self.last_id_by_sector = {}
 		self.player_names = {}
 		self.player_name_search = []
+		self.active_selection = None
 		
 	def apply_poll_data(self, poll):
 		if not poll.get('success', False): return
@@ -59,7 +60,38 @@ class MagicPotato:
 							elif datakey == 'demolish':
 								x, y = map(int, datavalue.split('^'))
 								self.remove_structure(id, x, y)
-			
+	
+	def get_building_selection(self, mx, my):
+		imx = int(mx // 1)
+		imy = int(my // 1)
+		
+		bbc = self.buildings_by_coord
+		
+		tx = 0
+		ty = 0
+		
+		dx = mx - imx
+		dy = my - imy
+		if dx < .2:
+			tx = -1
+		elif dx > .8:
+			tx = 1
+		if dy < .2:
+			ty = -1
+		elif dy > .8:
+			ty = 1
+		
+		b = bbc.get((imx + tx, imy + ty), None)
+		
+		if self.active_selection != None:
+			self.active_selection.selected = False
+		if b != None:
+			b.selected = True
+		
+		self.active_selection = b
+		
+		return b
+		
 	def remove_structure(self, sector, x, y):
 		x += sector[0] * 60
 		y += sector[1] * 60

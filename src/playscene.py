@@ -124,6 +124,10 @@ class PlayScene:
 							x, y = self.player.getModelXY()
 							
 							self.blow_stuff_up(x, y)
+		you_x, you_y = terrain.toiModel(self.player.x, self.player.y)
+		selected_building = self.potato.get_building_selection(you_x, you_y)
+		if selected_building != None:
+			print selected_building
 		
 	def blow_stuff_up(self, x, y):
 		col = util.floor(x)
@@ -208,14 +212,7 @@ class PlayScene:
 			screen.blit(label[0], (label[1], label[2]))
 		if settings.showminimap:
 		    worldmap.drawminimap(screen, entities)
-		# Note: integer coordinates are at the center of tiles, not at the corners of tiles.
-		# So if you just take int(mx), int(my), you'll round down to the wrong tile sometimes.
-		# A better way to do this is probably terrain.toModel(*terrain.nearesttile(cx, cy))
 		mx, my = self.player.getModelXY()
-		mx = util.floor(mx * 100) / 100
-		my = util.floor(my * 100) / 100
-		cx = util.floor(cx * 100) / 100
-		cy = util.floor(cy * 100) / 100
 		coords = get_text("R: (%0.1f, %0.1f) M: (%0.1f, %0.1f)"%(cx, cy, mx, my), (255, 255, 0), 16)
 		screen.blit(coords, (5, screen.get_height() - 5 - coords.get_height()))
 		self.toolbar.render(screen)
