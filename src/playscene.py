@@ -109,8 +109,8 @@ class PlayScene:
 							self.blow_stuff_up(x, y)
 		
 	def blow_stuff_up(self, x, y):
-		col = int(x)
-		row = int(y)
+		col = util.floor(x)
+		row = util.floor(y)
 		sx = col // 60
 		sy = row // 60
 		x = col % 60
@@ -128,13 +128,13 @@ class PlayScene:
 			network.send_build(
 				self.user_id, self.password,
 				type,
-				int(sx), int(sy), int(x % 60), int(y % 60), (int(sx), int(sy)), self.potato.last_id_by_sector, client_token)
+				util.floor(sx), util.floor(sy), util.floor(x % 60), util.floor(y % 60), (util.floor(sx), util.floor(sy)), self.potato.last_id_by_sector, client_token)
 			)
 			
 	
 	def get_current_sector(self):
 		x,y = self.player.getModelXY()
-		return (int(x // 60), int(y // 60))
+		return (util.floor(x // 60), util.floor(y // 60))
 	
 	def update(self):
 		self.potato.update()
@@ -195,10 +195,10 @@ class PlayScene:
 		# So if you just take int(mx), int(my), you'll round down to the wrong tile sometimes.
 		# A better way to do this is probably terrain.toModel(*terrain.nearesttile(cx, cy))
 		mx, my = self.player.getModelXY()
-		mx = int(mx * 100) / 100
-		my = int(my * 100) / 100
-		cx = int(cx * 100) / 100
-		cy = int(cy * 100) / 100
+		mx = util.floor(mx * 100) / 100
+		my = util.floor(my * 100) / 100
+		cx = util.floor(cx * 100) / 100
+		cy = util.floor(cy * 100) / 100
 		coords = get_text("R: (%0.1f, %0.1f) M: (%0.1f, %0.1f)"%(cx, cy, mx, my), (255, 255, 0), 16)
 		screen.blit(coords, (5, screen.get_height() - 5 - coords.get_height()))
 		self.toolbar.render(screen)

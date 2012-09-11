@@ -33,3 +33,9 @@ def totuple(stringpair):
 
 def fromtuple(t):
 	return str(t[0]) + '^' + str(t[1])
+
+def floor(n):
+	if n < 0:
+		if int(n) == n: return int(n)
+		return -int(-n) - 1
+	return int(n)
