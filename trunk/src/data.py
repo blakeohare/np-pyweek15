@@ -4,10 +4,6 @@ from src import camera
 from src import util
 from src import network
 
-_size = {
-	'farm': 2
-}
-
 def max(a, b): return a if a > b else b
 def min(a, b): return a if a < b else b
 
@@ -72,7 +68,6 @@ class MagicPotato:
 		buildings = self.buildings_by_sector[sector]
 		while i < len(buildings):
 			building = buildings[i]
-			
 			bx, by = building.getModelXY()
 			if bx == x and by == y:
 				self.buildings_by_sector[sector] = buildings[:i] + buildings[i + 1:]
@@ -93,7 +88,7 @@ class MagicPotato:
 		
 		ax = sx * 60 + x
 		ay = sy * 60 + y
-		size = _size.get(type, 1)
+		size = structure.get_structure_size(type)
 		
 		s = structure.create(user_id, type, ax, ay)
 		sector = (sx, sy)

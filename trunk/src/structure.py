@@ -11,7 +11,7 @@ class Structure(object):
 
 	
 	def getModelXY(self):
-		return terrain.toModel(self.x, self.y)
+		return terrain.toModel(self.x, self.y + 1)
 		
 	def renderplatform(self, screen):
 		# TODO: this should probably be cached into an image
@@ -93,12 +93,13 @@ _structure_info = [
 	# - minerals
 	# - formatted description
 	# - long description
-	['farm', AGRICULTURAL, ['medicaltent'], 0, 0, 50, 25, "Farm", "beans and carrots, oh my", 2],
-	['greenhouse', LANDING_ERA, [], 2, 0, 10, 0, "Green House", "Yay. Kale.", 1],
-	['hq', None, [], 0, 0, 0, "Headquarters", "stores your precious ship plans", 1],
-	['medicaltent', LANDING_ERA, [], 1, 25, 50, 0, "Medical Tent", "Fixes papercuts and heartburn", 1],
-	['quarry', AGRICULTURAL, ['medicaltent'], 0, 0, 25, 200, "Quarry", "Produces stone", 2],
-	['turret', LANDING_ERA, [], 3, 0, 0, 0, "Turret", "Bang bang!", 1],
+	# - size
+	['farm',           AGRICULTURAL, ['medicaltent'], 0, 0, 50, 25,   "Farm",                    "beans and carrots, oh my", 2],
+	['greenhouse',     LANDING_ERA,  [],              2, 0, 10, 0,    "Green House",             "Yay. Kale.", 1],
+	['hq',             None,         [],              0, 0, 0, 0,     "Headquarters",            "stores your precious ship plans", 1],
+	['medicaltent',    LANDING_ERA,  [],              1, 25, 50, 0,   "Medical Tent",            "Fixes papercuts and heartburn", 1],
+	['quarry',         AGRICULTURAL, ['medicaltent'], 0, 0, 25, 200,  "Quarry",                  "Produces stone", 2],
+	['turret',         LANDING_ERA,  [],              3, 0, 0, 0,     "Turret",                  "Bang bang!", 1],
 	['watertreatment', AGRICULTURAL, ['medicaltent'], 0, 0, 300, 100, "Water Treament Facility", "Produces more usable water", 2]
 ]
 
