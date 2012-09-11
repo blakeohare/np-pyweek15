@@ -11,7 +11,7 @@ def format_output(thing, debug):
 
 def serialize_thing(thing):
 	if thing == None:
-		return serialize_none()
+		return serialize_none(0)
 	t = str(type(thing)).split("'")[1]
 	if t == 'int':
 		return serialize_int(thing)
