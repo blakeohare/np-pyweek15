@@ -36,14 +36,14 @@ def drawfadinggrid(surf, xc, yc, r=None, looker=None):
             h = terrain.iheight(x, y)
             hs[(dx,dy)] = h
             ps[(dx,dy)] = looker.screenpos(x, y, h)
-            alphas[(dx,dy)] = 1 - math.sqrt(((x-xc)**2 + (y-yc)**2) / (r+1)**2)
+            alphas[(dx,dy)] = max(int(50 * (1 - math.sqrt(((x-xc)**2 + (y-yc)**2) / (r+1)**2))), 0)
     for dx in range(-r, r+1):
         for dy in range(-r, r+2):
             if hs[(dx,dy)] or hs[(dx+1,dy)]:
-                a = min(max(int(50 * (alphas[(dx,dy)] + alphas[(dx+1,dy)])), 0), 255)
+                a = alphas[(dx,dy)] + alphas[(dx+1,dy)]
                 pygame.draw.line(s, (255,255,255,a), ps[(dx,dy)], ps[(dx+1,dy)])
             if hs[(dy,dx)] or hs[(dy,dx+1)]:
-                a = min(max(int(50 * (alphas[(dy,dx)] + alphas[(dy,dx+1)])), 0), 255)
+                a = alphas[(dy,dx)] + alphas[(dy,dx+1)]
                 pygame.draw.line(s, (255,255,255,a), ps[(dy,dx)], ps[(dy,dx+1)])
     surf.blit(s, (0, 0))
 
@@ -66,17 +66,17 @@ def minichunk(x0, y0):
         minimaps[(x0,y0)] = s.convert()
 #        print(x0, y0, time.time() - t0)
     return minimaps[(x0,y0)]
-# return a minimap centered at (x, y) with size (w, h)
+# return a minimap starting at (x, y) with size (w, h)
 def minimap(x, y, w, h):
     s = pygame.Surface((w, h)).convert()
     a = settings.mchunksize
-    x0 = int((x-w//2)//a)
-    x1 = int((x+w//2)//a)
-    y0 = int((y-h//2)//a)
-    y1 = int((y+h//2)//a)
+    x0 = int(x//a)
+    x1 = int((x+w)//a)
+    y0 = int((y-h)//a)
+    y1 = int(y//a)
     for ay in range(y0,y1+1):
         for ax in range(x0,x1+1):
-            s.blit(minichunk(ax,ay), (ax*a - (x-w//2), (-ay-1)*a + y + h//2))
+            s.blit(minichunk(ax,ay), (ax*a - x, (-ay-1)*a + y))
     return s
 def dumpmap():
     if not minimaps: return
@@ -105,6 +105,18 @@ def thinkminimap(dt=0):
                 n += 1
             if time.time() > tf:
                 return n
+
+def drawminimap(surf, entities=()):
+    a = settings.minimapsize
+    px, py = settings.minimappos[0] % surf.get_width(), settings.minimappos[1] % surf.get_height()
+    x0, y0 = int(camera.x0 // settings.tilex - a//2), -int(camera.y0 // settings.tiley - a//2)
+    m = minimap(x0, y0, a, a)
+    for entity in entities:
+        entity.drawmini(m, x0, y0)
+    pygame.draw.lines(surf, (80,80,80), False, [(px,py+a+1), (px+a+1,py+a+1), (px+a+1,py)], 1)
+    pygame.draw.lines(surf, (140,140,140), False, [(px,py+a+1), (px,py), (px+a+1,py)], 1)
+    surf.blit(m, (px+1, py+1))
+
 
 # A cached version of the landscape, for fast blitting
 class Panel(object):
@@ -233,11 +245,6 @@ def drawscene(screen, entities, cursorpos = None):
     esort = sorted(entities, key = lambda e: -e.y)
     for entity in esort:
         entity.render(screen)
-
-def drawminimap(screen):
-    a = settings.minimapsize
-    pygame.draw.rect(screen, (255, 255, 255), (10, 10, a + 2, a + 2))
-    screen.blit(minimap(int(camera.x0 // settings.tilex), -int(camera.y0 // settings.tiley), a, a), (11, 11))
 
 
 if __name__ == "__main__":

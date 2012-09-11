@@ -150,6 +150,7 @@ class PlayScene:
 		
 		if len(self.poll) == 0 and self.poll_countdown < 0:
 			self.poll_countdown = 10 * settings.fps
+		worldmap.killtime(0.01)  # Helps remove jitter when exploring
 		
 	def render(self, screen):
 		self.last_width = screen.get_width()
@@ -167,9 +168,12 @@ class PlayScene:
 					img,
 					(structure.x - cx) * 16 + 200 - img.get_width() // 2,
 					(-structure.y + cy) * 8 + 150 + 40])
-		worldmap.drawscene(screen, self.sprites + structures, (cx, cy))
+		entities = structures + self.sprites
+		worldmap.drawscene(screen, entities, (cx, cy))
 		for label in labels:
 			screen.blit(label[0], (label[1], label[2]))
+		if settings.showminimap:
+		    worldmap.drawminimap(screen, entities)
 		# Note: integer coordinates are at the center of tiles, not at the corners of tiles.
 		# So if you just take int(mx), int(my), you'll round down to the wrong tile sometimes.
 		# A better way to do this is probably terrain.toModel(*terrain.nearesttile(cx, cy))
