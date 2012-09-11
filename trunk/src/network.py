@@ -169,3 +169,10 @@ def send_build(user_id, password, type, sector_x, sector_y, loc_x, loc_y, sector
 		'client_token': client_token,
 		'poll_sectors': poll_sectors
 		}, user_id, password)
+	
+def send_demolish(user_id, password, sector_x, sector_y, x, y, client_token):
+	return _send_command('demolish', {
+		'sector': util.fromtuple((sector_x, sector_y)),
+		'loc': util.fromtuple((x, y)),
+		'client_token': client_token
+	}, user_id, password)
