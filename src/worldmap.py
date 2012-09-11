@@ -2,7 +2,7 @@
 
 import random, pygame, time, math
 from collections import defaultdict
-from src import camera, settings, images, terrain
+from src import camera, settings, images, terrain, gtexture
 
 # Python 2.5 shim
 try:
@@ -11,18 +11,8 @@ except NameError:
     def next(i):
         return i.next()
 
-def hcolor(h, gx, gy):
-    a = 0.8 + 0.08 * gx
-    if h <= 0: r = (0,0,100)
-    elif h < 4: r = (160,160,80)
-    elif h < 16: r = (90,90,0)
-    elif h < 25: r = (100,50,0)
-    elif h < 40: r = (100,100,100)
-    else: r = (140,140,140)
-    return [min(max(int(x*a),0),255) for x in r]
-
 def highlighttile(surf, x, y, looker=None):
-    h, gx, gy, ps = tileinfo(x, y, looker)
+    h, h0, (gx, gy), ps = terrain.tileinfo(x, y, looker)
     x0, x1 = min(x for x,y in ps), max(x for x,y in ps)
     y0, y1 = min(y for x,y in ps), max(y for x,y in ps)
     s = pygame.Surface(((x1-x0+1), (y1-y0+1))).convert_alpha()
@@ -32,34 +22,24 @@ def highlighttile(surf, x, y, looker=None):
     pygame.draw.lines(s, (255, 0, 0, 100), True, ps, 1)
     surf.blit(s, (x0,y0))
 
-def tileinfo(x, y, looker=None):
-    looker = looker or camera
-    x, y = int(x//1), int(y//1)
-    h = terrain.iheight(x, y)
-    gx, gy = terrain.igrad(x, y)
-    ps = []
-    ps.append(looker.screenpos(x-1, y, terrain.iheight(x-1, y)))
-    ps.append(looker.screenpos(x, y-1, terrain.iheight(x, y-1)))
-    ps.append(looker.screenpos(x+1, y, terrain.iheight(x+1, y)))
-    ps.append(looker.screenpos(x, y+1, terrain.iheight(x, y+1)))
-    return h, gx, gy, ps
-
 minimaps = {}
 def minichunk(x0, y0):
     if (x0, y0) not in minimaps:
-#        t0 = time.time()
+        t0 = time.time()
         a = settings.mchunksize
         s = pygame.Surface((a, a))
 #        arr = pygame.surfarray.pixels3d(s)
         for y in range(a):
             for x in range(-1,a):
-                if (x + y) % 2: continue
-                c = hcolor(terrain.iheight(x0*a+x, y0*a+(a-1-y)), 0, 0)
+                if (x + y) % 2 == 0: continue
+                h, h0, (gx, gy), ps = terrain.tileinfo(x0*a+x, y0*a+(a-1-y))
+                g = gx * settings.lightx + gy * settings.lighty
+                c = gtexture.hcolor(h, h0, g)
                 s.set_at((x, y), c)
                 s.set_at((x+1, y), c)
-#                arr[x,y,:] = hcolor(terrain.iheight(x0*a+x, y0*a+(a-1-y)), 0, 0)
+#                arr[x,y,:] = gtexture.hcolor(terrain.iheight(x0*a+x, y0*a+(a-1-y)), 0, 0)
         minimaps[(x0,y0)] = s.convert()
-#        print x0, y0, time.time() - t0
+#        print(x0, y0, time.time() - t0)
     return minimaps[(x0,y0)]
 # return a minimap centered at (x, y) with size (w, h)
 def minimap(x, y, w, h):
@@ -113,27 +93,6 @@ class Panel(object):
     def screenpos(self, x, y, z):
         return int(x * settings.tilex - self.x0 * self.w), int(-self.y0 * self.h - y * settings.tiley - z * settings.tilez)
 
-    def putterrain(self, surf, h, g, ps):
-        if not settings.usetgradient or h <= 0:
-            return pygame.draw.polygon(surf, hcolor(h, g, 0), ps)
-        tgrad = images.get_image("terrain-gradient.png")
-        xs, ys = zip(*ps)
-        x0, y0, x1, y1 = min(xs), min(ys), max(xs), max(ys)
-        xs = [x-x0 for x in xs]
-        ys = [y-y0 for y in ys]
-        xc = 200 + int(g * 25)
-        yc = 360 - int(h * 10)
-        w, h = x1-x0+1, y1-y0+1
-        s = pygame.Surface((w, h)).convert()
-        mask = pygame.Surface((w, h)).convert()
-        mask.fill((255,0,255))
-        mask.set_colorkey((0,0,0))
-        pygame.draw.polygon(mask, (0,0,0), [(x-x0,y-y0) for x,y in ps])
-        s.blit(tgrad, (-xc, -yc))
-        s.blit(mask, (0,0))
-        s.set_colorkey((255,0,255))
-        surf.blit(s, (x0, y0))
-
     def compute(self):
         self.surf = pygame.Surface((self.w, self.h)).convert()
         self.lines = bool(settings.tbcolor)
@@ -148,8 +107,9 @@ class Panel(object):
             onscreen = False
             for x in range(x0, x1):
                 if (x + y) % 2: continue
-                h, gx, gy, ps = tileinfo(x, y, self)
-                self.putterrain(self.surf, h, gx, ps)
+                h, h0, (gx, gy), ps = terrain.tileinfo(x, y, self)
+                g = gx * settings.lightx + gy * settings.lighty
+                gtexture.putterrain(self.surf, h, h0, g, ps)
                 if self.lines:
                     pygame.draw.lines(lsurf, settings.tbcolor, False, ps[0:3], 1)
                 if max(py for px, py in ps) > 0:
@@ -161,8 +121,9 @@ class Panel(object):
             onscreen = False
             for x in range(x0, x1):
                 if (x + y) % 2: continue
-                h, gx, gy, ps = tileinfo(x, y, self)
-                self.putterrain(self.surf, h, gx, ps)
+                h, h0, (gx, gy), ps = terrain.tileinfo(x, y, self)
+                g = gx * settings.lightx + gy * settings.lighty
+                gtexture.putterrain(self.surf, h, h0, g, ps)
                 if self.lines:
                     pygame.draw.lines(lsurf, settings.tbcolor, False, ps[0:3], 1)
                 if min(py for px, py in ps) < self.h:
@@ -233,6 +194,8 @@ def killtime(dt=0):
         if not m: break
         n += m
     return n
+def killtimequeuesize():
+    return len(terrain.parcelq), len(panelq)
 
 
 def drawscene(screen, entities, cursortile = None):

@@ -41,16 +41,32 @@ def noisevalue(x, y):
 # Reference implementation - slow
 def height0(x, y):
     h = -settings.sealevel
-    for f in settings.tfactors:
-        h += noisevalue(x*f*settings.tf0, y*f*settings.tf0) / f
+    for f, o in zip(settings.tfactors, settings.toffsets):
+        h += noisevalue(x*f*settings.tf0 + o, y*f*settings.tf0 + o) / f
     h *= settings.tscale
-    if h > 0: h -= min(h/2, 20)
-    return int(h)
+    for tstep in settings.tsteps:
+        if h > tstep:
+            h += (h - tstep) * settings.tstepsize
+    return int(h//1)
+
+# returns effective height, color height, gradient, corner positions
+def tileinfo(x, y, looker=None):
+    looker = looker or camera
+    x, y = int(x//1), int(y//1)
+    h = iheight(x, y)
+    h0 = iheight0(x, y)
+    gx, gy = igrad(x, y)
+    ps = []
+    ps.append(looker.screenpos(x-1, y, iheight(x-1, y)))
+    ps.append(looker.screenpos(x, y-1, iheight(x, y-1)))
+    ps.append(looker.screenpos(x+1, y, iheight(x+1, y)))
+    ps.append(looker.screenpos(x, y+1, iheight(x, y+1)))
+    return h, h0, (gx, gy), ps
 
 # This is a set of cached values to speed up height calculations - don't worry about it.
 dpcache, dpmin, dpmax = {}, 0, 0
 def setdp(xx):
-    xs = [xx*f*settings.tf0 % settings.nmapsize for f in settings.tfactors]
+    xs = [(xx*f*settings.tf0+o) % settings.nmapsize for f,o in zip(settings.tfactors, settings.toffsets)]
     dpcache[xx] = [(int(x), x - int(x)) for x in xs]
 setdp(0)
 def dpextend(x0, x1):
@@ -73,17 +89,20 @@ class Parcel(object):
         dpextend(min(self.x0, self.y0) - 4, max(self.x0, self.y0) + pcs + 4)
         yield
         # Determine heights for corners
-        self.h = {}
+        self.h, self.h0 = {}, {}
         for y in range(self.y0 - 3, self.y0 + pcs + 5):
             for x in range(self.x0 - 3 + y % 2, self.x0 + pcs + 5, 2):
-                # TODO: easy integer map to actual h values
                 h = -settings.sealevel
                 for f, (xx, tx), (yy, ty) in zip(settings.tfactors, dpcache[x], dpcache[y]):
                     h += ((noisemap[xx][yy] * (1-tx) + noisemap[xx+1][yy] * tx) * (1-ty) + 
                         (noisemap[xx][yy+1] * (1-tx) + noisemap[xx+1][yy+1] * tx) * ty) / f
                 h *= settings.tscale
-                if h > 0: h -= min(h/2, 20)
-                self.h[(x, y)] = max(int(h), 0)
+                for tstep in settings.tsteps:
+                    if h > tstep:
+                        h += (h - tstep) * settings.tstepsize
+                h = int(h//1)
+                self.h0[(x, y)] = h   # The "true" height of this corner (used for coloring)
+                self.h[(x, y)] = max(h, 0)  # The "effective" height of this corner (used for location)
             yield
         self.hcorners = {}
         self.hcmax = {}
@@ -91,10 +110,18 @@ class Parcel(object):
         # Determine heights for tiles
         for y in range(self.y0 - 2, self.y0 + pcs + 4):
             for x in range(self.x0 - 2 + y % 2, self.x0 + pcs + 4, 2):
+                h0s = self.h0[(x-1,y)], self.h0[(x,y-1)], self.h0[(x+1,y)], self.h0[(x,y+1)]
                 hs = self.h[(x-1,y)], self.h[(x,y-1)], self.h[(x+1,y)], self.h[(x,y+1)]
                 self.hcorners[(x,y)] = hs
                 self.hcmax[(x,y)] = max(hs)
-                self.h[(x,y)] = sum(hs)/4.0
+                h = sum(hs)/4.0
+                h0 = int((sum(h0s)/4.0 + 0.5)//1)
+                if h > 0:  # Make sure water and land tiles are colored appropriately
+                    h0 = max(h0, 1)
+                else:
+                    h0 = min(h0, 0)
+                self.h[(x,y)] = h
+                self.h0[(x,y)] = h0
                 self.grad[(x,y)] = hs[2]-hs[0], hs[3]-hs[1]
             yield
         self.ready = True
@@ -121,6 +148,10 @@ class Parcel(object):
     def getiheight(self, x, y):
         self.complete()
         return self.h[(x, y)]
+
+    def getiheight0(self, x, y):
+        self.complete()
+        return self.h0[(x, y)]
 
     def getigrad(self, x, y):
         self.complete()
@@ -159,6 +190,8 @@ def height(x, y):
     return parcels[(int(x//pcs), int(y//pcs))].getheight(x, y)
 def iheight(x, y):
     return parcels[(int(x//pcs), int(y//pcs))].getiheight(int(x//1), int(y//1))
+def iheight0(x, y):
+    return parcels[(int(x//pcs), int(y//pcs))].getiheight0(int(x//1), int(y//1))
 # maximum height of any of this tile's 4 corners
 def ihcmax(x, y):
     return parcels[(int(x//pcs), int(y//pcs))].getihcmax(int(x//1), int(y//1))
