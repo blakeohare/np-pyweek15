@@ -167,13 +167,15 @@ class PlayScene:
 					img,
 					(structure.x - cx) * 16 + 200 - img.get_width() // 2,
 					(-structure.y + cy) * 8 + 150 + 40])
-		# TODO: Ask Cosmo about the cursor crashing
 		worldmap.drawscene(screen, self.sprites + structures, terrain.nearesttile((cx), (cy)))
 		for label in labels:
 			screen.blit(label[0], (label[1], label[2]))
+		# Note: integer coordinates are at the center of tiles, not at the corners of tiles.
+		# So if you just take int(mx), int(my), you'll round down to the wrong tile sometimes.
+		# A better way to do this is probably terrain.toModel(*terrain.nearesttile(cx, cy))
 		mx, my = self.player.getModelXY()
-		mx = int(mx)
-		my = int(my)
+		mx = int((mx+0.5)//1)
+		my = int((my+0.5)//1)
 		coords = get_text("R: " + str((int(cx), int(cy))) + " M: " + str((mx, my)), (255, 255, 0), 18)
 		screen.blit(coords, (5, screen.get_height() - 5 - coords.get_height()))
 		self.toolbar.render(screen)
