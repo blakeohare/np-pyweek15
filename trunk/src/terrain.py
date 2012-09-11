@@ -8,6 +8,9 @@ from src import settings, camera
 def toModel(x, y):
     y -= 1
     return (x-y) / 2.0, (-x-y) / 2.0
+def toiModel(x, y):
+	x, y = toModel(x, y)
+	return int(x // 1), int(y // 1)
 def toRender(X, Y):
     return X-Y, -X-Y + 1
 def toCenterRender(x, y):

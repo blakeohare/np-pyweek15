@@ -76,6 +76,16 @@ class PlayScene:
 		self.client_token[1] += 1
 		return self.client_token[0] + '^' + str(self.client_token[1])
 	
+	def can_walk_there(self, oldx, oldy, newx, newy):
+		old_coord = terrain.toiModel(oldx, oldy)
+		new_coord = terrain.toiModel(newx, newy)
+		
+		# Allow walking through buildins you're already stuck in.
+		# Allows escaping from buildings you just built. 
+		if old_coord == new_coord: return True
+		
+		return self.potato.buildings_by_coord.get(new_coord) == None
+	
 	def process_input(self, events, pressed):
 		if self.battle != None:
 			self.battle.process_input(events, pressed)
@@ -88,8 +98,15 @@ class PlayScene:
 			if pressed['left']: dx -= v
 			if pressed['right']: dx += v
 			
-			self.player.x += dx
-			self.player.y += dy
+			oldx = self.player.x
+			oldy = self.player.y
+			
+			newx = oldx + dx
+			newy = oldy + dy
+			
+			if self.can_walk_there(oldx, oldy, newx, newy):
+				self.player.x = newx
+				self.player.y = newy
 			
 			for event in events:
 				if event.type == 'mouseleft':
