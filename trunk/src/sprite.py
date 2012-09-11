@@ -3,7 +3,7 @@ from src import worldmap, camera, settings, terrain
 
 class Sprite(object):
 	def __init__(self, x, y, z=None):
-		self.x, self.y = terrain.toRender(x, y)
+		self.x, self.y = terrain.toCenterRender(x, y)
 		self.z = terrain.height(self.x, self.y) if z is None else z
 
 	def lookatme(self):
@@ -23,7 +23,7 @@ class Sprite(object):
 		return terrain.toModel(self.x, self.y)
 
 	def setModelXY(self, x, y):
-		self.x, self.y = terrain.toRender(self.x, self.y)
+		self.x, self.y = terrain.toRender(self.x - .5, self.y - .5)
 
 	def drawmini(self, surf, x0, y0):
 		px, py = int((self.x - x0)//1), int((-self.y + y0)//1)

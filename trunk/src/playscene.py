@@ -178,9 +178,11 @@ class PlayScene:
 		# So if you just take int(mx), int(my), you'll round down to the wrong tile sometimes.
 		# A better way to do this is probably terrain.toModel(*terrain.nearesttile(cx, cy))
 		mx, my = self.player.getModelXY()
-		mx = int((mx+0.5)//1)
-		my = int((my+0.5)//1)
-		coords = get_text("R: " + str((int(cx), int(cy))) + " M: " + str((mx, my)), (255, 255, 0), 18)
+		mx = int(mx * 100) / 100
+		my = int(my * 100) / 100
+		cx = int(cx * 100) / 100
+		cy = int(cy * 100) / 100
+		coords = get_text("R: (%0.1f, %0.1f) M: (%0.1f, %0.1f)"%(cx, cy, mx, my), (255, 255, 0), 16)
 		screen.blit(coords, (5, screen.get_height() - 5 - coords.get_height()))
 		self.toolbar.render(screen)
 
@@ -224,7 +226,6 @@ class ToolBar:
 			self.bg.fill((0, 0, 0, 150))
 	
 	def find_button(self, x, y, screen_width):
-		
 		if y < 35:
 			if x < 30:
 				return 0

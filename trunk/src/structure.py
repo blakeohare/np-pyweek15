@@ -6,13 +6,13 @@ class Structure(object):
 	# TODO: handle buildings with bigger footprints than 1x1
 	def __init__(self, user_id, x, y, z=None):
 		self.user_id = user_id
-		self.x, self.y = terrain.toRender(x, y)
+		self.x, self.y = terrain.toCenterRender(x, y)
 		self.z = terrain.iheight(x, y) if z is None else z
 
-	# north point
+	
 	def getModelXY(self):
 		return terrain.toModel(self.x, self.y)
-    
+		
 	def renderplatform(self, screen):
 		# TODO: this should probably be cached into an image
 		x, y = self.x, self.y
