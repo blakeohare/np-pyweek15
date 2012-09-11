@@ -167,7 +167,7 @@ class PlayScene:
 					img,
 					(structure.x - cx) * 16 + 200 - img.get_width() // 2,
 					(-structure.y + cy) * 8 + 150 + 40])
-		worldmap.drawscene(screen, self.sprites + structures, terrain.nearesttile((cx), (cy)))
+		worldmap.drawscene(screen, self.sprites + structures, (cx, cy))
 		for label in labels:
 			screen.blit(label[0], (label[1], label[2]))
 		# Note: integer coordinates are at the center of tiles, not at the corners of tiles.

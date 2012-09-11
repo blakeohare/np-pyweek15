@@ -12,6 +12,7 @@ except NameError:
         return i.next()
 
 def highlighttile(surf, x, y, looker=None):
+    x, y = terrain.nearesttile(x, y)
     h, h0, (gx, gy), ps = terrain.tileinfo(x, y, looker)
     x0, x1 = min(x for x,y in ps), max(x for x,y in ps)
     y0, y1 = min(y for x,y in ps), max(y for x,y in ps)
@@ -19,8 +20,32 @@ def highlighttile(surf, x, y, looker=None):
     s.fill((0,0,0,0))
     ps = [(x-x0,y-y0) for x,y in ps]
     pygame.draw.polygon(s, (255, 0, 0, 50), ps)
-    pygame.draw.lines(s, (255, 0, 0, 100), True, ps, 1)
+#    pygame.draw.lines(s, (255, 0, 0, 100), True, ps, 1)
     surf.blit(s, (x0,y0))
+
+def drawfadinggrid(surf, xc, yc, r=None, looker=None):
+    r = settings.cursorgridsize if r is None else r
+    looker = looker or camera
+    x0, y0 = terrain.nearesttile(xc, yc)
+    s = pygame.Surface(surf.get_size()).convert_alpha()
+    s.fill((0,0,0,0))
+    hs, ps, alphas = {}, {}, {}
+    for dx in range(-r, r+2):
+        for dy in range(-r, r+2):
+            x, y = x0 - 1 + dx + dy, y0 + dx - dy
+            h = terrain.iheight(x, y)
+            hs[(dx,dy)] = h
+            ps[(dx,dy)] = looker.screenpos(x, y, h)
+            alphas[(dx,dy)] = 1 - math.sqrt(((x-xc)**2 + (y-yc)**2) / (r+1)**2)
+    for dx in range(-r, r+1):
+        for dy in range(-r, r+2):
+            if hs[(dx,dy)] or hs[(dx+1,dy)]:
+                a = min(max(int(50 * (alphas[(dx,dy)] + alphas[(dx+1,dy)])), 0), 255)
+                pygame.draw.line(s, (255,255,255,a), ps[(dx,dy)], ps[(dx+1,dy)])
+            if hs[(dy,dx)] or hs[(dy,dx+1)]:
+                a = min(max(int(50 * (alphas[(dy,dx)] + alphas[(dy,dx+1)])), 0), 255)
+                pygame.draw.line(s, (255,255,255,a), ps[(dy,dx)], ps[(dy,dx+1)])
+    surf.blit(s, (0, 0))
 
 minimaps = {}
 def minichunk(x0, y0):
@@ -198,12 +223,13 @@ def killtimequeuesize():
     return len(terrain.parcelq), len(panelq)
 
 
-def drawscene(screen, entities, cursortile = None):
+def drawscene(screen, entities, cursorpos = None):
     screen.fill((0,0,0))
     drawpanels(screen, camera.x0//1-settings.sx//2, camera.y0//1-settings.sy // 2, settings.sx, settings.sy)
-    if cursortile:
-        cx, cy = cursortile
+    if cursorpos:
+        cx, cy = cursorpos
         highlighttile(screen, cx, cy)
+        drawfadinggrid(screen, cx, cy)
     esort = sorted(entities, key = lambda e: -e.y)
     for entity in esort:
         entity.render(screen)

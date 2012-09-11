@@ -92,7 +92,7 @@ class PlayScene(object):
 	
 	def render(self, screen):
 		cursortile = terrain.nearesttile(self.you.x, self.you.y)
-		worldmap.drawscene(screen, self.structures + self.sprites, cursortile)
+		worldmap.drawscene(screen, self.structures + self.sprites, (self.you.x, self.you.y))
 		if settings.showminimap:
 			worldmap.drawminimap(screen)
 		ax, ay = terrain.toModel(*cursortile)
