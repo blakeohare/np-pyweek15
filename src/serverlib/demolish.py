@@ -16,6 +16,7 @@ def do_demolish(user_id, last_id, sector, loc, client_token):
 	
 	target = -1
 	buildings = sql.query("SELECT * FROM `structure` WHERE `user_id` = " + str(user_id))
+	
 	for building in buildings:
 		bx, by = util.tuple_from_coord(building['loc_xy'])
 		bsx, bsy = util.tuple_from_coord(building['sector_xy'])

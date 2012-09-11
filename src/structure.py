@@ -1,6 +1,5 @@
 import pygame
-import util
-from src import camera, images, terrain
+from src import camera, images, terrain, util
 
 class Structure(object):
 	# TODO: handle buildings with bigger footprints than 1x1
@@ -57,15 +56,20 @@ class WaterTreatment(Structure):
 	btype = "watertreatment"
 
 def create(user_id, type, x, y):
-	if type == 'farm': return Farm(user_id, x, y)
-	if type == 'greenhouse': return Greenhouse(user_id, x, y)
-	if type == 'hq': return HQ(user_id, x, y)
-	if type == 'medicaltent': return MedicalTent(user_id, x, y)
-	if type == 'quarry': return Quarry(user_id, x, y)
-	if type == 'radar': return Radar(user_id, x, y)
-	if type == 'turret': return Turret(user_id, x, y)
-	if type == 'watertreatment': return WaterTreatment(user_id, x, y)
-	return None
+	output = None
+	if type == 'farm': output = Farm(user_id, x, y)
+	elif type == 'greenhouse': output = Greenhouse(user_id, x, y)
+	elif type == 'hq': output = HQ(user_id, x, y)
+	elif type == 'medicaltent': output = MedicalTent(user_id, x, y)
+	elif type == 'quarry': output = Quarry(user_id, x, y)
+	elif type == 'radar': output = Radar(user_id, x, y)
+	elif type == 'turret': output = Turret(user_id, x, y)
+	elif type == 'watertreatment': output = WaterTreatment(user_id, x, y)
+	
+	# hideous, but I can type it fast
+	if output != None:
+		output.type = type
+	return output
 
 LANDING_ERA = "landing"
 AGRICULTURAL = "agriculture"
@@ -112,4 +116,4 @@ def get_structure_by_id(id):
 
 
 def get_structure_size(type):
-	return _structure_by_id[type][11]
+	return _structure_by_id[type][9]
