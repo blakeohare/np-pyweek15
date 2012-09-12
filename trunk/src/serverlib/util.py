@@ -84,3 +84,26 @@ def get_structure_size(type):
 
 def tsanitize(string):
 	return '^'.join(map(lambda x:str(int(x)), string.split('^')))
+
+
+_alphanums_lookup = None
+
+def alphanums(string):
+	global _alphanums_lookup
+	if _alphanums_lookup == None:
+		_alphanums_lookup = {}
+		for letter in 'abcdefghijklmnopqrstuvwxyz0123456789':
+			_alphanums_lookup[letter] = letter
+			_alphanums_lookup[letter.upper()] = letter
+	
+	output = []
+	for char in string:
+		output.append(_alphanums_lookup.get(char, ''))
+	return ''.join(output)
+
+def trim(string):
+	while len(string) > 0 and string[0] in ' \r\n\t':
+		string = string[1:]
+	while len(string) > 0 and string[-1] in ' \r\n\t':
+		string = string[:-1]
+	return string
