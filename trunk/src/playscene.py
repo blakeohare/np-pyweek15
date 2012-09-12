@@ -54,8 +54,10 @@ class LoadingScene:
 
 
 class Curiosity:
-	def __init__(self):
+	def __init__(self, user_id):
 		self.counter = 0
+		self.hq = structure.HQ(user_id, 0, 0)
+		self.hq.landing_hack = True
 	
 	def update(self):
 		self.counter += 1
@@ -63,17 +65,52 @@ class Curiosity:
 	def is_done(self):
 		return self.counter >= settings.fps * 10
 	
+	def get_hq_height(self):
+		if self.counter < 100:
+			return None
+		if self.counter < 200:
+			c = (self.counter - 100) / 2.0
+			
+			return int(100 - c * 2) * 1 // 5
+		self.hq.landing_hack = False
+		return 0
+	
+	def render_skycrane(self, screen):
+		path = ('lander1.png', 'lander2.png')[(self.counter // 3) % 2]
+		lander = get_image(path)
+		y = 10
+		if self.counter < 100:
+			y = self.counter // 10
+			
+		x = screen.get_width() // 2 - lander.get_width() // 2 + 16
+		
+		if self.counter > 100 and self.counter < 230:
+			y1 = y + 20
+			y2 = self.hq.last_render_y
+			if y2 != None:
+				pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(screen.get_width() // 2 + 16, y1, 1, y2 - y1))
+		
+		if self.counter > 230:
+			d = self.counter - 230
+			x += d * 4
+			y += d * 2
+		
+		screen.blit(lander, (x, y))
+		
+		
+		
 	
 class PlayScene:
 	def __init__(self, user_id, password, potato, starting_sector, starting_xy, show_landing_sequence):
 		self.curiosity = None
 		if show_landing_sequence:
-			self.curiosity = Curiosity()
+			self.curiosity = Curiosity(user_id)
 		self.potato = potato
 		self.user_id = user_id
 		self.password = password
 		self.next = self
 		self.hq = None
+		self.potato.get_user_name(user_id)
 		self.show_landing_sequence = show_landing_sequence
 		self.cx = starting_sector[0] * 60 + starting_xy[0]
 		self.cy = starting_sector[1] * 60 + starting_xy[1]
@@ -246,20 +283,38 @@ class PlayScene:
 		camera.lookat(cx, cy)
 		structures = self.potato.get_structures_for_screen(cx, cy)
 		labels = []
-		for structure in structures:
-			if structure.btype == 'hq':
-				owner_id = structure.user_id
-				name = self.potato.get_user_name(owner_id)
-				img = get_text(name, (255, 255, 255), 18)
-				labels.append([
-					img,
-					(structure.x - cx) * 16 + 200 - img.get_width() // 2,
-					(-structure.y + cy) * 8 + 150 + 40])
-		entities = structures + self.sprites
-		if self.battle != None:
-			entities += self.battle.get_sprites()
 		
+		if self.curiosity != None:
+			cur = self.curiosity
+			for structure in structures:
+				if structure.btype == 'hq' and structure.user_id == self.user_id:
+					cur.hq.x = structure.x
+					cur.hq.y = structure.y
+			entities = [cur.hq]
+			height = cur.get_hq_height()
+			if height != None:
+				cur.hq.setheight(height)
+			else:
+				entities = []
+		else:
+			for structure in structures:
+				if structure.btype == 'hq':
+					owner_id = structure.user_id
+					name = self.potato.get_user_name(owner_id)
+					img = get_text(name, (255, 255, 255), 18)
+					labels.append([
+						img,
+						(structure.x - cx) * 16 + 200 - img.get_width() // 2,
+						(-structure.y + cy) * 8 + 150 + 40])
+			entities = structures + self.sprites
+			if self.battle != None:
+				entities += self.battle.get_sprites()
+			
 		worldmap.drawscene(screen, entities + effects.effects, (cx, cy))
+		
+		if self.curiosity != None:
+			self.curiosity.render_skycrane(screen)
+		
 		for label in labels:
 			screen.blit(label[0], (label[1], label[2]))
 		if settings.showminimap:
