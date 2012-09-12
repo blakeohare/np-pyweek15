@@ -1,9 +1,12 @@
 import pygame
-from src import camera, images, terrain, util
+from src import camera, images, terrain, util, effects
 
 class Structure(object):
 	minicolor = 192, 192, 192
 	size = 1
+	hp0 = 1
+	attackable = False
+	healthbarheight = 24
 	# TODO: handle buildings with bigger footprints than 1x1
 	def __init__(self, user_id, x, y, z=None):
 		self.user_id = user_id
@@ -18,11 +21,13 @@ class Structure(object):
 			self.z = max(terrain.iheight(self.x+ax, self.y+ay) for ax, ay in ps)
 		else:
 			self.z = z
+		self.hp = self.hp0
 	
 	def getModelXY(self):
 		return terrain.toModel(self.x, self.y + 1)
 		
 	def renderplatform(self, screen, looker=None):
+		looker = looker or camera
 		# TODO: this should probably be cached into an image
 		x, y, z = self.x, self.y, self.z
 		# TODO: this better
@@ -43,10 +48,19 @@ class Structure(object):
 			rightps = t1, b2, b3, b4, t2
 			topps = t0, t1, t2, t3
 
-
 		pygame.draw.polygon(screen, (0,100,100), leftps)   # left panel
 		pygame.draw.polygon(screen, (0,50,50), rightps)    # right panel
 		pygame.draw.polygon(screen, (0,70,70), topps)      # top panel
+
+	def renderhealthbar(self, surf, looker=None):
+		looker = looker or camera
+		px, py = looker.screenpos(self.x, self.y, self.z)
+		py -= self.healthbarheight
+		px -= self.hp0 + 1
+		pygame.draw.rect(surf, (200,200,200), (px, py, self.hp0*2+2, 6))
+		pygame.draw.rect(surf, (100,0,0), (px+1, py+1, self.hp0*2, 4))
+		if self.hp > 0:
+			pygame.draw.rect(surf, (0,255,0), (px+1, py+1, self.hp*2, 4))
 
 	def render(self, screen, looker=None):
 		looker = looker or camera
@@ -58,6 +72,8 @@ class Structure(object):
 		img = images.get_image(path % self.btype)
 		ix, iy = img.get_size()
 		screen.blit(img, (px-ix//2, py-iy+ix//4))
+		if self.hp < self.hp0:
+			self.renderhealthbar(screen, looker)
 
 	# Draw onto the minimap
 	def drawmini(self, surf, x0, y0):
@@ -69,6 +85,18 @@ class Structure(object):
 	def update(self):
 		pass
 
+	def hurt(self, dhp):
+		self.hp = max(self.hp - dhp, 0)
+	
+	def heal(self, dhp):
+		self.hp = min(self.hp + dhp, self.hp0)
+	
+	def healfull(self):
+		self.hp = self.hp0
+
+	def handleintruders(self, intruders):
+		pass
+
 class Farm(Structure):
 	btype = "farm"
 	size = 2
@@ -76,6 +104,8 @@ class Greenhouse(Structure):
 	btype = "greenhouse"
 class HQ(Structure):
 	btype = "hq"
+	hp0 = 10
+	attackable = True
 class MedicalTent(Structure):
 	btype = "medicaltent"
 class Quarry(Structure):
@@ -83,8 +113,30 @@ class Quarry(Structure):
 	size = 2
 class Radar(Structure):
 	btype = "radar"
+
 class Turret(Structure):
 	btype = "turret"
+	hp0 = 5
+	attackable = True
+	healthbarheight = 40
+	chargetime = 10
+	strength = 1
+	shootrange = 4
+	t = 0
+
+	def attack(self, target):
+		target.hurt(self.strength)
+		self.t = 0
+		effects.add(effects.LaserBeam(self.x, self.y, self.z + 17, target.x, target.y, target.z + 2))
+
+	def handleintruders(self, intruders):
+		self.t += 1
+		if self.t >= self.chargetime and intruders:
+			# Always fire at the nearest intruder
+			target = min(intruders, key = lambda i: (i.x-self.x)**2 + (i.y-self.y)**2)
+			if (target.x - self.x) ** 2 + (target.y - self.y) ** 2 < self.shootrange ** 2:
+				self.attack(target)
+
 class WaterTreatment(Structure):
 	btype = "watertreatment"
 	size = 2
