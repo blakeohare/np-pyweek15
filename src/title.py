@@ -2,6 +2,8 @@ from src.menus import *
 from src.images import get_image
 from src import playscene
 #from src import play
+from src import util
+
 
 class TitleScene(UiScene):
 	def __init__(self):
@@ -42,11 +44,11 @@ class TitleScene(UiScene):
 			users = util.trim(raw_users).split('\n')
 		user_lookup = {}
 		for user in users:
-			name = util.trim(user[32:])
+			name = util.alphanums(util.trim(user[32:]))
 			password = user[:32].lower()
 			user_lookup[name] = password
 		
-		user = self.username.text
+		user = util.alphanums(self.username.text)
 		password = user_lookup.get(user, None)
 		if password == None:
 			password = util.md5(str(time.time()) + "leprechauns")

@@ -33,9 +33,15 @@ def get_next_unoccupied():
 		r += 1
 
 def add_user(user, password):
+	user = util.trim(user)
+	login_id = util.alphanums(user)
 	sector = get_next_unoccupied()
 	location = str(int(random.random() * 30 + 15)) + '^' + str(int(random.random() * 30 + 15))
-	user_id = sql.insert('INSERT into user (`name`, `password`, `hq_sector`, `hq_loc`) values (%s,%s,%s,%s)',(user,password,sector,location) )
+	
+	if len(login_id) == 0:
+		return 0
+	
+	user_id = sql.insert('INSERT into user (`name`, `login_id`, `password`, `hq_sector`, `hq_loc`) values (%s,%s,%s,%s,%s)',(user, login_id, password, sector, location))
 	
 	# place HQ
 	build.do_build(
@@ -58,10 +64,13 @@ def light_authenticate(user_id, password):
 
 def heavy_authenticate(user, password, register_if_new=False, is_new=False):
 	failure_message = { 'success': False, 'message': "Invalid username/password." }
-	result = sql.query("SELECT `user_id`, `password`, `hq_sector`, `hq_loc` FROM `user` WHERE `name`=%s LIMIT 1",(user,) )
+	login_id = util.alphanums(user)
+	result = sql.query("SELECT `user_id`, `password`, `hq_sector`, `hq_loc` FROM `user` WHERE `login_id`=%s LIMIT 1",(login_id,) )
 	if len(result) == 0:
 		if register_if_new:
-			add_user(user, password)
+			user_id = add_user(user, password)
+			if user_id == 0:
+				return { 'success': False, 'message': "Could not register account. Usernames must have at least 1 alphanumeric character" }
 			return heavy_authenticate(user, password, False, True)
 		return failure_message
 	

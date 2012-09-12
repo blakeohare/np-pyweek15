@@ -39,3 +39,17 @@ def floor(n):
 		if int(n) == n: return int(n)
 		return -int(-n) - 1
 	return int(n)
+
+_alpha = None
+def alphanums(string):
+	global _alpha
+	if _alpha == None:
+		_alpha = {}
+		for letter in 'abcdefghijklmnopqrstuvwyxz0123456789':
+			_alpha[letter] = letter
+			_alpha[letter.upper()] = letter
+	
+	output = []
+	for char in string:
+		output.append(_alpha.get(char, ''))
+	return ''.join(output)
