@@ -10,15 +10,13 @@ class Structure(object):
 	# TODO: handle buildings with bigger footprints than 1x1
 	def __init__(self, user_id, x, y, z=None):
 		self.user_id = user_id
+		self.landing_hack = False
 		self.selected = False
+		self.last_render_y = None
 		self.x, self.y = terrain.toCenterRender(x, y)
 		if self.size == 2: self.y -= 1
 		if z is None:
-			if self.size == 1:
-				ps = (-1,0),(0,-1),(1,0),(0,1)
-			elif self.size == 2:
-				ps = (-2,0),(-1,-1),(0,-2),(1,-1),(2,0),(1,1),(0,2),(-1,1)
-			self.z = max(terrain.iheight(self.x+ax, self.y+ay) for ax, ay in ps)
+			self.setheight(0)
 		else:
 			self.z = z
 		self.hp = self.hp0
@@ -48,9 +46,10 @@ class Structure(object):
 			rightps = t1, b2, b3, b4, t2
 			topps = t0, t1, t2, t3
 
-		pygame.draw.polygon(screen, (0,100,100), leftps)   # left panel
-		pygame.draw.polygon(screen, (0,50,50), rightps)    # right panel
-		pygame.draw.polygon(screen, (0,70,70), topps)      # top panel
+		if not self.landing_hack:
+			pygame.draw.polygon(screen, (0,100,100), leftps)   # left panel
+			pygame.draw.polygon(screen, (0,50,50), rightps)    # right panel
+			pygame.draw.polygon(screen, (0,70,70), topps)      # top panel
 
 	def renderhealthbar(self, surf, looker=None):
 		looker = looker or camera
@@ -71,7 +70,9 @@ class Structure(object):
 		path = "buildings/selection/%s.png" if self.selected else "buildings/%s.png"
 		img = images.get_image(path % self.btype)
 		ix, iy = img.get_size()
-		screen.blit(img, (px-ix//2, py-iy+ix//4))
+		y = py-iy+ix//4
+		screen.blit(img, (px-ix//2, y))
+		self.last_render_y = y
 		if self.hp < self.hp0:
 			self.renderhealthbar(screen, looker)
 
@@ -96,6 +97,14 @@ class Structure(object):
 
 	def handleintruders(self, intruders):
 		pass
+	
+	
+	def setheight(self, height):
+		if self.size == 1:
+			ps = (-1,0),(0,-1),(1,0),(0,1)
+		elif self.size == 2:
+			ps = (-2,0),(-1,-1),(0,-2),(1,-1),(2,0),(1,1),(0,2),(-1,1)
+		self.z = max(terrain.iheight(self.x+ax, self.y+ay) for ax, ay in ps) + height
 
 class Farm(Structure):
 	btype = "farm"
