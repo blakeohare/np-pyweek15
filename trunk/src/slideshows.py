@@ -17,10 +17,13 @@ They are placed on a deserted, lush planet in another
 solar system, where they are given the freedom to 
 live peaceful, fulfilling lives without any penalties
 or reproach for their actions in a community of equals.
-Of course, "they" are wrong.
 """).split('\n')
 
 page3 = util.trim("""
+Of course, "they" are wrong.
+""").split('\n')
+
+page4 = util.trim("""
 In truth, you've been exiled to a planet on which you're
 just scraping by, trying to stay alive; a planet which
 is populated by other prisoners ranging from petty
@@ -31,7 +34,7 @@ signs that there might be life other than you around.
 
 """).split('\n')
 
-page4 = util.trim("""
+page5 = util.trim("""
 Unfortunately, those signs include burned out buildings
 and the odd disappearance, so that life might not be any
 friendlier than your fellow outcasts. Maybe someday you'll
@@ -39,7 +42,7 @@ be able to escape this place, but right now you'd better
 figure out how to survive first.
 """).split('\n')
 
-pages = [page1, page2, page3, page4]
+pages = [page1, page2, page3, page4, page5]
 
 class StoryScene:
 	def __init__(self):
@@ -47,12 +50,14 @@ class StoryScene:
 		self.images = [
 			get_image('backgrounds/story1.png'),
 			get_image('backgrounds/story2.png'),
+			None,
 			get_image('backgrounds/story3.png'),
 			get_image('backgrounds/story4.png')]
 		
 		self.pos = [
 			(10, 10),
 			(10, 10),
+			(120, 140),
 			(10, 10),
 			(10, 10)
 		]
@@ -64,8 +69,8 @@ class StoryScene:
 			if event.type == 'key' and event.down and event.action in ('action', 'back', 'build'):
 				self.page += 1
 		
-		if self.page == 4:
-			self.page = 3
+		if self.page == len(self.images):
+			self.page -= 1
 			self.next = scenefactory.build_scene('title', [])
 	
 	def update(self):
@@ -74,7 +79,11 @@ class StoryScene:
 	# TODO: fade transitions
 	
 	def render(self, screen):
-		screen.blit(self.images[self.page], (0, 0))
+		bg = self.images[self.page]
+		if bg == None:
+			screen.fill((0, 0, 0))
+		else:
+			screen.blit(bg, (0, 0))
 		text = pages[self.page]
 		y = self.pos[self.page][1]
 		for line in text:
