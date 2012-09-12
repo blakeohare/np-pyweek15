@@ -99,20 +99,27 @@ class PlayScene:
 			direction = ''
 			dx, dy = 0, 0
 			v = self.player.v
-			if pressed['up']: dy += v
-			if pressed['down']: dy -= v
-			if pressed['left']: dx -= v
-			if pressed['right']: dx += v
+			if pressed['up']: dy = 1.0
+			if pressed['down']: dy = -1.0
+			if pressed['left']: dx = -1.0
+			if pressed['right']: dx = 1.0
+			
+			if dx != 0 and dy != 0:
+				dx *= .7071
+				dy *= .7071
+			
 			
 			oldx = self.player.x
 			oldy = self.player.y
 			
-			newx = oldx + dx
-			newy = oldy + dy
+			newx = oldx + dx * self.player.v
+			newy = oldy + dy * self.player.v
 			
-			if self.can_walk_there(oldx, oldy, newx, newy):
-				self.player.x = newx
-				self.player.y = newy
+			if not self.can_walk_there(oldx, oldy, newx, newy):
+				dx = 0
+				dy = 0
+			
+			self.player.moveTo(newx, newy, dx, dy)
 			
 			for event in events:
 				if event.type == 'mouseleft':
