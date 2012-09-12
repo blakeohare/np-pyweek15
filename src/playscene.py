@@ -147,7 +147,7 @@ class PlayScene:
 					self.toolbar.hover(event.x, event.y, self.last_width)
 				elif event.type == 'key':
 					if event.down and event.action == 'debug':
-						self.battle = battle.Battle(self.user_id, None)
+						self.battle = battle.Battle(self.user_id, self.potato.get_all_buildings_of_player_SLOW(self.user_id), None)
 						# TODO: Blake, how do I know which structures are under attack?
 						# I also need to know which one is the HQ.
 						base = [b for b in self.potato.get_structures_for_screen(oldx, oldy)   # HACK for testing
