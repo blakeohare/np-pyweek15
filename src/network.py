@@ -17,6 +17,7 @@ _server_address = util.read_file('server.txt')
 class Request(threading.Thread):
 	def __init__(self, action, args, user, password):
 		threading.Thread.__init__(self)
+		self.setDaemon(True)
 		self.args = {'action': action}
 		if user != None:
 			self.args['user_id'] = user
