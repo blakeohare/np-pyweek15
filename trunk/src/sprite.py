@@ -1,4 +1,4 @@
-import pygame, math
+import pygame, math, random
 from src import worldmap, camera, settings, terrain
 
 class Sprite(object):
@@ -11,6 +11,13 @@ class Sprite(object):
 
 	def trackme(self):
 		camera.track(self.x, self.y, terrain.height(self.x, self.y), settings.trackvalue)
+
+	def screenpos(self, looker=None):
+		return (looker or camera).screenpos(self.x, self.y, self.z)
+
+	# Stand this high above the ground at current position
+	def setheight(self, h=0):
+		self.z = terrain.height(self.x, self.y) + h
 
 	def rendershadow(self, screen):
 		px, py = camera.screenpos(self.x, self.y, terrain.height(self.x, self.y))
@@ -32,19 +39,48 @@ class Sprite(object):
 
 # Just a bouncing ball for now
 class You(Sprite):
-	v = 0.4  # tiles per frame
+	v = 0.25  # tiles per frame
 	minicolor = 255, 0, 0  # color on the minimap
 
+	# (dx, dy) should be a normalized unit vector
 	def move(self, dx, dy):
 		self.x += dx * self.v
 		self.y += dy * self.v
 
 	def update(self):
 		import time
-		self.z = terrain.height(self.x, self.y) + int(abs(5 * math.sin(7 * time.time())))
+		self.setheight(int(abs(5 * math.sin(7 * time.time()))))
 
 	def render(self, screen):
 		self.rendershadow(screen)
-		px, py = camera.screenpos(self.x, self.y, self.z)
+		px, py = self.screenpos()
 		pygame.draw.circle(screen, (255, 0, 0), (px, py-4), 4)
+
+# Alien base class
+class Alien(Sprite):
+	v = 0.15
+	minicolor = 255, 255, 0
+	size = 6
+
+	def __init__(self, *args, **kw):
+		Sprite.__init__(self, *args, **kw)
+		self.choosevector()
+
+	def choosevector(self):
+		theta = random.random() * 6.28
+		self.vx = self.v * math.sin(theta)
+		self.vy = self.v * math.cos(theta)
+	
+	def update(self):
+		if random.random() < 0.02:
+			self.choosevector()
+		self.x += self.vx
+		self.y += self.vy
+		self.setheight()
+	
+	def render(self, screen):
+		self.rendershadow(screen)
+		px, py = self.screenpos()
+		pygame.draw.circle(screen, self.minicolor, (px, py-self.size), self.size)
+
 

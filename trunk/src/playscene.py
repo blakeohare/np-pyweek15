@@ -1,5 +1,5 @@
 import pygame
-import time
+import time, random
 
 from src import camera
 from src import data
@@ -63,6 +63,8 @@ class PlayScene:
 		self.cy = starting_sector[1] * 60 + starting_xy[1]
 		self.player = sprite.You(self.cx, self.cy + 1)
 		self.sprites = [self.player]
+		for _ in range(10):
+			self.sprites.append(sprite.Alien(self.cx + random.uniform(-30, 30), self.cy + random.uniform(-30, 30)))
 		self.poll_countdown = 0
 		self.poll = []
 		self.toolbar = ToolBar()
@@ -94,7 +96,7 @@ class PlayScene:
 		else:
 			direction = ''
 			dx, dy = 0, 0
-			v = .15
+			v = self.player.v
 			if pressed['up']: dy += v
 			if pressed['down']: dy -= v
 			if pressed['left']: dx -= v
@@ -192,7 +194,8 @@ class PlayScene:
 				# TODO: do logic to apply results
 				self.battle = None
 		
-		self.player.update()
+		for s in self.sprites:
+			s.update()
 		
 	def render(self, screen):
 		self.last_width = screen.get_width()
