@@ -3,17 +3,31 @@ from src.images import get_image
 from src import playscene
 #from src import play
 from src import util
-
+from src import slideshows
+from src import tutorial
+from src import scenefactory
 
 class TitleScene(UiScene):
 	def __init__(self):
 		UiScene.__init__(self)
 		self.username = TextBox(20, 200, 100, "Username")
-		self.add_element(Image(0, 0, get_image('title.jpg')))
+		self.add_element(Image(0, 0, get_image('backgrounds/title.png')))
 		self.add_element(self.username)
 		self.button = Button(20, 230, "Login", self.login_pressed, False)
 		self.add_element(self.button)
+		self.add_element(Button(300, 200, "Story", self.story_pressed, True))
+		self.add_element(Button(300, 230, "Tutorial Mode", self.tutorial_pressed, True))
+		self.add_element(Button(300, 260, "Credits", self.credits_pressed, True))
 		self.auth_request = None
+	
+	def story_pressed(self):
+		self.next = slideshows.StoryScene()
+	
+	def tutorial_pressed(self):
+		self.next = tutorial.TutorialScene()
+	
+	def credits_pressed(self):
+		self.next = slideshows.CreditsScene()
 	
 	def update(self):
 		UiScene.update(self)
@@ -62,3 +76,5 @@ class TitleScene(UiScene):
 			from src import play
 			self.next = play.PlayScene()
 		UiScene.process_input(self, events, pressed_keys)
+
+scenefactory.add_builder('title', lambda:TitleScene())
