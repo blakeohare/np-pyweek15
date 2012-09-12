@@ -51,9 +51,24 @@ class LoadingScene:
 		loading = get_text("Loading" + ("." * z), (255, 255, 255), 22)
 		screen.fill((0, 0, 0))
 		screen.blit(loading, (self.loading_x, 100))
-		
+
+
+class Curiosity:
+	def __init__(self):
+		self.counter = 0
+	
+	def update(self):
+		self.counter += 1
+
+	def is_done(self):
+		return self.counter >= settings.fps * 10
+	
+	
 class PlayScene:
 	def __init__(self, user_id, password, potato, starting_sector, starting_xy, show_landing_sequence):
+		self.curiosity = None
+		if show_landing_sequence:
+			self.curiosity = Curiosity()
 		self.potato = potato
 		self.user_id = user_id
 		self.password = password
@@ -94,7 +109,9 @@ class PlayScene:
 	
 	def process_input(self, events, pressed):
 		building_menu = False
-		if self.battle != None:
+		if self.curiosity != None:
+			pass
+		elif self.battle != None:
 			self.battle.process_input(events, pressed)
 		else:
 			direction = ''
@@ -183,6 +200,11 @@ class PlayScene:
 		return (util.floor(x // 60), util.floor(y // 60))
 	
 	def update(self):
+		if self.curiosity != None:
+			self.curiosity.update()
+			if self.curiosity.is_done():
+				self.curiosity = None
+		
 		self.potato.update()
 		self.poll_countdown -= 1
 		if self.poll_countdown < 0 and len(self.poll) == 0:
