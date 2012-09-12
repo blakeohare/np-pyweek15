@@ -109,6 +109,7 @@ class PlayScene:
 	
 	def process_input(self, events, pressed):
 		building_menu = False
+		demolish_building = False
 		if self.curiosity != None:
 			pass
 		elif self.battle != None:
@@ -158,9 +159,7 @@ class PlayScene:
 						if self.build_mode != None:
 							self.build_thing(self.build_mode)
 						elif self.toolbar.mode == 'demolish':
-							x, y = self.player.getModelXY()
-							
-							self.blow_stuff_up(x, y)
+							demolish_building = True
 					elif event.down and event.action == 'action':
 						building_menu = True
 					elif event.down and event.action == 'back':
@@ -170,6 +169,9 @@ class PlayScene:
 		
 		if building_menu and selected_building != None:
 			self.next = buildingmenu.BuildingMenu(self)
+		if demolish_building and selected_building != None:
+			x, y = selected_building.getModelXY()
+			self.blow_stuff_up(x, y)
 	
 	def blow_stuff_up(self, x, y):
 		col = util.floor(x)
