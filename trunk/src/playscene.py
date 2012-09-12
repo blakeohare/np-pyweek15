@@ -11,6 +11,7 @@ from src import util
 from src import worldmap
 from src import terrain
 from src import battle
+from src import buildingmenu
 
 from src.font import get_text
 from src.images import get_image
@@ -87,6 +88,7 @@ class PlayScene:
 		return self.potato.buildings_by_coord.get(new_coord) == None
 	
 	def process_input(self, events, pressed):
+		building_menu = False
 		if self.battle != None:
 			self.battle.process_input(events, pressed)
 		else:
@@ -124,9 +126,16 @@ class PlayScene:
 							x, y = self.player.getModelXY()
 							
 							self.blow_stuff_up(x, y)
+					elif event.down and event.action == 'action':
+						building_menu = True
+					elif event.down and event.action == 'back':
+						self.toolbar.press_back()
 		you_x, you_y = terrain.toModel(self.player.x, self.player.y)
 		selected_building = self.potato.get_building_selection(you_x, you_y)
 		
+		if building_menu and selected_building != None:
+			self.next = buildingmenu.BuildingMenu(self)
+	
 	def blow_stuff_up(self, x, y):
 		col = util.floor(x)
 		row = util.floor(y)

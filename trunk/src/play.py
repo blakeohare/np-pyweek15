@@ -4,7 +4,7 @@ import os
 from collections import defaultdict
 
 from src import menus
-from src import worldmap, settings, sprite, structure, terrain
+from src import worldmap, settings, sprite, structure, terrain, title
 from src.font import get_text
 # types: key, type, mouseleft, mouseright, mousemove
 # action: left, right, up down, build, enter, demolish
@@ -104,9 +104,8 @@ def main():
 	rscreen, vscreen = get_screen()
 	
 	last_fps = 30
-	# TODO: type counter
 	
-	scene = menus.TitleScene()  # can be set to None to quit
+	scene = title.TitleScene()  # can be set to None to quit
 	pressed_keys = defaultdict(bool)
 	for ea in event_actions:
 		pressed_keys[ea] = False
@@ -133,7 +132,7 @@ def main():
 			elif event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
 				down = event.type == pygame.KEYDOWN
 				if event.key == pygame.K_ESCAPE:
-					scene = None
+					events.append(MyEvent('key', 'back', down, 0, 0))
 				elif event.key == pygame.K_F4 and alt:
 					scene = None
 				elif event.key == pygame.K_F1:
@@ -150,6 +149,8 @@ def main():
 					events.append(MyEvent('key', 'down', down, 0, 0))
 				elif event.key == pygame.K_SPACE:
 					events.append(MyEvent('key', 'build', down, 0, 0))
+				elif event.key == pygame.K_RETURN:
+					events.append(MyEvent('key', 'action', down, 0, 0))
 				
 				if len(events) > 0 and events[-1].type == 'key':
 					pressed_keys[events[-1].action] = events[-1].down
