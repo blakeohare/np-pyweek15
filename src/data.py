@@ -24,16 +24,21 @@ class MagicPotato:
 			id = util.totuple(sector_data.get('id', None))
 			if sector_data.get('all', False):
 				# list of all buildings
-				self.last_id_by_sector[id] = max(
-					self.last_id_by_sector.get(id, 0),
-					sector_data.get('valid_through', 0))
+				
+				#self.last_id_by_sector[id] = max(
+				#	self.last_id_by_sector.get(id, 0),
+				#	sector_data.get('valid_through', 0))
 				for structure in sector_data.get('structures', []):
-					if len(structure) == 4:
+					if len(structure) == 5:
 						structure_id = structure[0]
 						type = structure[1]
 						loc = util.totuple(structure[2])
 						owner = structure[3]
-						self.add_structure(owner, type, id[0], id[1], loc[0], loc[1])
+						event_id = structure[4]
+						
+						if self.last_id_by_sector.get(id, 0) < event_id:
+							self.add_structure(owner, type, id[0], id[1], loc[0], loc[1])
+							self.last_id_by_sector[id] = event_id
 			else:
 				# list of new events
 				events = sector_data.get('events', [])
@@ -121,8 +126,8 @@ class MagicPotato:
 		
 		
 		
+	
 	def add_structure(self, user_id, type, sx, sy, x, y):
-		#if self.buildings_by_id.get(id, None) != None: return
 		# TODO: determine if building already exists by alternate means
 		
 		ax = sx * 60 + x
@@ -131,8 +136,8 @@ class MagicPotato:
 		
 		s = structure.create(user_id, type, ax, ay)
 		sector = (sx, sy)
-		list = self.buildings_by_sector.get(sector, [])
-		self.buildings_by_sector[sector] = list
+		#list = self.buildings_by_sector.get(sector, [])
+		#self.buildings_by_sector[sector] = list
 		
 		north = ay
 		south = ay + size - 1
@@ -144,16 +149,22 @@ class MagicPotato:
 		sector_west = west // 60
 		sector_east = east // 60
 		
+		footprint = []
+		remove_these = []
+		for px in range(size):
+			for py in range(size):
+				f = (ax + px, ay + py)
+				footprint.append(f)
+		
+		for f in footprint:
+			self.buildings_by_coord[f] = s
+	
 		for sector_x in range(sector_west, sector_east + 1):
 			for sector_y in range(sector_north, sector_south + 1):
 				list = self.buildings_by_sector.get(sector, [])
 				self.buildings_by_sector[sector] = list
 				list.append(s)
 		
-		for px in range(size):
-			for py in range(size):
-				self.buildings_by_coord[(ax + px, ay + py)] = s
-	
 	def get_structures_for_screen(self, cx, cy):
 		
 		# need logic to determine which sectors are on the screen

@@ -24,7 +24,8 @@ def do_poll(user_id, sector_args):
 						structure['structure_id'],
 						structure['type'],
 						structure['loc_xy'],
-						structure['user_id']])
+						structure['user_id'],
+						structure['event_id']])
 					if max_id < structure['event_id']:
 						max_id = structure['event_id']
 				sector_data['valid_through'] = max_id
