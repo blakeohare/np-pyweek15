@@ -10,6 +10,7 @@ else:
 	from urllib import urlencode
 import threading
 
+import time
 
 _server_address = util.read_file('server.txt')
 
@@ -33,11 +34,14 @@ class Request(threading.Thread):
 		_server_address = new_address
 		print("SERVER HAS MOVED TO:", new_address)
 		util.write_file('server.txt', new_address)
-		
+	
 	def run(self):
+		self.send_request()
+	
+	def send_request(self, attempts=10):
 		is_error = False
 		data = None
-		if True:
+		try:
 			url = _server_address + '/server.py?' + urlencode(self.args)
 			print("Sending: " + url)
 			c = urlopen(url)
@@ -47,17 +51,22 @@ class Request(threading.Thread):
 			data = deserialize_thing(raw_bytes)
 			print("RECEIVED: ", data)
 			if data == None:
-				print("RAW DATA:", raw_bytes)
+				print("RAW DATA:", raw_bytes.replace('<br />', "\n"))
 			c.close()
 			
 			if data != None and data.get('redirect') != None:
 				self.update_address(str(data['redirect']))
-				self.run()
+				self.send_request()
 				return
 			
-		else: #except:
-			data = { 'success': False, 'message': "Server did not respond" }
-			is_error = True
+		except:
+			if attempts < 1:
+				data = { 'success': False, 'message': "Server did not respond" }
+				is_error = True
+			else:
+				time.sleep((11 - attempts) * 3.0)
+				self.send_request(attempts - 1)
+				return
 		
 		self.lock.acquire(True)
 		self.error = is_error
