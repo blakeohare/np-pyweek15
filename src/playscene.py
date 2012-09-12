@@ -80,6 +80,8 @@ class PlayScene:
 		return self.client_token[0] + '^' + str(self.client_token[1])
 	
 	def can_walk_there(self, oldx, oldy, newx, newy):
+		# underwater check
+		#if terrain.height(*terrain.nearesttile(newx, newy)) <= 0: return False
 		old_coord = terrain.toiModel(oldx, oldy)
 		new_coord = terrain.toiModel(newx, newy)
 		
