@@ -5,7 +5,7 @@ from src import worldmap
 from src.font import get_text
 from src import util
 from src import network
-from src import playscene
+#from src import playscene
 
 class Element:
 	def __init__(self, type, x, y):
@@ -30,9 +30,9 @@ class Element:
 				scene.cycle_focus(1)
 
 class Image(Element):
-	def __init__(self, x, y, path):
+	def __init__(self, x, y, img):
 		Element.__init__(self, "Image", x, y)
-		self.img = get_image(path)
+		self.img = img
 		self.focusable = False
 		self.width = self.img.get_width()
 		self.height = self.img.get_height()
@@ -183,62 +183,3 @@ class Button(Element):
 		pygame.draw.rect(screen, color, box, 1)
 		img = get_text(self.text, color, 18)
 		screen.blit(img, (self.x + 2, self.y + 2))
-
-class TitleScene(UiScene):
-	def __init__(self):
-		UiScene.__init__(self)
-		self.username = TextBox(20, 200, 100, "Username")
-		self.add_element(Image(0, 0, 'title.jpg'))
-		self.add_element(self.username)
-		self.button = Button(20, 230, "Login", self.login_pressed, False)
-		self.add_element(self.button)
-		self.auth_request = None
-	
-	def update(self):
-		UiScene.update(self)
-		if len(self.username.text) == 0:
-			self.button.disable()
-		else:
-			self.button.enable()
-		
-		if self.auth_request != None and self.auth_request.has_response():
-			response = self.auth_request.get_response()
-			if not response.get('success', False):
-				response.get('message', "Server made an unrecognized response")
-			else:
-				hq = response.get('hq')
-				sector = hq[0]
-				loc = hq[1]
-				user_id = response.get('user_id', 0)
-				is_new = response.get('is_new', False)
-				self.next = playscene.LoadingScene(user_id, self.password, sector, loc, is_new)
-			self.auth_request = None
-	
-	def login_pressed(self):
-		raw_users = util.read_file('users.txt')
-		if raw_users == None:
-			users = []
-			raw_users = ''
-		else:
-			users = util.trim(raw_users).split('\n')
-		user_lookup = {}
-		for user in users:
-			name = util.trim(user[32:])
-			password = user[:32].lower()
-			user_lookup[name] = password
-		
-		user = self.username.text
-		password = user_lookup.get(user, None)
-		if password == None:
-			password = util.md5(str(time.time()) + "leprechauns")
-			raw_users += "\n" + password + user
-			util.write_file('users.txt', raw_users)
-		self.auth_request = network.send_authenticate(user, password)
-		self.password = password
-	
-	def process_input(self, events, pressed_keys):
-		if pressed_keys['debug']:
-			from src import play
-			self.next = play.PlayScene()
-		UiScene.process_input(self, events, pressed_keys)
-	
