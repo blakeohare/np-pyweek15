@@ -58,6 +58,7 @@ class You(Sprite):
 		else:
 			self.x = newx
 			self.y = newy
+			self.setheight(0)
 			self.moving = True
 			if dx == 0:
 				if dy > 0:
