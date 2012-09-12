@@ -209,8 +209,11 @@ def main():
 		pygame.display.flip()
 		end = time.time()
 		
+		fps = settings.fps
+		if "Credits" in str(scene):
+			fps = 60
 		diff = end - start
-		delay = 1.0 / settings.fps - diff
+		delay = 1.0 / fps - diff
 		if delay > 0:
 			time.sleep(delay)
 		else:
