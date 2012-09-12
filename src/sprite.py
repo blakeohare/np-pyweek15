@@ -83,9 +83,7 @@ class You(Sprite):
 	def update(self):
 		import time
 		self.counter += 1
-		self.z = terrain.height(self.x, self.y) #+ int(abs(5 * math.sin(7 * time.time())))
-		#self.setheight(int(abs(5 * math.sin(7 * time.time()))))
-
+		self.setheight()
 
 	def render(self, screen):
 		if len(little_yous) == 0:

@@ -139,11 +139,11 @@ class Parcel(object):
                 pass
         if (x,y) in self.h: return self.h[(x, y)]
         X, Y = (x + y) / 2, (-x + y) / 2
-        iX, iY = int(X//1), int(Y//1)
+        iX, iY = int((X+0.5)//1), int((Y+0.5)//1)
         ix, iy = iX - iY, iX + iY
-        tX, tY = X - iX, Y - iY
-        return ((self.h[(ix,iy)] * (1-tX) + self.h[(ix+1,iy+1)] * tX) * (1-tY) + 
-                (self.h[(ix-1,iy-1)] * (1-tX) + self.h[(ix,iy+2)] * tX) * tY)
+        tX, tY = X - iX + 0.5, Y - iY + 0.5
+        return ((self.h[(ix-1,iy)] * tY + self.h[(ix,iy-1)] * (1-tY)) * (1-tX) + 
+                (self.h[(ix+1,iy)] * (1-tY) + self.h[(ix,iy+1)] * tY) * tX)
 
     def complete(self):
         if self.compiter:
@@ -276,6 +276,4 @@ def choosevalidstart():
 # Obviously doesn't take into account whether there's anything already built there
 def canbuildhere(x, y):
     return (x + y) % 2 == 0 and iheight(x, y) > 0
-
-
 

@@ -76,13 +76,32 @@ class PlayScene(object):
 		self.sprites = [self.you]
 		# Put down some random structures OBVIOUSLY THIS IS JUST FOR TESTING
 		self.structures = []
+		for _ in range(100):
+			import random
+			x, y = random.uniform(-100, 100), random.uniform(-100, 100)
+			if (x + y) % 2: continue
+			self.structures.append(structure.HQ(None, x, y))
+
 
 	def process_input(self, events, pressed):
-		dx, dy = (pressed['right'] - pressed['left']), (pressed['up'] - pressed['down'])
-		if dx and dy:
-			dx *= 0.707
-			dy *= 0.707
-		self.you.move(dx, dy)
+		dx, dy = 0, 0
+		v = self.you.v
+		if pressed['up']: dy = 1.0
+		if pressed['down']: dy = -1.0
+		if pressed['left']: dx = -1.0
+		if pressed['right']: dx = 1.0
+		
+		if dx != 0 and dy != 0:
+			dx *= .7071
+			dy *= .7071
+		
+		oldx = self.you.x
+		oldy = self.you.y
+		
+		newx = oldx + dx * self.you.v
+		newy = oldy + dy * self.you.v
+		
+		self.you.moveTo(newx, newy, dx, dy)
 
 	def update(self):
 		for structure in self.structures: structure.update()
