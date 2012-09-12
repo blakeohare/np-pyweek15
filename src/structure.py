@@ -8,8 +8,7 @@ class Structure(object):
 		self.user_id = user_id
 		self.selected = False
 		self.x, self.y = terrain.toCenterRender(x, y)
-		self.z = terrain.iheight(x, y) if z is None else z
-
+		self.z = terrain.iheight(self.x, self.y) if z is None else z
 	
 	def getModelXY(self):
 		return terrain.toModel(self.x, self.y + 1)
