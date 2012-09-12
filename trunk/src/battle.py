@@ -2,10 +2,11 @@ import random, math
 from src import sprite, structure, terrain
 
 class Battle:
-	def __init__(self, user_id, other_user_id=None):
+	def __init__(self, user_id, buildings, other_user_id=None):
 		# if other_user_id is, then this is an alien vs player session
 		self.user_id = user_id
 		self.other_id = other_user_id
+		self.buildings = buildings
 		
 		self.data_stolen = 0.0 # add to this in real time as the sprites successfully get into the HQ
 		self.aliens = []

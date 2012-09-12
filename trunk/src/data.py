@@ -66,6 +66,16 @@ class MagicPotato:
 								x, y = map(int, datavalue.split('^'))
 								self.remove_structure(id, x, y)
 	
+	def get_all_buildings_of_player_SLOW(self, user_id):
+		# not really indexed ideally, so just iterate through all buildinsg
+		# this should only be called once during battle initiation, not every frame
+		buildings = []
+		for building_batch in self.buildings_by_sector.values():
+			for building in building_batch:
+				if building.user_id == user_id:
+					buildings.append(building)
+		return buildings
+	
 	def get_building_selection(self, mx, my):
 		
 		imx = int(mx // 1)
