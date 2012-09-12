@@ -11,6 +11,7 @@ else:
 import threading
 
 
+_server_address = util.read_file('server.txt')
 
 class Request(threading.Thread):
 	def __init__(self, action, args, user, password):
@@ -26,12 +27,18 @@ class Request(threading.Thread):
 		self.response = None
 		self.error = False
 		self.lock = threading.Lock()
+	
+	def update_address(self, new_address):
+		global _server_address
+		_server_address = new_address
+		print("SERVER HAS MOVED TO:", new_address)
+		util.write_file('server.txt', new_address)
 		
 	def run(self):
 		is_error = False
 		data = None
-		if True:#try:
-			url = 'http://pyweek15.nfshost.com/server.py?' + urlencode(self.args)
+		if True:
+			url = _server_address + '/server.py?' + urlencode(self.args)
 			print("Sending: " + url)
 			c = urlopen(url)
 			raw_bytes = c.read()
@@ -42,6 +49,12 @@ class Request(threading.Thread):
 			if data == None:
 				print("RAW DATA:", raw_bytes)
 			c.close()
+			
+			if data != None and data.get('redirect') != None:
+				self.update_address(str(data['redirect']))
+				self.run()
+				return
+			
 		else: #except:
 			data = { 'success': False, 'message': "Server did not respond" }
 			is_error = True

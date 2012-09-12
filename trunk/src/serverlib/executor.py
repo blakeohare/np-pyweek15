@@ -3,7 +3,10 @@ import util
 from serverlib import authenticate
 from serverlib import poll
 
-# ideally add a separate module for each command
+# If for some reason, the server needs to move,
+# this server should return a { 'redirect': "http://newserver.com" }
+# The address should be everything up to (but not including) the /server.py?...
+
 
 def do_things(action, args):
 	
@@ -17,6 +20,7 @@ def do_things(action, args):
 		
 	else:
 		user_id = util.parseInt(args.get('user_id', 0))
+		
 		if authenticate.light_authenticate(user_id, args.get('password', '')):
 			if action == 'poll':
 				
