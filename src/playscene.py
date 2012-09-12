@@ -12,6 +12,7 @@ from src import worldmap
 from src import terrain
 from src import battle
 from src import buildingmenu
+from src import effects
 
 from src.font import get_text
 from src.images import get_image
@@ -63,8 +64,8 @@ class PlayScene:
 		self.cy = starting_sector[1] * 60 + starting_xy[1]
 		self.player = sprite.You(self.cx, self.cy + 1)
 		self.sprites = [self.player]
-		for _ in range(10):
-			self.sprites.append(sprite.Alien(self.cx + random.uniform(-30, 30), self.cy + random.uniform(-30, 30)))
+#		for _ in range(10):
+#			self.sprites.append(sprite.Alien(self.cx + random.uniform(-30, 30), self.cy + random.uniform(-30, 30)))
 		self.poll_countdown = 0
 		self.poll = []
 		self.toolbar = ToolBar()
@@ -130,6 +131,12 @@ class PlayScene:
 				elif event.type == 'key':
 					if event.down and event.action == 'debug':
 						self.battle = battle.Battle(self.user_id, None)
+						# TODO: Blake, how do I know which structures are under attack?
+						# I also need to know which one is the HQ.
+						base = [b for b in self.potato.get_structures_for_screen(oldx, oldy)   # HACK for testing
+							if (b.x - oldx) ** 2 + (b.y - oldy) ** 2 < 20 ** 2
+						]
+						self.battle.set_base(base)
 					elif event.down and event.action == 'build':
 						if self.build_mode != None:
 							self.build_thing(self.build_mode)
@@ -201,10 +208,12 @@ class PlayScene:
 			self.battle.update()
 			if self.battle.is_complete():
 				# TODO: do logic to apply results
+				self.battle.hq.healfull()   # Repair the HQ after the battle
 				self.battle = None
 		
 		for s in self.sprites:
 			s.update()
+		effects.update()
 		
 	def render(self, screen):
 		self.last_width = screen.get_width()
@@ -226,7 +235,7 @@ class PlayScene:
 		if self.battle != None:
 			entities += self.battle.get_sprites()
 		
-		worldmap.drawscene(screen, entities, (cx, cy))
+		worldmap.drawscene(screen, entities + effects.effects, (cx, cy))
 		for label in labels:
 			screen.blit(label[0], (label[1], label[2]))
 		if settings.showminimap:

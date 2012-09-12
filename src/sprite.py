@@ -3,9 +3,12 @@ from src import worldmap, camera, settings, terrain
 from src.images import get_image
 
 class Sprite(object):
+	hp0 = 1
 	def __init__(self, x, y, z=None):
 		self.x, self.y = terrain.toCenterRender(x, y)
 		self.z = terrain.height(self.x, self.y) if z is None else z
+		self.alive = True
+		self.hp = self.hp0
 
 	def lookatme(self):
 		camera.lookat(self.x, self.y, terrain.height(self.x, self.y))
@@ -38,9 +41,14 @@ class Sprite(object):
 		pygame.draw.line(surf, self.minicolor, (px-1,py), (px+1,py))
 		pygame.draw.line(surf, self.minicolor, (px,py-1), (px,py+1))
 
+	# Probably won't be hurting the player character, but I'll put this here anyway.
+	def hurt(self, dhp):
+		self.hp = max(self.hp - dhp, 0)
+		if self.hp <= 0:
+			self.alive = False
+
 little_yous = {}
 
-# Just a bouncing ball for now
 class You(Sprite):
 	v = 0.3   # tiles per frame
 	minicolor = 255, 128, 0  # color on the minimap
@@ -107,29 +115,49 @@ class You(Sprite):
 
 # Alien base class
 class Alien(Sprite):
-	v = 0.15
+	walkspeed = 0.1
+	runspeed = 0.2
 	minicolor = 255, 255, 0
 	size = 6
+	attackrange = 1
+	strength = 1
 
 	def __init__(self, *args, **kw):
 		Sprite.__init__(self, *args, **kw)
-		self.choosevector()
+		self.target = None
+		self.vx, self.vy = 0, 0
 
-	def choosevector(self):
-		theta = random.random() * 6.28
-		self.vx = self.v * math.sin(theta)
-		self.vy = self.v * math.cos(theta)
-	
+	def settarget(self, target):
+		self.target = target
+
 	def update(self):
-		if random.random() < 0.02:
-			self.choosevector()
+		if self.target:
+			dx, dy = self.target.x - self.x, self.target.y - self.y
+			d = math.sqrt(dx**2 + dy**2)
+			if d < self.attackrange:
+				self.vx, self.vy = 0, 0
+				self.attack(self.target)
+			else:
+				self.vx = self.runspeed * dx / d
+				self.vy = self.runspeed * dy / d
+		else:
+			self.vx, self.vy = 0, 0
 		self.x += self.vx
 		self.y += self.vy
 		self.setheight()
+
+	def attack(self, target):
+		self.target.hurt(self.strength)
+		self.alive = False
+
+	def drawmini(self, surf, x0, y0):
+		px, py = int((self.x - x0)//1), int((-self.y + y0)//1)
+		surf.set_at((px, py), self.minicolor)
 	
-	def render(self, screen):
+	def render(self, screen, looker=None):
 		self.rendershadow(screen)
-		px, py = self.screenpos()
+		px, py = self.screenpos(looker)
 		pygame.draw.circle(screen, self.minicolor, (px, py-self.size), self.size)
+
 
 
