@@ -33,7 +33,7 @@ class BuildingMenu(UiScene):
 		if self.initialized == False:
 			if self.building.btype == 'radar':
 				x, y = self.building.getModelXY()
-				self.radar_signal = network.send_radar(self.user_id, int(x), int(y))
+				self.radar_signal = network.send_radar(self.user_id, self.playscene.password, int(x), int(y))
 				self.rx = x
 				self.ry = y
 			self.initialized = True
@@ -45,13 +45,14 @@ class BuildingMenu(UiScene):
 		# Will need to pass in a 400x300 transparent image and then reblit in middle
 		# I'll do that if people care deeply.
 		
-		if building.btype == 'radar':
+		if self.building.btype == 'radar':
 			if self.radar_signal != None and self.radar_signal.has_response():
 				signal = self.radar_signal.get_response()
-				if signal.get('success', False):
-					data = signal.get('data', [])
+				if signal != None and signal.get('success', False):
+					data = signal.get('neighbors', [])
 					rows = []
 					for datum in data:
+						
 						user = datum[0]
 						dx = datum[1] - self.rx
 						dy = datum[2] - self.ry
@@ -61,22 +62,29 @@ class BuildingMenu(UiScene):
 						direction = '-'
 						
 						angle = math.atan2(dy, dx) / (2 * 3.14159)
-						angle = int(angle * 7.99999999 * 2)
-						angle = int((angle + 1) / 2.0)
+						
+						
+						angle = int(angle * 2 * 7.9999999)
 						# my head hurts
 						directions = {
 							0 : "Southeast",
 							1 : "South",
-							2 : "Southwest",
-							3 : "West",
-							4 : "Northwest",
+							2 : "South",
+							3 : "Southwest",
+							4 : "Southwest",
+							5 : "West",
+							6 : "West",
+							7 : "Northwest",
 							-1 : "East",
-							-2 : "Northeast",
-							-3 : "North",
-							-4 : "Northwest"
+							-2 : "East",
+							-3 : "Northeast",
+							-4 : "Northeast",
+							-5 : "North",
+							-6 : "North",
+							-7 : "Northwest"
 						}
-						
-						rows.append(get_text(str(user) + " " + str(distance) + " km " + direction, (255, 255, 255), 18)) 
+						direction = directions.get(angle, "")
+						rows.append(get_text(str(user) + " " + str(distance) + " km " + direction, (255, 255, 255), 14)) 
 					
 					y = 100
 					x = 100
@@ -85,7 +93,11 @@ class BuildingMenu(UiScene):
 						y += row.get_height() + 5
 					
 				else:
-					text = signal.get('message', "Radar is broken right now. Might be the clouds.")
+					text = "Radar is broken right now. Might be the clouds."
+					if signal != None:
+						text = signal.get('message', text)
+					img = get_text(text, (255, 0, 0), 18)
+					screen.blit(img, (screen.get_width() // 2 - img.get_width() // 2, screen.get_height() // 2 - img.get_height() // 2))
 			else:
 				img = get_text("Scanning...", (255, 255, 255), 18)
 				screen.blit(img, (screen.get_width() // 2 - img.get_width() // 2, screen.get_height() // 2 - img.get_height() // 2))

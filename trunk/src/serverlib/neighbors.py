@@ -10,8 +10,8 @@ def find_neighbors(user_id, rx, ry):
 	youx, youy = None, None
 	for player in players:
 	
-		sx, sy = map(int, player['hq_sector'])
-		px, py = map(int, player['hq_loc'])
+		sx, sy = map(int, player['hq_sector'].split('^'))
+		px, py = map(int, player['hq_loc'].split('^'))
 		
 		x = sx * 60 + px
 		y = sy * 60 + py
@@ -27,11 +27,12 @@ def find_neighbors(user_id, rx, ry):
 	
 	i = 0
 	while i < len(data):
-		dx = youx - data[1]
-		dy = youy - data[2]
+		datum = data[i]
+		dx = youx - datum[1]
+		dy = youy - datum[2]
 		
 		d = (dx * dx + dy * dy) ** .5
-		data[3] = d
+		datum[3] = d
 		i += 1
 	
 	

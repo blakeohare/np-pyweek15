@@ -199,3 +199,9 @@ def send_demolish(user_id, password, sector_x, sector_y, x, y, client_token):
 		'loc': util.fromtuple((x, y)),
 		'client_token': client_token
 	}, user_id, password)
+
+def send_radar(user_id, password, rx, ry):
+	return _send_command('radar', {
+		'rx': rx,
+		'ry': ry }, user_id, password)
+		
