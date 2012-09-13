@@ -87,7 +87,10 @@ class MagicPotato:
 				#self.last_id_by_sector[id] = max(
 				#	self.last_id_by_sector.get(id, 0),
 				#	sector_data.get('valid_through', 0))
-				for structure in sector_data.get('structures', []):
+				
+				structures = sector_data.get('structures', [])
+				structures.sort(key=lambda x:x[4])
+				for structure in structures:
 					if len(structure) == 5:
 						structure_id = structure[0]
 						type = structure[1]
@@ -206,6 +209,9 @@ class MagicPotato:
 		while i < len(buildings):
 			building = buildings[i]
 			bx, by = building.getModelXY()
+			bx = int(bx // 1)
+			by = int(by // 1)
+			
 			if bx == x and by == y:
 				self.buildings_by_sector[sector] = buildings[:i] + buildings[i + 1:]
 				size = structure.get_structure_size(building.type)
