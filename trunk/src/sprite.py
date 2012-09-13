@@ -67,13 +67,18 @@ class Sprite(object):
 			a, b = (dx > 0) - (dx < 0), (dy > 0) - (dy < 0)
 			self.last_direction = directions.index((a,b))
 
+	def cango(self, isempty, x, y):
+		if terrain.isunderwater(x, y):
+			return False
+		if not isempty(x, y) and isempty(self.x, self.y):
+			return False
+		return True
+
 	# pass it a function that returns whether a given tile is empty.
 	def walk(self, isempty, speedfactor = 1):
 		nx = self.x + self.vx * speedfactor
 		ny = self.y + self.vy * speedfactor
-		if terrain.isunderwater(nx, ny):
-			return False
-		if isempty(self.x, self.y) and not isempty(nx, ny):
+		if not self.cango(isempty, nx, ny):
 			return False
 		self.x, self.y = nx, ny
 		return True
@@ -141,7 +146,7 @@ class You(Sprite):
 class Ray(Sprite):
 	v = 1.0
 	lifetime = 7
-	strength = 1
+	strength = 3
 	harmrange = 1.0
 	t = 0
 
@@ -175,8 +180,9 @@ class Ray(Sprite):
 
 # Alien base class
 class Alien(Sprite):
-	walkspeed = 0.1
-	runspeed = 0.2
+	walkspeed = 0.05
+	runspeed = 0.1
+	hp0 = 3
 	minicolor = 255, 255, 0
 	size = 6
 	attackrange = 1
@@ -191,6 +197,7 @@ class Alien(Sprite):
 
 	def settarget(self, target):
 		self.target = target
+		self.waypoint = None
 
 	def setpath(self, path):
 		self.path = path
@@ -203,23 +210,48 @@ class Alien(Sprite):
 		return min(max(1 - 0.15 * d, 0.3), 1)
 
 	def update(self, scene):
-		self.v = self.runspeed
 		if self.target:
+			self.v = self.runspeed
 			dx, dy = self.target.x - self.x, self.target.y - self.y
-			d = math.sqrt(dx**2 + dy**2)
-			if d < self.attackrange:
+			if dx**2 + dy**2 < self.attackrange ** 2:
 				self.vx, self.vy = 0, 0
 				self.attack(self.target)
-				self.path = []
-			elif not self.path:
-				self.path = [(self.target.x, self.target.y)]
-		else:   # maybe attack the player
-			# TODO: this should only happen in free-range mode
-			dx, dy = self.x - scene.player.x, self.y - scene.player.y
-			if dx ** 2 + dy ** 2 < self.seerange ** 2:
-				self.target = scene.player
+			# choose the next place to walk to
+			if not self.waypoint:
+				dirs = [(-1,-1),(-1,1),(1,-1),(1,1)]
+				dirs.sort(key = lambda d: -d[0]*dx - d[1]*dy)
+				d0, d1 = dirs[0:2]
+				a0, a1 = d0[0]*dx + d0[1]*dy, d1[0]*dx + d1[1]*dy
+				# first choice of direction with probability a0/(a0+a1)
+				fdir = d0 if random.random() * (a0 + a1) <= a0 else d1
+				if self.cango(scene.empty_tile, self.x + fdir[0], self.y + fdir[1]):
+					self.waypoint = self.x + fdir[0], self.y + fdir[1]
+				else:
+					dirs.remove(fdir)
+					d0 = d0 if fdir == d1 else d1
+					d1 = dirs[2]
+					# second choice of direction with probability 5*a1/(a0+5*a1)
+					fdir = d0 if random.random() * (a0 + 5 * a1) <= 5 * a1 else d1
+					if self.cango(scene.empty_tile, self.x + fdir[0], self.y + fdir[1]):
+						self.waypoint = self.x + fdir[0], self.y + fdir[1]
+					else:
+						fdir = d0 if fdir == d1 else d1
+						if self.cango(scene.empty_tile, self.x + fdir[0], self.y + fdir[1]):
+							print("WARNING! Can't go in any of 3 directions?!?!", self.x, self.y)
+						self.waypoint = self.x + fdir[0], self.y + fdir[1]
+			dx, dy = self.waypoint[0] - self.x, self.waypoint[1] - self.y
+			if dx**2 + dy**2 < self.v**2:
+				self.x, self.y = self.waypoint
+				self.waypoint = None
 			else:
-				if random.random() < 0.1:
+				d = math.sqrt(dx**2 + dy**2)
+				self.move(dx/d, dy/d)
+		else:
+			if random.random() < 0.1:
+				dx, dy = self.x - scene.player.x, self.y - scene.player.y
+				if dx ** 2 + dy ** 2 < self.seerange ** 2:
+					self.settarget(scene.player)
+				else:
 					self.v = self.walkspeed
 					if self.vx or self.vy:
 						self.move(0, 0)
@@ -227,22 +259,7 @@ class Alien(Sprite):
 						dx = 0.707 if random.random() < 0.5 else -0.707
 						dy = 0.707 if random.random() < 0.5 else -0.707
 						self.move(dx, dy)
-				self.walk(scene.empty_tile, self.speedfactor())
-
-		if self.path:
-			f = self.speedfactor()
-			px, py = self.path[0]
-			dx, dy = px - self.x, py - self.y
-			d = math.sqrt(dx**2 + dy**2)
-			if d <= self.v * f:
-				self.x, self.y = px, py
-				self.path.pop(0)
-				if d:
-					self.move(dx/d, dy/d)
-			else:
-				self.move(dx / d, dy / d)
-				self.walk(scene.empty_tile, self.speedfactor())
-#		self.walk(scene.empty_tile)
+		self.walk(scene.empty_tile, self.speedfactor())
 		self.setheight()
 
 	def attack(self, target):
