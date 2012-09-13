@@ -16,6 +16,23 @@ class MagicPotato:
 		self.player_names = {}
 		self.player_name_search = []
 		self.active_selection = None
+		self.resources = {
+			'food': 0,
+			'water': 0,
+			'aluminum': 0,
+			'copper': 0,
+			'silicon': 0,
+			'oil': 0
+		}
+		
+		self.escrow_resources = {
+			'food': 0,
+			'water': 0,
+			'aluminum': 0,
+			'copper': 0,
+			'silicon': 0,
+			'oil': 0
+		}
 		
 	def apply_poll_data(self, poll):
 		if not poll.get('success', False): return
