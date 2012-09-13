@@ -67,10 +67,10 @@ class Sprite(object):
 			a, b = (dx > 0) - (dx < 0), (dy > 0) - (dy < 0)
 			self.last_direction = directions.index((a,b))
 
-	def cango(self, isempty, x, y):
+	def cango(self, isempty, x, y, exclude=None):
 		if terrain.isunderwater(x, y):
 			return False
-		if not isempty(x, y) and isempty(self.x, self.y):
+		if not isempty(x, y, exclude) and isempty(self.x, self.y):
 			return False
 		return True
 
@@ -224,19 +224,19 @@ class Alien(Sprite):
 				a0, a1 = d0[0]*dx + d0[1]*dy, d1[0]*dx + d1[1]*dy
 				# first choice of direction with probability a0/(a0+a1)
 				fdir = d0 if random.random() * (a0 + a1) <= a0 else d1
-				if self.cango(scene.empty_tile, self.x + fdir[0], self.y + fdir[1]):
+				if self.cango(scene.empty_tile, self.x + fdir[0], self.y + fdir[1], self.target):
 					self.waypoint = self.x + fdir[0], self.y + fdir[1]
 				else:
-					dirs.remove(fdir)
 					d0 = d0 if fdir == d1 else d1
 					d1 = dirs[2]
 					# second choice of direction with probability 5*a1/(a0+5*a1)
-					fdir = d0 if random.random() * (a0 + 5 * a1) <= 5 * a1 else d1
-					if self.cango(scene.empty_tile, self.x + fdir[0], self.y + fdir[1]):
+#					fdir = d0 if random.random() * (a0 + 5 * a1) <= 5 * a1 else d1
+					fdir = d0
+					if self.cango(scene.empty_tile, self.x + fdir[0], self.y + fdir[1], self.target):
 						self.waypoint = self.x + fdir[0], self.y + fdir[1]
 					else:
 						fdir = d0 if fdir == d1 else d1
-						if self.cango(scene.empty_tile, self.x + fdir[0], self.y + fdir[1]):
+						if self.cango(scene.empty_tile, self.x + fdir[0], self.y + fdir[1], self.target):
 							print("WARNING! Can't go in any of 3 directions?!?!", self.x, self.y)
 						self.waypoint = self.x + fdir[0], self.y + fdir[1]
 			dx, dy = self.waypoint[0] - self.x, self.waypoint[1] - self.y

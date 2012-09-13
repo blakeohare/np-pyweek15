@@ -13,8 +13,7 @@ class Battle:
 		print("number of HQs: %s" % len(hqs))
 		self.hq = hqs[0]
 
-		self.buildbasepath()
-
+#		self.buildbasepath()
 		
 		self.data_stolen = 0.0 # add to this in real time as the sprites successfully get into the HQ
 		self.aliens = []
@@ -31,6 +30,7 @@ class Battle:
 			]
 		self.t = 0
 
+	# Obsolete function: pathfinding no longer needed
 	def buildbasepath(self):
 		self.forbiddentiles = []
 		for building in self.buildings:
@@ -83,14 +83,16 @@ class Battle:
 				r = 12
 				X = int((X0 + r * math.sin(theta))//1)
 				Y = int((Y0 + r * math.cos(theta))//1)
-				x, y = X - Y, -X - Y
-				if (x,y) in self.pathdistance:
+				x, y = terrain.nearesttile(X - Y, -X - Y)
+				if not terrain.isunderwater(x, y) and scene.empty_tile(x, y):
 					break
+#				if (x,y) in self.pathdistance:
+#					break
 			alien = sprite.Alien(X, Y)
-#			targets = [b for b in self.buildings if b.attackable and b.hp >= 0]
-#			alien.settarget(random.choice(targets))
-			alien.setpath(self.pathtohq(x,y))
-			alien.settarget(self.hq)
+			targets = [b for b in self.buildings if b.attackable and b.hp >= 0]
+			alien.settarget(random.choice(targets))
+#			alien.setpath(self.pathtohq(x,y))
+#			alien.settarget(self.hq)
 			self.aliens.append(alien)
 
 		for b in self.buildings:
