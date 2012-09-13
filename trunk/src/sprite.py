@@ -68,9 +68,9 @@ class Sprite(object):
 			self.last_direction = directions.index((a,b))
 
 	# pass it a function that returns whether a given tile is empty.
-	def walk(self, isempty):
-		nx = self.x + self.vx
-		ny = self.y + self.vy
+	def walk(self, isempty, speedfactor = 1):
+		nx = self.x + self.vx * speedfactor
+		ny = self.y + self.vy * speedfactor
 		if terrain.isunderwater(nx, ny):
 			return False
 		if isempty(self.x, self.y) and not isempty(nx, ny):
@@ -227,9 +227,7 @@ class Alien(Sprite):
 						dx = 0.707 if random.random() < 0.5 else -0.707
 						dy = 0.707 if random.random() < 0.5 else -0.707
 						self.move(dx, dy)
-				f = self.speedfactor()
-				self.x += self.vx * f
-				self.y += self.vy * f
+				self.walk(scene.empty_tile, self.speedfactor())
 
 		if self.path:
 			f = self.speedfactor()
@@ -243,8 +241,7 @@ class Alien(Sprite):
 					self.move(dx/d, dy/d)
 			else:
 				self.move(dx / d, dy / d)
-				self.x += self.vx * f
-				self.y += self.vy * f
+				self.walk(scene.empty_tile, self.speedfactor())
 #		self.walk(scene.empty_tile)
 		self.setheight()
 
