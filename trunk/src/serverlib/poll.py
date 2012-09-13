@@ -43,5 +43,48 @@ def do_poll(user_id, sector_args):
 			sectors.append(sector_data)
 	output['sectors'] = sectors
 	
+	your_buildings = sql.query("SELECT `type`, `data` FROM `structure` WHERE `user_id` = " + str(user_id))
+	resources = { 'water': 0.0, 'food': 0.0, 'oil': 0.0, 'aluminum': 0.0, 'copper': 0.0, 'silicon': 0 }
+	for building in your_buildings:
+		if building['type'] == 'farm':
+			resources['food'] += 5
+		elif building['type'] == 'greenhouse':
+			resources['food'] += 1
+		elif building['type'] == 'drill':
+			resources['oil'] += 2
+		elif building['type'] == 'quarry':
+			data = building['data']
+			# horrible hack
+			x = data.split('c')
+			a = int(x[0][1:])
+			x = x[1].split('s')
+			c = int(x[0])
+			s = int(x[1])
+			resources['aluminum'] += a / 20.0
+			resources['copper'] += c / 20.0
+			resources['silicon'] += s / 20.0
+	
+	import time
+	now = int(time.time())
+	current = sql.query("SELECT * FROM `resource_status` WHERE `user_id` = " + str(user_id) + " LIMIT 1")
+	current = current[0]
+	
+	diff = now - current['last_poll']
+	
+	if diff > 20: diff = 20 # don't let them collect resources while they're not playing
+	
+	setters = []
+	
+	for key in resources.keys():
+		resources[key] *= diff / 10.0
+		resources[key] += current[key]
+		setters.append("`" + key + "` = " + str(resources[key]))
+	
+	setters.append("`last_poll` = " + str(now))
+	
+	sql.query("UPDATE `resource_status` SET " + ', '.join(setters) + " WHERE `user_id` = " + str(user_id) + " LIMIT 1")
+	
+	output['resources'] = resources
+	
 	return output
 	
