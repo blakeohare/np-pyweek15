@@ -195,6 +195,13 @@ class Alien(Sprite):
 	def setpath(self, path):
 		self.path = path
 
+	def speedfactor(self):
+		v = math.sqrt(self.vx**2 + self.vy**2)
+		if v <= 0: return 1
+		gx, gy = terrain.grad(self.x, self.y)
+		d = (self.vx * gx + self.vy * gy) / v
+		return min(max(1 - 0.15 * d, 0.3), 1)
+
 	def update(self, scene):
 		self.v = self.runspeed
 		if self.target:
@@ -220,22 +227,24 @@ class Alien(Sprite):
 						dx = 0.707 if random.random() < 0.5 else -0.707
 						dy = 0.707 if random.random() < 0.5 else -0.707
 						self.move(dx, dy)
-				self.x += self.vx
-				self.y += self.vy
+				f = self.speedfactor()
+				self.x += self.vx * f
+				self.y += self.vy * f
 
 		if self.path:
+			f = self.speedfactor()
 			px, py = self.path[0]
 			dx, dy = px - self.x, py - self.y
 			d = math.sqrt(dx**2 + dy**2)
-			if d <= self.v:
+			if d <= self.v * f:
 				self.x, self.y = px, py
 				self.path.pop(0)
 				if d:
 					self.move(dx/d, dy/d)
 			else:
 				self.move(dx / d, dy / d)
-				self.x += self.vx
-				self.y += self.vy
+				self.x += self.vx * f
+				self.y += self.vy * f
 #		self.walk(scene.empty_tile)
 		self.setheight()
 
