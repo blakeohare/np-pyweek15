@@ -153,11 +153,6 @@ class PlayScene:
 			1]
 		self.battle = None
 		
-		# Blake how do I make it so I don't include every building in existence?
-		# TODO: decide when to update which borders and when to include them
-		mybase = self.potato.get_structures_for_screen(self.cx, self.cy)
-		myborder = border.Border((255,0,255,100), [(b, 4.5) for b in mybase])
-		self.borders = [myborder]
 	
 	def get_new_client_token(self):
 		self.client_token[1] += 1
@@ -356,8 +351,13 @@ class PlayScene:
 			entities = structures + self.sprites + self.shots
 			if self.battle != None:
 				entities += self.battle.get_sprites()
-			
-		worldmap.drawscene(screen, entities + effects.effects, (cx, cy), self.borders)
+		
+		px, py = self.player.getModelXY()
+		sx = int(px // 60)
+		sy = int(py // 60)
+		
+		borders = self.potato.get_borders_near_sector(sx, sy)
+		worldmap.drawscene(screen, entities + effects.effects, (cx, cy), borders)
 		
 		if self.curiosity != None:
 			self.curiosity.render_skycrane(screen)
