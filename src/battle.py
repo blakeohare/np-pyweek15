@@ -8,6 +8,11 @@ class Battle:
 		self.other_id = other_user_id
 		self.buildings = buildings
 		
+		print("base size: %s" % len(self.buildings))
+		hqs = [b for b in self.buildings if isinstance(b, structure.HQ)]
+		print("number of HQs: %s" % len(hqs))
+		self.hq = hqs[0]
+		
 		self.data_stolen = 0.0 # add to this in real time as the sprites successfully get into the HQ
 		self.aliens = []
 		self.bots = []
@@ -24,13 +29,6 @@ class Battle:
 		
 		self.t = 0
 
-	def set_base(self, buildings):
-		self.base = list(buildings)
-		print("base size: %s" % len(self.base))
-		hqs = [b for b in self.base if isinstance(b, structure.HQ)]
-		print("number of HQs: %s" % len(hqs))
-		self.hq = hqs[0]
-	
 	def process_input(self, events, pressed_keys):
 		pass
 		# I was thinking we could allow panning during battles with the arrow keys
@@ -39,7 +37,7 @@ class Battle:
 	def collective_sprite_midpoint(self):
 		return (0, 0)
 	
-	def update(self):
+	def update(self, scene):
 		self.t += 1
 		if self.alienq and self.t >= self.alienq[0][0]:
 			t, atype = self.alienq.pop(0)
@@ -50,15 +48,15 @@ class Battle:
 			x = x0 + r * math.sin(theta)
 			y = y0 + r * math.cos(theta)
 			alien = sprite.Alien(x, y)
-			targets = [b for b in self.base if b.attackable and b.hp >= 0]
+			targets = [b for b in self.buildings if b.attackable and b.hp >= 0]
 			alien.settarget(random.choice(targets))
 			self.aliens.append(alien)
 
-		for b in self.base:
+		for b in self.buildings:
 			b.handleintruders(self.aliens)
 		
-		for a in self.aliens: a.update()
-		for b in self.bots: b.update()
+		for a in self.aliens: a.update(scene)
+		for b in self.bots: b.update(scene)
 		
 		self.aliens = [a for a in self.aliens if a.alive]
 		self.bots = [b for b in self.bots if b.alive]
@@ -90,10 +88,12 @@ class Battle:
 	# If you return a building in this function, it should not be
 	# returned again (like pygame.event.get())
 	# actual values are coordinates of the building
+	
+	# TODO: this function should probably be invoked at some point, I imagine.
 	def new_buildings_destroyed(self):
-		dead = [b for b in self.base if b is not self.hq and b.hp <= 0]
+		dead = [b for b in self.buildings if b is not self.hq and b.hp <= 0]
 		if dead:
-			self.base = [b for b in self.base if b not in dead]
+			self.buildings = [b for b in self.buildings if b not in dead]
 		return dead
 	
 	# return buildings that have been damaged when a player attacks another player
