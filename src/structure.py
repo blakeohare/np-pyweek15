@@ -154,10 +154,13 @@ class Turret(Structure):
 	shootrange = 4
 	t = 0
 
+	def addeffect(self, target):
+		pass
+
 	def attack(self, target):
 		target.hurt(self.strength)
 		self.t = 0
-		effects.add(effects.LaserBeam(self.x, self.y, self.z + 17, target.x, target.y, target.z + 2))
+		self.addeffect(target)
 
 	def handleintruders(self, intruders):
 		self.t += 1
@@ -171,8 +174,35 @@ class FireTurret(Turret):
 	btype = "fireturret"
 class LazorTurret(Turret):
 	btype = "lazorturret"
+	strength = 1
+	chargetime = 5
+	def addeffect(self, target):
+		effects.add(effects.LaserBeam(self.x, self.y, self.z + 22, target.x, target.y, target.z + 2))
 class TeslaTurret(Turret):
 	btype = "teslaturret"
+	splashrange = 3
+
+	def addeffect(self, target):
+		effects.add(effect.LightningBolt(self.x, self.y, self.z + 22, target.x, target.y, target.z + 2, self.splashrange))
+
+	def attack(self, target, collaterals):
+		self.t = 0
+		target.hurt(self.strength)
+		for i in collaterals:
+			i.hurt(self.strength)
+
+	def handleintruders(self, intruders):
+		self.t += 1
+		if self.t >= self.chargetime and intruders:
+			# fire at whatever will cause the most splash damage
+			targets = [i for i in intruders if (i.x-self.x)**2 + (i.y-self.y)**2 < self.shootrange ** 2]
+			if not targets: return
+			tcs = [(target, [i for i in intruders
+				if (i.x-target.x)**2 + (i.y-target.y)**2 < self.splashrange**2])
+				for target in targets]
+			target, collaterals = max(tcs, key = lambda tc: len(tc[1]))
+			self.attack(target, collaterals)
+
 class Resevoir(Structure):
 	btype = "resevoir"
 	size = 2
