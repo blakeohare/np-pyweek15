@@ -62,11 +62,8 @@ class Sprite(object):
 		ny = self.y + self.vy
 		if terrain.isunderwater(nx, ny):
 			return False
-		empty0 = isempty(self.x, self.y)
-		if not empty0:
-			empty1 = isempty(nx, ny)
-			if not empty1:
-				return False
+		if isempty(self.x, self.y) and not isempty(nx, ny):
+			return False
 		self.x, self.y = nx, ny
 		return True
 
@@ -124,19 +121,35 @@ class Alien(Sprite):
 	def settarget(self, target):
 		self.target = target
 
+	def setpath(self, path):
+		self.path = path
+
 	def update(self, scene):
+		self.vx, self.vy = 0, 0
+		self.v = self.runspeed
 		if self.target:
 			dx, dy = self.target.x - self.x, self.target.y - self.y
 			d = math.sqrt(dx**2 + dy**2)
 			if d < self.attackrange:
 				self.vx, self.vy = 0, 0
 				self.attack(self.target)
+				self.path = []
+
+		if self.path:
+			px, py = self.path[0]
+			dx, dy = px - self.x, py - self.y
+			d = math.sqrt(dx**2 + dy**2)
+			print self.x, self.y, px, py, dx, dy, d, self.v
+			if d <= self.v:
+				self.x, self.y = px, py
+				self.path.pop(0)
+				if d:
+					self.move(dx/d, dy/d)
 			else:
-				self.v = self.runspeed
 				self.move(dx / d, dy / d)
-		else:
-			self.vx, self.vy = 0, 0
-		self.walk(scene.empty_tile)
+				self.x += self.vx
+				self.y += self.vy
+#		self.walk(scene.empty_tile)
 		self.setheight()
 
 	def attack(self, target):
