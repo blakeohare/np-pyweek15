@@ -196,31 +196,45 @@ _structure_info = [
 	# - formatted description
 	# - long description
 	# - size
-	['hq',             None,         1, [],              0, 0, 0, 0, 0, 0, 0,     "Headquarters",            "stores your precious ship plans", 1],
+	['hq',             None,         1, [],              0, 0, 0, 0, 0, 0, 0,     "Headquarters",            "stores your precious ship plans"],
 	
-	['greenhouse',     LANDING_ERA,  1, [],              2, 0, 10, 0, 0, 0, 0,    "Green House",             "Yay. Kale.", 1],
-	['medicaltent',    LANDING_ERA,  1, [],              1, 25, 50, 0, 0, 0, 0,   "Medical Tent",            "Fixes papercuts and heartburn", 1],
-	['turret',         LANDING_ERA,  1, [],              3, 0, 0, 0, 0, 0, 0,     "Turret",                  "Bang bang!", 1],
-	['beacon',         LANDING_ERA,  1, [],              3, 0, 0, 0, 0, 0, 0,     "Beacon",                  "Bang bang!", 1],
+	['greenhouse',     LANDING_ERA,  1, [],              2, 0, 10, 0, 0, 0, 0,    "Green House",             "Yay. Kale."],
+	['medicaltent',    LANDING_ERA,  1, [],              1, 25, 50, 0, 0, 0, 0,   "Medical Tent",            "Fixes papercuts and heartburn"],
+	['turret',         LANDING_ERA,  1, [],              3, 0, 0, 0, 0, 0, 0,     "Turret",                  "Bang bang!"],
+	['beacon',         LANDING_ERA,  1, [],              3, 0, 0, 0, 0, 0, 0,     "Beacon",                  "Bang bang!"],
 	
-	['farm',           LOWTECH_ERA,  2, [],              0, 0, 50, 25, 0, 0, 0,   "Farm",                    "beans and carrots, oh my", 2],
-	['drill',          LOWTECH_ERA,  1, [],              0, 0, 25, 200, 0, 0, 0,  "Drill",                   "Produces stone", 1],
-	['quarry',         LOWTECH_ERA,  2, [],              0, 0, 25, 200, 0, 0, 0,  "Quarry",                  "Produces stone", 2],
-	['resevoir',       LOWTECH_ERA,  2, [],              0, 0, 300, 100, 0, 0, 0, "Resevoir",                "Produces more usable water", 2],
-	['fireturret',     LOWTECH_ERA,  1, [],              0, 0, 300, 100, 0, 0, 0, "Fire Turret",             "Produces more usable water", 1],
-	['foundry',        LOWTECH_ERA,  1, [],              0, 0, 25, 200, 0, 0, 0,  "Foundry",                 "Produces stone", 1],
+	['farm',           LOWTECH_ERA,  2, [],              0, 0, 50, 25, 0, 0, 0,   "Farm",                    "beans and carrots, oh my"],
+	['drill',          LOWTECH_ERA,  1, [],              0, 0, 25, 200, 0, 0, 0,  "Drill",                   "Produces stone"],
+	['quarry',         LOWTECH_ERA,  2, [],              0, 0, 25, 200, 0, 0, 0,  "Quarry",                  "Produces stone"],
+	['resevoir',       LOWTECH_ERA,  2, [],              0, 0, 300, 100, 0, 0, 0, "Resevoir",                "Produces more usable water"],
+	['fireturret',     LOWTECH_ERA,  1, [],              0, 0, 300, 100, 0, 0, 0, "Fire Turret",             "Produces more usable water"],
+	['foundry',        LOWTECH_ERA,  1, [],              0, 0, 25, 200, 0, 0, 0,  "Foundry",                 "Produces stone"],
 	
 	
-	['radar',          MEDTECH_ERA,  1, [],              0, 0, 0, 300, 0, 0, 0,   "Radar",                   "Detects your closest neighbors", 1],
-	['machinerylab',   MEDTECH_ERA,  1, [],              0, 0, 0, 300, 0, 0, 0,   "Machinery Lab",           "Detects your closest neighbors", 1],
-	['teslaturret',    MEDTECH_ERA,  1, [],              0, 0, 0, 300, 0, 0, 0,   "Tesla Turret",            "Detects your closest neighbors", 1],
+	['radar',          MEDTECH_ERA,  1, [],              0, 0, 0, 300, 0, 0, 0,   "Radar",                   "Detects your closest neighbors"],
+	['machinerylab',   MEDTECH_ERA,  1, [],              0, 0, 0, 300, 0, 0, 0,   "Machinery Lab",           "Detects your closest neighbors"],
+	['teslaturret',    MEDTECH_ERA,  1, [],              0, 0, 0, 300, 0, 0, 0,   "Tesla Turret",            "Detects your closest neighbors"],
 	
-	['lazorturret',    HIGHTECH_ERA, 1, [],              0, 0, 0, 300, 0, 0, 0,   "Lazor Turret",            "Detects your closest neighbors", 1],
-	['sciencelab',     HIGHTECH_ERA, 1, [],              0, 0, 0, 300, 0, 0, 0,   "Science Lab",             "Detects your closest neighbors", 1],
+	['lazorturret',    HIGHTECH_ERA, 1, [],              0, 0, 0, 300, 0, 0, 0,   "Lazor Turret",            "Detects your closest neighbors"],
+	['sciencelab',     HIGHTECH_ERA, 1, [],              0, 0, 0, 300, 0, 0, 0,   "Science Lab",             "Detects your closest neighbors"],
 	
-	['launchsite',     SPACE_ERA,    2, [],              0, 0, 0, 300, 0, 0, 0,   "Launch Site",             "Detects your closest neighbors", 2]
+	['launchsite',     SPACE_ERA,    2, [],              0, 0, 0, 300, 0, 0, 0,   "Launch Site",             "Detects your closest neighbors"]
 ]
 
+def get_structure_name(id):
+	return _structure_by_id[id][-2]
+def get_structure_description(id):
+	return _structure_by_id[id][-1]
+def get_structure_resources(id):
+	s = _structure_by_id[id]
+	return {
+		'food': s[4],
+		'water': s[5],
+		'aluminum': s[6],
+		'copper': s[7],
+		'silicon': s[8],
+		'oil': s[9]
+	}
 _structure_by_era = {}
 _structure_by_id = {}
 for structure in _structure_info:

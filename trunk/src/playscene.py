@@ -97,8 +97,24 @@ class Curiosity:
 		
 		screen.blit(lander, (x, y))
 		
+_resource_icons = {}
+def get_resource_icon(key):
+	img = _resource_icons.get(key, None)
+	if img == None:
+		t = get_image('resources.png')
+		offset = {
+			'water': 0,
+			'oil': 1,
+			'food': 2,
+			'aluminum': 3,
+			'copper': 4,
+			'silicon': 5
+		}
 		
-		
+		img = pygame.Surface((12, 12))
+		img.blit(t, (offset[key] * -12, 0))
+		_resource_icons[key] = img
+	return img
 	
 class PlayScene:
 	def __init__(self, user_id, password, potato, starting_sector, starting_xy, show_landing_sequence):
@@ -459,6 +475,7 @@ class ToolBar:
 		buttons['era_medtech'] = buttons['build_radar']
 		buttons['era_hightech']= buttons['build_lazorturret']
 		buttons['era_space']   = buttons['build_launchsite']
+		self.details_bg = None
 	
 	def summon_bots(self, playscene):
 		playscene.summon_bots()
@@ -571,10 +588,64 @@ class ToolBar:
 				caption = item[1]
 				button_key = item[2]
 				self.draw_button(button_key, index, screen, caption)
+				if self.hovering == index:
+					self.render_details_menu(item, screen)
 		
 		if self.mode != 'main':
 			self.draw_button('back', 0, screen, "Back (ESC)")
-			
+	
+	def render_details_menu(self, item, screen):
+		target = item[2]
+		if not target.startswith('build_'):
+			return
+		structure_id = target.split('_')[1]
+		s = structure.get_structure_by_id(structure_id)
+		
+		width = 150
+		top = 40
+		height = 100
+		bottom = top + height
+		left = 5
+		right = 395 - width
+		dx = (right - left) // 5
+		left = left + dx * (item[0] - 1)
+		if self.details_bg == None:
+			self.details_bg = pygame.Surface((width, height), pygame.SRCALPHA)
+			self.details_bg.fill((0, 0, 0, 150))
+		
+		screen.blit(self.details_bg, (left, top))
+		title = get_text(structure.get_structure_name(structure_id), (255, 255, 255), 18)
+		screen.blit(title, (left + 5, top + 5))
+		
+		y = top + 5 + title.get_height() + 5
+		description = []
+		for line in structure.get_structure_description(structure_id).split('|'):
+			img = get_text(line, (255, 255, 255), 14)
+			screen.blit(img, (left + 5, y))
+			y += img.get_height() + 4
+		
+		resources = structure.get_structure_resources(structure_id)
+		counts = []
+		for key in resources.keys():
+			counts.append((key, resources[key]))
+		counts.sort(key=lambda x:x[1])
+		counts = counts[::-1]
+		
+		x = left + 5
+		y = bottom - 5 - 12
+		for count in counts:
+			key = count[0]
+			amount = count[1]
+			if amount == 0:
+				break
+			img = get_resource_icon(key)
+			screen.blit(img, (x, y))
+			x += 3 + img.get_width()
+			img = get_text(str(amount), (255, 255, 255), 14)
+			screen.blit(img, (x, y))
+			x += 8 + img.get_width()
+		
+		
 	def draw_button(self, id, index, screen, caption):
 		y = 5
 		hide_border = False
