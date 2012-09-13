@@ -1,6 +1,9 @@
 # Singleton module that controls camera view
 
-from src import settings
+try:
+	from src import settings
+except:
+	from serverlib import settings
 
 # Offset of the center of the screen, in pixels
 x0 = 0
