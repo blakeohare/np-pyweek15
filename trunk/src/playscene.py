@@ -131,6 +131,10 @@ class PlayScene:
 	def get_new_client_token(self):
 		self.client_token[1] += 1
 		return self.client_token[0] + '^' + str(self.client_token[1])
+
+	def empty_tile(self, x, y):
+		p = terrain.toiModel(x, y)
+		return self.potato.buildings_by_coord.get(p) == None
 	
 	def can_walk_there(self, oldx, oldy, newx, newy):
 		# underwater check
@@ -154,7 +158,6 @@ class PlayScene:
 		else:
 			direction = ''
 			dx, dy = 0, 0
-			v = self.player.v
 			if pressed['up']: dy = 1.0
 			if pressed['down']: dy = -1.0
 			if pressed['left']: dx = -1.0
@@ -164,18 +167,8 @@ class PlayScene:
 				dx *= .7071
 				dy *= .7071
 			
-			
-			oldx = self.player.x
-			oldy = self.player.y
-			
-			newx = oldx + dx * self.player.v
-			newy = oldy + dy * self.player.v
-			
-			if not self.can_walk_there(oldx, oldy, newx, newy):
-				dx = 0
-				dy = 0
-			
-			self.player.moveTo(newx, newy, dx, dy)
+			self.player.move(dx, dy)
+			# I'm moving the move logic into the sprite class so that I reuse it for aliens too. -Cosmo
 			
 			for event in events:
 				if event.type == 'mouseleft':
@@ -185,13 +178,8 @@ class PlayScene:
 					self.toolbar.hover(event.x, event.y, self.last_width)
 				elif event.type == 'key':
 					if event.down and event.action == 'debug':
-						self.battle = battle.Battle(self.user_id, self.potato.get_all_buildings_of_player_SLOW(self.user_id), None)
-						# TODO: Blake, how do I know which structures are under attack?
-						# I also need to know which one is the HQ.
-						base = [b for b in self.potato.get_structures_for_screen(oldx, oldy)   # HACK for testing
-							if (b.x - oldx) ** 2 + (b.y - oldy) ** 2 < 20 ** 2
-						]
-						self.battle.set_base(base)
+						buildings = self.potato.get_all_buildings_of_player_SLOW(self.user_id)
+						self.battle = battle.Battle(self.user_id, buildings, None)
 					elif event.down and event.action == 'build':
 						if self.build_mode != None:
 							self.build_thing(self.build_mode)
@@ -266,14 +254,14 @@ class PlayScene:
 		worldmap.killtime(0.01)  # Helps remove jitter when exploring
 		
 		if self.battle != None:
-			self.battle.update()
+			self.battle.update(self)
 			if self.battle.is_complete():
 				# TODO: do logic to apply results
 				self.battle.hq.healfull()   # Repair the HQ after the battle
 				self.battle = None
 		
 		for s in self.sprites:
-			s.update()
+			s.update(self)
 		effects.update()
 		
 	def render(self, screen):

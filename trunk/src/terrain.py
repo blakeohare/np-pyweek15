@@ -207,6 +207,8 @@ def ihcorners(x, y):
     return parcels[(int(x//pcs), int(y//pcs))].getihcorners(int(x//1), int(y//1))
 def igrad(x, y):
     return parcels[(int(x//pcs), int(y//pcs))].getigrad(int(x//1), int(y//1))
+def isunderwater(x, y):
+    return height(*nearesttile(x, y)) <= 0
 def addparcels(x, y):
     x0, y0 = int(x // pcs), int(y // pcs)
     for x in range(x0-3, x0+4):

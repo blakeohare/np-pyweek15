@@ -4,6 +4,7 @@ from src.images import get_image
 
 class Sprite(object):
 	hp0 = 1
+	last_direction = 0
 	def __init__(self, x, y, z=None):
 		self.x, self.y = terrain.toCenterRender(x, y)
 		self.z = terrain.height(self.x, self.y) if z is None else z
@@ -47,6 +48,28 @@ class Sprite(object):
 		if self.hp <= 0:
 			self.alive = False
 
+	def move(self, dx, dy):
+		self.vx = dx * self.v
+		self.vy = dy * self.v
+		self.moving = bool(dx or dy)
+		if self.moving:
+			a, b = (dx > 0) - (dx < 0), (dy > 0) - (dy < 0)
+			self.last_direction = [(0,-1),(1,-1),(1,0),(1,1),(0,1),(-1,1),(-1,0),(-1,-1)].index((a,b))
+
+	# pass it a function that returns whether a given tile is empty.
+	def walk(self, isempty):
+		nx = self.x + self.vx
+		ny = self.y + self.vy
+		if terrain.isunderwater(nx, ny):
+			return False
+		empty0 = isempty(self.x, self.y)
+		if not empty0:
+			empty1 = isempty(nx, ny)
+			if not empty1:
+				return False
+		self.x, self.y = nx, ny
+		return True
+
 little_yous = {}
 
 class You(Sprite):
@@ -58,39 +81,10 @@ class You(Sprite):
 		self.moving = False
 		self.last_direction = 0
 		self.counter = 0
-	
-	# dx, dy just needed for the signs
-	def moveTo(self, newx, newy, dx, dy):
-		if dx == 0 and dy == 0:
-			self.moving = False
-		else:
-			self.x = newx
-			self.y = newy
-			self.setheight(0)
-			self.moving = True
-			if dx == 0:
-				if dy > 0:
-					self.last_direction = 4
-				else:
-					self.last_direction = 0
-			elif dx < 0:
-				if dy > 0:
-					self.last_direction = 5
-				elif dy < 0:
-					self.last_direction = 7
-				else:
-					self.last_direction = 6
-			else: # dx > 0
-				if dy > 0:
-					self.last_direction = 3
-				elif dy < 0:
-					self.last_direction = 1
-				else:
-					self.last_direction = 2
 
-	def update(self):
-		import time
+	def update(self, scene):
 		self.counter += 1
+		self.walk(scene.empty_tile)
 		self.setheight()
 
 	def render(self, screen):
@@ -130,7 +124,7 @@ class Alien(Sprite):
 	def settarget(self, target):
 		self.target = target
 
-	def update(self):
+	def update(self, scene):
 		if self.target:
 			dx, dy = self.target.x - self.x, self.target.y - self.y
 			d = math.sqrt(dx**2 + dy**2)
@@ -138,12 +132,11 @@ class Alien(Sprite):
 				self.vx, self.vy = 0, 0
 				self.attack(self.target)
 			else:
-				self.vx = self.runspeed * dx / d
-				self.vy = self.runspeed * dy / d
+				self.v = self.runspeed
+				self.move(dx / d, dy / d)
 		else:
 			self.vx, self.vy = 0, 0
-		self.x += self.vx
-		self.y += self.vy
+		self.walk(scene.empty_tile)
 		self.setheight()
 
 	def attack(self, target):
