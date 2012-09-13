@@ -2,7 +2,10 @@
 
 import random, time
 from collections import defaultdict
-from src import settings, camera
+try:
+	from src import settings, camera
+except:
+	from serverlib import settings, camera
 
 # Convert between axis-aligned (render) coordinates and tilted (model) coordinates
 def toModel(x, y):

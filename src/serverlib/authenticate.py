@@ -2,46 +2,28 @@ from serverlib import sql
 from serverlib import build
 from serverlib import util
 
+
 import random
 import time
 
-# TODO: I removed crystals since we're not doing that anymore. The equivalent will need to be added.
-
-def all_populated_sectors():
-	sectors_db = sql.query("SELECT `sector_xy` FROM `structure` GROUP BY `sector_xy`")
-	sectors = {}
-	for sector in sectors_db:
-		sectors[sector['sector_xy']] = True
-	return sectors
-
-def get_next_unoccupied():
-	# TODO: make this verify that the slot you pick is not water
-	occupied = all_populated_sectors()
-	keys = []
-	r = 1
-	while True:
-		open_slots = []
-		# loop through the 2r by 2r grid centered about the origin
-		for y in range(-r, r + 1): 
-			for x in range(-r, r + 1):
-				key = str(x) + '^' + str(y)
-				keys.append(key)
-				if not occupied.get(key, False):
-					open_slots.append(key)
-		if len(open_slots) > 0:
-			return random.choice(open_slots)
-		r += 1
-
+def get_next_start_point():
+	from serverlib import startingpoint
+	return startingpoint.get_sector()
+	
 def add_user(user, password):
 	user = util.trim(user)
 	login_id = util.alphanums(user)
-	sector = get_next_unoccupied()
-	location = str(int(random.random() * 30 + 15)) + '^' + str(int(random.random() * 30 + 15))
 	
 	if len(login_id) == 0:
 		return 0
 	
-	user_id = sql.insert('INSERT into user (`name`, `login_id`, `password`, `hq_sector`, `hq_loc`) values (%s,%s,%s,%s,%s)',(user, login_id, password, sector, location))
+	start = get_next_start_point()
+	
+	sector = str(start[0]) + '^' + str(start[1])
+	location = str(start[2]) + '^' + str(start[3])
+	
+	user_id = sql.insert('INSERT into user (`name`, `login_id`, `password`, `hq_sector`, `hq_loc`) values (%s,%s,%s,%s,%s)',
+		(user, login_id, password, sector, location))
 	
 	# place HQ
 	build.do_build(
