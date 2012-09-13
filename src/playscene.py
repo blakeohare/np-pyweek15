@@ -151,7 +151,7 @@ class PlayScene:
 		# Blake how do I make it so I don't include every building in existence?
 		# TODO: decide when to update which borders and when to include them
 		mybase = self.potato.get_structures_for_screen(self.cx, self.cy)
-		myborder = border.Border((255,0,255), [(b, 5) for b in mybase])
+		myborder = border.Border((255,0,255,100), [(b, 4.5) for b in mybase])
 		self.borders = [myborder]
 	
 	def get_new_client_token(self):

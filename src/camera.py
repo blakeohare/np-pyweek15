@@ -31,4 +31,10 @@ def lookat(x, y, z = 0):
 def isvisible(px, py, margin=100):
     return -margin <= px <= settings.sx + margin and -margin <= py <= settings.sy + margin
 
-lookat(1234, 3456)
+
+# A camera centered at the origin
+class camera0:
+    @staticmethod
+    def screenpos(x, y, z = 0):
+        return int((x * settings.tilex)//1 + settings.sx//2), int(-(y * settings.tiley)//1 - (z * settings.tilez)//1 + settings.sy//2)
+
