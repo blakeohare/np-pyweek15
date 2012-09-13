@@ -60,8 +60,6 @@ class MagicPotato:
 			'oil': 0
 		}
 		
-		self.borders = []
-		
 	
 	def get_resource(self, key):
 		return int(self.resources[key] // 10)
