@@ -21,7 +21,7 @@ def add(e):
     effects.append(e)
 
 class LaserBeam(object):
-    color = 128,128,255
+    color = 255,255,128
     lifetime = 4
     def __init__(self, x0, y0, z0, x1, y1, z1):
         self.x0, self.y0, self.z0 = x0, y0, z0

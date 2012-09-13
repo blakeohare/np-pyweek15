@@ -151,21 +151,10 @@ class PlayScene:
 		self.client_token[1] += 1
 		return self.client_token[0] + '^' + str(self.client_token[1])
 
+	# used by sprites to determine if they can walk here
 	def empty_tile(self, x, y):
 		p = terrain.toiModel(x, y)
 		return self.potato.buildings_by_coord.get(p) == None
-	
-	def can_walk_there(self, oldx, oldy, newx, newy):
-		# underwater check
-		#if terrain.height(*terrain.nearesttile(newx, newy)) <= 0: return False
-		old_coord = terrain.toiModel(oldx, oldy)
-		new_coord = terrain.toiModel(newx, newy)
-		
-		# Allow walking through buildins you're already stuck in.
-		# Allows escaping from buildings you just built. 
-		if old_coord == new_coord: return True
-		
-		return self.potato.buildings_by_coord.get(new_coord) == None
 	
 	def process_input(self, events, pressed):
 		building_menu = False
