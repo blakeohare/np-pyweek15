@@ -3,9 +3,19 @@ from src import worldmap
 from src import camera
 from src import util
 from src import network
+from src import border
 
 def max(a, b): return a if a > b else b
 def min(a, b): return a if a < b else b
+
+user_colors = [
+	(255, 0, 0, 100),
+	(255, 255, 0, 100),
+	(255, 0, 255, 100),
+	(0, 255, 0, 100),
+	(0, 100, 255, 100),
+	(255, 128, 0, 100)
+]
 
 class MagicPotato:
 	
@@ -16,6 +26,9 @@ class MagicPotato:
 		self.player_names = {}
 		self.player_name_search = []
 		self.active_selection = None
+		self.sector_by_user = {}
+		self.user_by_sector = {}
+		self.borders_by_user = {}
 		
 		# There are resources and escrow resources.
 		# Resources represents what the user will perceive.
@@ -46,6 +59,9 @@ class MagicPotato:
 			'silicon': 0,
 			'oil': 0
 		}
+		
+		self.borders = []
+		
 	
 	def get_resource(self, key):
 		return int(self.resources[key] // 10)
@@ -56,6 +72,9 @@ class MagicPotato:
 	
 	def apply_poll_data(self, poll):
 		if not poll.get('success', False): return
+		
+		# users that have building adds/removes
+		dirty_users = {}
 		
 		resources = poll.get('resources', {})
 		for key in resources.keys():
@@ -77,7 +96,9 @@ class MagicPotato:
 						loc = util.totuple(structure[2])
 						owner = structure[3]
 						event_id = structure[4]
-						
+						dirty_users[owner] = True
+						self.sector_by_user[owner] = id
+						self.user_by_sector[id] = owner
 						if self.last_id_by_sector.get(id, 0) < event_id:
 							self.add_structure(owner, type, id[0], id[1], loc[0], loc[1])
 							self.last_id_by_sector[id] = event_id
@@ -98,15 +119,37 @@ class MagicPotato:
 						if len(parts) > 1:
 							datakey = parts[0].lower()
 							datavalue = ':'.join(parts[1:])
+							self.sector_by_user[user_id] = id
+							self.user_by_sector[id] = user_id
 							if datakey == 'build':
 								parts = datavalue.split(',')
 								if len(parts) == 2:
 									type = parts[0]
 									loc = util.totuple(parts[1])
 									self.add_structure(user_id, type, id[0], id[1], loc[0], loc[1])
+									dirty_users[user_id] = True
 							elif datakey == 'demolish':
 								x, y = map(int, datavalue.split('^'))
 								self.remove_structure(id, x, y)
+								dirty_users[user_id] = True
+		
+		for user_id in dirty_users.keys():
+			sector = self.sector_by_user.get(user_id)
+			if sector != None: # should not be false, but crashes suck really bad
+				buildings = self.buildings_by_sector.get(sector, [])
+				color = user_colors[user_id % len(user_colors)]
+				self.borders_by_user[user_id] = border.Border(color, [(b, 4.5) for b in buildings])
+	
+	def get_borders_near_sector(self, sx, sy):
+		borders = []
+		for x in (-1, 0, 1):
+			for y in (-1, 0, 1):
+				user_id = self.user_by_sector.get((x, y), None)
+				if user_id != None:
+					border = self.borders_by_user.get(user_id, None)
+					if border != None:
+						borders.append(border)
+		return borders
 	
 	def get_all_buildings_of_player_SLOW(self, user_id):
 		# not really indexed ideally, so just iterate through all buildinsg
