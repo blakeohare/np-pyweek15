@@ -149,7 +149,7 @@ class Turret(Structure):
 	hp0 = 5
 	attackable = True
 	healthbarheight = 40
-	chargetime = 10
+	chargetime = 30
 	strength = 1
 	shootrange = 4
 	t = 0
@@ -175,7 +175,7 @@ class FireTurret(Turret):
 class LazorTurret(Turret):
 	btype = "lazorturret"
 	strength = 1
-	chargetime = 5
+	chargetime = 10
 	def addeffect(self, target):
 		effects.add(effects.LaserBeam(self.x, self.y, self.z + 22, target.x, target.y, target.z + 2))
 class TeslaTurret(Turret):

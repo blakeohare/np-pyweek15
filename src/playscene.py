@@ -311,9 +311,10 @@ class PlayScene:
 		return self.client_token[0] + '^' + str(self.client_token[1])
 
 	# used by sprites to determine if they can walk here
-	def empty_tile(self, x, y):
+	def empty_tile(self, x, y, exclude=None):
 		p = terrain.toiModel(x, y)
-		return self.potato.buildings_by_coord.get(p) == None
+		b = self.potato.buildings_by_coord.get(p)
+		return b == None or b == exclude
 	
 	def process_input(self, events, pressed):
 		building_menu = False
