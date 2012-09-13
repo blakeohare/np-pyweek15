@@ -2,9 +2,14 @@ import pygame, math, random
 from src import worldmap, camera, settings, terrain
 from src.images import get_image
 
+
+directions = [(0,-1),(1,-1),(1,0),(1,1),(0,1),(-1,1),(-1,0),(-1,-1)]
+
 class Sprite(object):
 	hp0 = 1
 	last_direction = 0
+	vx, vy = 0, 0
+	shootable = False
 	def __init__(self, x, y, z=None):
 		self.vx, self.vy = 0, 0
 		self.x, self.y = terrain.toCenterRender(x, y)
@@ -43,11 +48,16 @@ class Sprite(object):
 		pygame.draw.line(surf, self.minicolor, (px-1,py), (px+1,py))
 		pygame.draw.line(surf, self.minicolor, (px,py-1), (px,py+1))
 
-	# Probably won't be hurting the player character, but I'll put this here anyway.
 	def hurt(self, dhp):
 		self.hp = max(self.hp - dhp, 0)
 		if self.hp <= 0:
 			self.alive = False
+
+	def heal(self, dhp):
+		self.hp = min(self.hp + dhp, self.hp0)
+
+	def healall(self):
+		self.hp = self.hp0
 
 	def move(self, dx, dy):
 		self.vx = dx * self.v
@@ -55,7 +65,7 @@ class Sprite(object):
 		self.moving = bool(dx or dy)
 		if self.moving:
 			a, b = (dx > 0) - (dx < 0), (dy > 0) - (dy < 0)
-			self.last_direction = [(0,-1),(1,-1),(1,0),(1,1),(0,1),(-1,1),(-1,0),(-1,-1)].index((a,b))
+			self.last_direction = directions.index((a,b))
 
 	# pass it a function that returns whether a given tile is empty.
 	def walk(self, isempty):
@@ -73,6 +83,9 @@ little_yous = {}
 class You(Sprite):
 	v = 0.3   # tiles per frame
 	minicolor = 255, 128, 0  # color on the minimap
+	weaponchargetime = 20
+	weapont = 0
+	hp0 = 3
 
 	def __init__(self, x, y, z=None):
 		Sprite.__init__(self, x, y, z)
@@ -80,8 +93,18 @@ class You(Sprite):
 		self.last_direction = 0
 		self.counter = 0
 
+	def shoot(self):
+		if self.weapont < self.weaponchargetime:
+			return None
+		shot = Ray(self.x, self.y, self.z + 3)
+		shot.x, shot.y = self.x, self.y   # it's 1am, i'm doing this the sloppy way
+		shot.move(*directions[self.last_direction])
+		self.weapont = 0
+		return shot
+
 	def update(self, scene):
 		self.counter += 1
+		self.weapont += 1
 		self.walk(scene.empty_tile)
 		self.setheight()
 
@@ -105,6 +128,51 @@ class You(Sprite):
 		#pygame.draw.circle(screen, (255, 0, 0), (px, py-21), 4)
 		screen.blit(img, (px - img.get_width() // 2, py - img.get_height()))
 
+	def drawhealth(self, screen):
+		px, py = 10, screen.get_height() - 10
+		for j in range(self.hp0):
+			pygame.draw.circle(screen, (255,255,255), (px,py), 8)
+			color = (255,0,0) if j < self.hp else (20,20,20)
+			pygame.draw.circle(screen, color, (px,py), 7)
+			px += 20
+
+
+# Laser beam from your ray gun
+class Ray(Sprite):
+	v = 1.0
+	lifetime = 7
+	strength = 1
+	harmrange = 1.0
+	t = 0
+
+	def update(self, scene):
+		self.t += 1
+		if self.t > self.lifetime: self.alive = False
+		self.x += self.vx
+		self.y += self.vy
+#		self.setheight(3)
+
+	def drawmini(self, surf, x0, y0):
+		pass
+
+	def render(self, screen):
+		p0 = camera.screenpos(self.x, self.y, self.z)
+		p1 = camera.screenpos(self.x+self.vx, self.y+self.vy, self.z)
+		pygame.draw.line(screen, (255,128,0), p0, p1)
+
+	def attack(self, target):
+		target.hurt(self.strength)
+		self.alive = False
+
+	def handlealiens(self, aliens):
+		for alien in aliens:
+			if not alien.shootable: continue
+			dx, dy = alien.x - self.x, alien.y - self.y
+			if dx**2 + dy**2 < self.harmrange**2:
+				self.attack(alien)
+				return
+
+
 # Alien base class
 class Alien(Sprite):
 	walkspeed = 0.1
@@ -112,12 +180,14 @@ class Alien(Sprite):
 	minicolor = 255, 255, 0
 	size = 6
 	attackrange = 1
+	seerange = 6
 	strength = 1
+	shootable = True
 
 	def __init__(self, *args, **kw):
 		Sprite.__init__(self, *args, **kw)
 		self.target = None
-		self.vx, self.vy = 0, 0
+		self.path = None
 
 	def settarget(self, target):
 		self.target = target
@@ -126,7 +196,6 @@ class Alien(Sprite):
 		self.path = path
 
 	def update(self, scene):
-		self.vx, self.vy = 0, 0
 		self.v = self.runspeed
 		if self.target:
 			dx, dy = self.target.x - self.x, self.target.y - self.y
@@ -135,12 +204,29 @@ class Alien(Sprite):
 				self.vx, self.vy = 0, 0
 				self.attack(self.target)
 				self.path = []
+			elif not self.path:
+				self.path = [(self.target.x, self.target.y)]
+		else:   # maybe attack the player
+			# TODO: this should only happen in free-range mode
+			dx, dy = self.x - scene.player.x, self.y - scene.player.y
+			if dx ** 2 + dy ** 2 < self.seerange ** 2:
+				self.target = scene.player
+			else:
+				if random.random() < 0.1:
+					self.v = self.walkspeed
+					if self.vx or self.vy:
+						self.move(0, 0)
+					else:
+						dx = 0.707 if random.random() < 0.5 else -0.707
+						dy = 0.707 if random.random() < 0.5 else -0.707
+						self.move(dx, dy)
+				self.x += self.vx
+				self.y += self.vy
 
 		if self.path:
 			px, py = self.path[0]
 			dx, dy = px - self.x, py - self.y
 			d = math.sqrt(dx**2 + dy**2)
-			print self.x, self.y, px, py, dx, dy, d, self.v
 			if d <= self.v:
 				self.x, self.y = px, py
 				self.path.pop(0)

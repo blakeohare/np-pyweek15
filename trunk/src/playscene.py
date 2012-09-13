@@ -115,9 +115,11 @@ class PlayScene:
 		self.cx = starting_sector[0] * 60 + starting_xy[0]
 		self.cy = starting_sector[1] * 60 + starting_xy[1]
 		self.player = sprite.You(self.cx, self.cy + 1)
+		self.player.lookatme()
 		self.sprites = [self.player]
-#		for _ in range(10):
-#			self.sprites.append(sprite.Alien(self.cx + random.uniform(-30, 30), self.cy + random.uniform(-30, 30)))
+		for _ in range(10):
+			self.sprites.append(sprite.Alien(self.cx + random.uniform(-30, 30), self.cy + random.uniform(-30, 30)))
+		self.shots = []
 		self.poll_countdown = 0
 		self.poll = []
 		self.toolbar = ToolBar()
@@ -153,8 +155,6 @@ class PlayScene:
 		demolish_building = False
 		if self.curiosity != None:
 			pass
-		elif self.battle != None:
-			self.battle.process_input(events, pressed)
 		else:
 			direction = ''
 			dx, dy = 0, 0
@@ -170,25 +170,41 @@ class PlayScene:
 			self.player.move(dx, dy)
 			# I'm moving the move logic into the sprite class so that I reuse it for aliens too. -Cosmo
 			
-			for event in events:
-				if event.type == 'mouseleft':
-					if event.down:
-						self.toolbar.click(event.x, event.y, self.last_width, self)
-				elif event.type == 'mousemove':
-					self.toolbar.hover(event.x, event.y, self.last_width)
-				elif event.type == 'key':
-					if event.down and event.action == 'debug':
-						buildings = self.potato.get_all_buildings_of_player_SLOW(self.user_id)
-						self.battle = battle.Battle(self.user_id, buildings, None)
-					elif event.down and event.action == 'build':
-						if self.build_mode != None:
-							self.build_thing(self.build_mode)
-						elif self.toolbar.mode == 'demolish':
-							demolish_building = True
-					elif event.down and event.action == 'action':
-						building_menu = True
-					elif event.down and event.action == 'back':
-						self.toolbar.press_back()
+			if self.battle:
+				for event in events:
+					if event.type == 'mouseleft':
+						pass
+					elif event.type == 'mousemove':
+						pass
+					elif event.type == 'key':
+						if event.down and event.action == 'shoot':
+							shot = self.player.shoot()
+							if shot:
+								self.shots.append(shot)
+			else:
+				for event in events:
+					if event.type == 'mouseleft':
+						if event.down:
+							self.toolbar.click(event.x, event.y, self.last_width, self)
+					elif event.type == 'mousemove':
+						self.toolbar.hover(event.x, event.y, self.last_width)
+					elif event.type == 'key':
+						if event.down and event.action == 'debug':
+							buildings = self.potato.get_all_buildings_of_player_SLOW(self.user_id)
+							self.battle = battle.Battle(self.user_id, buildings, None)
+						elif event.down and event.action == 'build':
+							if self.build_mode != None:
+								self.build_thing(self.build_mode)
+							elif self.toolbar.mode == 'demolish':
+								demolish_building = True
+						elif event.down and event.action == 'action':
+							building_menu = True
+						elif event.down and event.action == 'back':
+							self.toolbar.press_back()
+						elif event.down and event.action == 'shoot':
+							shot = self.player.shoot()
+							if shot:
+								self.shots.append(shot)
 		you_x, you_y = terrain.toModel(self.player.x, self.player.y)
 		selected_building = self.potato.get_building_selection(you_x, you_y)
 		
@@ -260,15 +276,28 @@ class PlayScene:
 				self.battle.hq.healfull()   # Repair the HQ after the battle
 				self.battle = None
 		
-		for s in self.sprites:
+		for s in self.sprites: s.update(self)
+		for s in self.shots:
 			s.update(self)
+			s.handlealiens(self.sprites)
+			if self.battle:
+				s.handlealiens(self.battle.aliens)
+		self.sprites = [s for s in self.sprites if s.alive]
+		self.shots = [s for s in self.shots if s.alive]
+		
+		if not self.player.alive:
+			self.player.x, self.player.y = terrain.toCenterRender(self.cx, self.cy + 1)
+			self.player.healall()
+			self.sprites.append(self.player)
+			self.player.alive = True
 		effects.update()
 		
 	def render(self, screen):
 		self.last_width = screen.get_width()
 		cx = self.player.x
 		cy = self.player.y
-		camera.lookat(cx, cy)
+		cz = self.player.z
+		camera.track(cx, cy, cz)
 		structures = self.potato.get_structures_for_screen(cx, cy)
 		labels = []
 		
@@ -290,11 +319,9 @@ class PlayScene:
 					owner_id = structure.user_id
 					name = self.potato.get_user_name(owner_id)
 					img = get_text(name, (255, 255, 255), 18)
-					labels.append([
-						img,
-						(structure.x - cx) * 16 + 200 - img.get_width() // 2,
-						(-structure.y + cy) * 8 + 150 + 40])
-			entities = structures + self.sprites
+					px, py = camera.screenpos(structure.x, structure.y, structure.z - 20)
+					labels.append([img, px-img.get_width()//2, py])
+			entities = structures + self.sprites + self.shots
 			if self.battle != None:
 				entities += self.battle.get_sprites()
 			
@@ -310,8 +337,10 @@ class PlayScene:
 		mx, my = self.player.getModelXY()
 		lx, ly = int(mx // 1), int(my // 1)
 		coords = get_text("R: (%0.1f, %0.1f) M: (%0.1f, %0.1f) L: (%i, %i)" % (cx, cy, mx, my, lx, ly), (255, 255, 0), 16)
-		screen.blit(coords, (5, screen.get_height() - 5 - coords.get_height()))
+		screen.blit(coords, (5, screen.get_height() - 25 - coords.get_height()))
 		self.toolbar.render(screen)
+		self.player.drawhealth(screen)
+
 		if self.battle != None:
 			data = self.battle.bytes_stolen()
 			
