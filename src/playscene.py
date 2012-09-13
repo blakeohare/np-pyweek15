@@ -205,6 +205,9 @@ class PlayScene:
 							shot = self.player.shoot()
 							if shot:
 								self.shots.append(shot)
+					elif event.type == 'type':
+						self.toolbar.accept_key(event.action, self)
+						
 		you_x, you_y = terrain.toModel(self.player.x, self.player.y)
 		selected_building = self.potato.get_building_selection(you_x, you_y)
 		
@@ -291,7 +294,17 @@ class PlayScene:
 			self.sprites.append(self.player)
 			self.player.alive = True
 		effects.update()
+	
+	def summon_bots(self):
+		# find player's location
+		# determine if it's another player's base
+		# FIGHT! FIGHT! FIGHT! FIGHT!
 		
+		# should probably throw in a confirmation menu
+		# where player can determine how many of which types of
+		# bots (of the ones available) they want to throw at this player.
+		print("Start fight")
+	
 	def render(self, screen):
 		self.last_width = screen.get_width()
 		cx = self.player.x
@@ -362,7 +375,7 @@ class PlayScene:
 class ToolBar:
 	def __init__(self):
 		self.bg = None
-		self.mode = None
+		self.mode = 'main'
 		self.hovering = -1
 		buttons = {}
 		self.buttons = buttons
@@ -377,22 +390,79 @@ class ToolBar:
 		
 		buttons['main_build'] = get_image('toolbar/main_build.png')
 		buttons['main_demolish'] = get_image('toolbar/main_demolish.png')
+		buttons['main_bots'] = get_image('toolbar/main_bots.png')
 		buttons['main_exit'] = get_image('toolbar/main_exit.png')
 		buttons['back'] = get_image('toolbar/back.png')
 		
+		
+		# Caption, icon key, resulting mode, resulting lambda
+		self.menu = {
+			'main' : {
+				'b': (1, "Build (b)", 'main_build', 'build', None),
+				'd': (2, "Demolish (d)", 'main_demolish', 'demolish', None),
+				's': (3, "Summon Bots (s)", 'main_bots', 'main', self.summon_bots)
+			},
+			
+			'build' : {
+				'a': (1, "Landing Equipment (e)", 'era_landing', 'era_landing', None),
+				'w': (2, "Low-Tech Phase (w)", 'era_lowtech', 'era_lowtech', None),
+				'e': (3, "Medium-Tech Phase (d)", 'era_medtech', 'era_medtech', None),
+				'g': (4, "High-Tech Phase (g)", 'era_hightech', 'era_hightech', None),
+				's': (5, "Space Travel Phase (s)", 'era_space', 'era_space', None)
+			},
+			
+			'era_landing' : {
+				'g': (1, "Build Green House (g)", 'build_greenhouse', 'build_greenhouse', None),
+				'e': (2, "Build Medical Tent (e)", 'build_medicaltent', 'build_medicaltent', None),
+				't': (3, "Build Basic Turret (t)", 'build_turret', 'build_turret', None),
+				'b': (4, "Build Beacon (b)", 'build_beacon', 'build_beacon', None)
+			},
+			
+			'era_lowtech' : {
+				'f': (1, "Build Farm (f)", 'build_farm', 'build_farm', None),
+				'r': (2, "Build Resevoir (r)", 'build_resevoir', 'build_resevoir', None),
+				't': (3, "Build Fire Turret (t)", 'build_fireturret', 'build_fireturret', None),
+				'd': (4, "Build Drill (d)", 'build_drill', 'build_drill', None),
+				'q': (5, "Build Quarry (q)", 'build_quarry', 'build_quarry', None),
+				'y': (6, "Build Foundry (y)", 'build_foundry', 'build_foundry', None)
+			},
+			
+			'era_medtech' : {
+				'r' : (1, "Build Radar (r)", 'build_radar', 'build_radar', None),
+				't' : (2, "Build Tesla Turret (t)", 'build_teslaturret', 'build_teslaturret', None),
+				'a' : (3, "Build Machinery Lab (a)", 'build_machinerylab', 'build_machinerylab', None)
+			},
+			
+			'era_hightech' : {
+				't' : (1, "Build Laz0r Turret (t)", 'build_lazorturret', 'build_lazorturret', None),
+				's' : (2, "Build Science Lab (s)", 'build_sciencelab', 'build_sciencelab', None)
+			},
+			
+			'era_space' : {
+				's' : (1, "Build Launch Site (s)", 'build_launchsite', 'build_launchsite', None)
+			}
+		}
+		
 		eras = structure.get_eras()
-		for era in eras.keys():
-			for building in eras[era]:
-				img = pygame.Surface(bg.get_size())
-				img.blit(bg, (0, 0))
-				b = get_image('buildings/' + building[0] + '.png')
-				e = ex.get('build_' + building[0], (0, 0))
-				img.blit(b, (img.get_width() // 2 - b.get_width() // 2 + e[0], e[1] + img.get_height() // 2 - b.get_height() // 2))
-				buttons['build_' + building[0]] = img
+		for era in self.menu.keys():
+			if era.startswith('era_'):
+				for building in eras[era.split('_')[1]]:
+					img = pygame.Surface(bg.get_size())
+					img.blit(bg, (0, 0))
+					b = get_image('buildings/' + building[0] + '.png')
+					e = ex.get('build_' + building[0], (0, 0))
+					img.blit(b, (img.get_width() // 2 - b.get_width() // 2 + e[0], e[1] + img.get_height() // 2 - b.get_height() // 2))
+					buttons['build_' + building[0]] = img
 		
 		buttons['era_landing'] = buttons['build_medicaltent']
-		buttons['era_agriculture'] = buttons['build_farm']
-		
+		buttons['era_lowtech'] = buttons['build_farm']
+		buttons['era_medtech'] = buttons['build_radar']
+		buttons['era_hightech']= buttons['build_lazorturret']
+		buttons['era_space']   = buttons['build_launchsite']
+	
+	def summon_bots(self, playscene):
+		playscene.summon_bots()
+	
 	def create_bg(self, screen):
 		if self.bg == None or self.bg.get_width() != screen.get_width():
 			self.bg = pygame.Surface((screen.get_width(), 35), pygame.SRCALPHA)
@@ -402,18 +472,29 @@ class ToolBar:
 		if y < 35:
 			if x < 30:
 				return 0
-			if x > screen_width - 60:
+			if self.mode == 'main' and x > screen_width - 60:
 				return 100
 			x -= 30
 			x = x // 60
 			return x + 1
 		return -1
 	
+	def accept_key(self, key, playscene):
+		menu = self.menu.get(self.mode, {})
+		action = menu.get(key, None)
+		if action != None:
+			target_function = action[4]
+			target_menu = action[3]
+			if target_function != None:
+				target_function(playscene)
+			self.mode = target_menu
+		
+	
 	def click(self, x, y, screen_width, playscene):
 		id = self.find_button(x, y, screen_width)
 		if id == 0:
 			self.press_back()
-		elif id == 100 and self.mode == None:	
+		elif id == 100 and self.mode == 'main':	
 			self.press_exit(playscene)
 		elif id > 0:
 			self.press_button(id, playscene)
@@ -425,10 +506,10 @@ class ToolBar:
 		self.hovering = self.find_button(x, y, screen_width)
 		
 	def press_back(self):
-		if self.mode == None:
+		if self.mode == 'main':
 			pass # how did you get here?
 		elif self.mode in ('build', 'demolish'):
-			self.mode = None
+			self.mode = 'main'
 		elif self.mode.startswith('era_'):
 			self.mode = 'build'
 		elif self.mode.startswith('build_'):
@@ -437,69 +518,64 @@ class ToolBar:
 			self.mode = 'era_' + s[1]
 		
 	
+	def select_item(self, item, playscene):
+		action = item[4]
+		next_mode = item[3]
+		
+		if action != None:
+			action(playscene)
+		
+		self.mode = next_mode
+		
+		playscene.build_mode = None
+		if self.mode.startswith('build_'):
+			playscene.build_mode = self.mode.split('_')[1]
+	
 	def press_button(self, column, playscene):
 		playscene.build_mode = None
-		if self.mode == None:
-			if column == 1:
-				self.mode = 'build'
-			elif column == 2:
-				self.mode = 'demolish'
-		elif self.mode == 'build':
-			if column == 1:
-				self.mode = 'era_landing'
-			elif column == 2:
-				self.mode = 'era_agriculture'
-		elif self.mode.startswith('era_'):
-			era = self.mode.split('_')[1]
-			structures = structure.get_eras()[era]
-			index = column - 1
-			if index < len(structures):
-				s = structures[index]
-				self.mode = 'build_' + s[0]
-				playscene.build_mode = s[0]
-				# TODO: verify you have resources
-				# Otherwise play an error noise and a 
-				# "You require more vespene gas"
+		
+		active_menu = self.menu.get(self.mode, {})
+		
+		for item in active_menu.values():
+			if item[0] == column:
+				self.select_item(item, playscene)
+				break
 				
+	
+	def render_action_menu(self, screen, caption, button_id):
+		text = get_text(caption, (255, 255, 255), 24)
+		
+		screen.blit(text, (40, 9))
+		button = self.buttons[button_id]
+		r = screen.blit(button, (screen.get_width() - button.get_width() - 8, 5))
+		pygame.draw.rect(screen, (0, 128, 255), r, 1)
+			
 	
 	def render(self, screen):
 		self.create_bg(screen)
 		screen.blit(self.bg, (0, 0))
 		y = 5
-		if self.mode == None:
-			self.draw_button('main_build', 1, screen)
-			self.draw_button('main_demolish', 2, screen)
-			self.draw_button('main_exit', 100, screen)
-		elif self.mode == 'build':
-			self.draw_button('back', 0, screen)
-			self.draw_button('era_landing', 1, screen)
-			self.draw_button('era_agriculture', 2, screen)
-		elif self.mode == 'demolish':
-			self.draw_button('back', 0, screen)
-			text = get_text("Demolish", (255, 255, 255), 24)
-			screen.blit(text, (40, 9))
-		elif self.mode.startswith('era'):
-			era = self.mode.split('_')[1]
-			structures = structure.get_eras()[era]
-			self.draw_button('back', 0, screen)
-			i = 1
-			for s in structures:
-				self.draw_button('build_' + s[0], i, screen)
-				i += 1
-			
-		elif self.mode.startswith('build_'):
+		
+		menu = self.menu.get(self.mode, None)
+		if menu == None and self.mode.startswith('build_'):
 			id = self.mode.split('_')[1]
 			s = structure.get_structure_by_id(id)
-			self.draw_button('back', 0, screen)
-			text = get_text("Build " + s[7], (255, 255, 255), 24)
-			screen.blit(text, (40, 9))
-			button = self.buttons['build_' + id]
-			r = screen.blit(button, (screen.get_width() - button.get_width() - 8, 5))
-			pygame.draw.rect(screen, (0, 128, 255), r, 1)
+			self.render_action_menu(screen, "Build " + s[11], 'build_' + id)
 			# TODO: show costs
+		elif menu == None:
+			if self.mode == 'demolish':
+				self.render_action_menu(screen, "Demolish Building", 'main_demolish')
+		else:
+			for item in menu.values():
+				index = item[0]
+				caption = item[1]
+				button_key = item[2]
+				self.draw_button(button_key, index, screen, caption)
+		
+		if self.mode != 'main':
+			self.draw_button('back', 0, screen, "Back (ESC)")
 			
-			
-	def draw_button(self, id, index, screen):
+	def draw_button(self, id, index, screen, caption):
 		y = 5
 		hide_border = False
 		if index == 0:
