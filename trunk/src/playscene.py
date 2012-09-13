@@ -126,6 +126,7 @@ class PlayScene:
 		self.password = password
 		self.next = self
 		self.hq = None
+		self.mousex, self.mousey = 0, 0
 		self.potato.get_user_name(user_id)
 		self.show_landing_sequence = show_landing_sequence
 		self.cx = starting_sector[0] * 60 + starting_xy[0]
@@ -203,6 +204,7 @@ class PlayScene:
 						if event.down:
 							self.toolbar.click(event.x, event.y, self.last_width, self)
 					elif event.type == 'mousemove':
+						self.mousex, self.mousey = event.x, event.y
 						self.toolbar.hover(event.x, event.y, self.last_width)
 					elif event.type == 'key':
 						if event.down and event.action == 'debug':
@@ -386,7 +388,22 @@ class PlayScene:
 			x = ((screen.get_width() - text.get_width()) // 2)
 			y = screen.get_height() * 4 // 5
 			screen.blit(text, (x, y))
+		
+		left = 360
+		top = 40
+		y = top
+		x = left
+		for res in ('food', 'water', 'aluminum', 'copper', 'silicon', 'oil'):
+			screen.blit(get_resource_icon(res), (left, y))
+			screen.blit(get_text(str(self.potato.get_resource(res)), (255, 255, 255), 14), (left + 14, y))
 			
+			mx, my = self.mousex, self.mousey
+			
+			if mx > left and my > y and my < y + 20:
+				img = get_text(res[0].upper() + res[1:], (255, 255, 255), 14)
+				screen.blit(img, (left - 5 - img.get_width(), y + 1))
+			
+			y += 20
 
 class ToolBar:
 	def __init__(self):
