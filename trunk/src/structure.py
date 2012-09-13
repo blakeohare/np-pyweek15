@@ -115,6 +115,19 @@ class Structure(object):
 			ps = (-2,0),(-1,-1),(0,-2),(1,-1),(2,0),(1,1),(0,2),(-1,1)
 		self.z = max(terrain.iheight(self.x+ax, self.y+ay) for ax, ay in ps) + height
 
+class Drill(Structure):
+	btype = "drill"
+class Foundry(Structure):
+	btype = "foundry"
+class Beacon(Structure):
+	btype = "beacon"
+class MachineryLab(Structure):
+	btype = "machinerylab"
+class ScienceLab(Structure):
+	btype = "sciencelab"
+class LaunchSite(Structure):
+	btype = "launchsite"
+	size = 2
 class Farm(Structure):
 	btype = "farm"
 	size = 2
@@ -131,7 +144,6 @@ class Quarry(Structure):
 	size = 2
 class Radar(Structure):
 	btype = "radar"
-
 class Turret(Structure):
 	btype = "turret"
 	hp0 = 5
@@ -155,8 +167,14 @@ class Turret(Structure):
 			if (target.x - self.x) ** 2 + (target.y - self.y) ** 2 < self.shootrange ** 2:
 				self.attack(target)
 
-class WaterTreatment(Structure):
-	btype = "watertreatment"
+class FireTurret(Turret):
+	btype = "fireturret"
+class LazorTurret(Turret):
+	btype = "lazorturret"
+class TeslaTurret(Turret):
+	btype = "teslaturret"
+class Resevoir(Structure):
+	btype = "resevoir"
 	size = 2
 
 def create(user_id, type, x, y):
@@ -166,9 +184,19 @@ def create(user_id, type, x, y):
 	elif type == 'hq': output = HQ(user_id, x, y)
 	elif type == 'medicaltent': output = MedicalTent(user_id, x, y)
 	elif type == 'quarry': output = Quarry(user_id, x, y)
+	elif type == 'beacon': output = Beacon(user_id, x, y)
+	elif type == 'fireturret': output = FireTurret(user_id, x, y)
+	elif type == 'drill': output = Drill(user_id, x, y)
+	elif type == 'quarry': output = Quarry(user_id, x, y)
+	elif type == 'foundry': output = Foundry(user_id, x, y)
+	elif type == 'machinerylab': output = MachineryLab(user_id, x, y)
+	elif type == 'teslaturret': output = TeslaTurret(user_id, x, y)
+	elif type == 'lazorturret': output = LazorTurret(user_id, x, y)
+	elif type == 'sciencelab': output = ScienceLab(user_id, x, y)
+	elif type == 'launchsite': output = LaunchSite(user_id, x, y)
 	elif type == 'radar': output = Radar(user_id, x, y)
 	elif type == 'turret': output = Turret(user_id, x, y)
-	elif type == 'watertreatment': output = WaterTreatment(user_id, x, y)
+	elif type == 'resevoir': output = Resevoir(user_id, x, y)
 	
 	# hideous, but I can type it fast
 	if output != None:
