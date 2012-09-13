@@ -40,6 +40,11 @@ class LoadingScene:
 			response = self.poll.get_response()
 			if response.get('success', False):
 				self.potato.apply_poll_data(response)
+				
+				t = self.potato.resources
+				self.potato.resources = self.potato.escrow
+				self.potato.escrow = t
+				
 				self.poll = None
 				self.next = PlayScene(self.user_id, self.password, self.potato, util.totuple(self.sector), util.totuple(self.loc), self.new)
 			else:
