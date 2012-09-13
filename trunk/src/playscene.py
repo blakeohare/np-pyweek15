@@ -476,6 +476,8 @@ class ToolBar:
 		buttons['era_hightech']= buttons['build_lazorturret']
 		buttons['era_space']   = buttons['build_launchsite']
 		self.details_bg = None
+		self.caption_bg = None
+
 	
 	def summon_bots(self, playscene):
 		playscene.summon_bots()
@@ -583,11 +585,12 @@ class ToolBar:
 			if self.mode == 'demolish':
 				self.render_action_menu(screen, "Demolish Building", 'main_demolish')
 		else:
-			for item in menu.values():
+			for key in menu.keys():
+				item = menu[key]
 				index = item[0]
 				caption = item[1]
 				button_key = item[2]
-				self.draw_button(button_key, index, screen, caption)
+				self.draw_button(button_key, index, screen, caption, key.upper())
 				if self.hovering == index:
 					self.render_details_menu(item, screen)
 		
@@ -596,11 +599,6 @@ class ToolBar:
 	
 	def render_details_menu(self, item, screen):
 		target = item[2]
-		if not target.startswith('build_'):
-			return
-		structure_id = target.split('_')[1]
-		s = structure.get_structure_by_id(structure_id)
-		
 		width = 150
 		top = 40
 		height = 100
@@ -609,44 +607,79 @@ class ToolBar:
 		right = 395 - width
 		dx = (right - left) // 5
 		left = left + dx * (item[0] - 1)
-		if self.details_bg == None:
-			self.details_bg = pygame.Surface((width, height), pygame.SRCALPHA)
-			self.details_bg.fill((0, 0, 0, 150))
 		
-		screen.blit(self.details_bg, (left, top))
-		title = get_text(structure.get_structure_name(structure_id), (255, 255, 255), 18)
-		screen.blit(title, (left + 5, top + 5))
-		
-		y = top + 5 + title.get_height() + 5
-		description = []
-		for line in structure.get_structure_description(structure_id).split('|'):
-			img = get_text(line, (255, 255, 255), 14)
-			screen.blit(img, (left + 5, y))
-			y += img.get_height() + 4
-		
-		resources = structure.get_structure_resources(structure_id)
-		counts = []
-		for key in resources.keys():
-			counts.append((key, resources[key]))
-		counts.sort(key=lambda x:x[1])
-		counts = counts[::-1]
-		
-		x = left + 5
-		y = bottom - 5 - 12
-		for count in counts:
-			key = count[0]
-			amount = count[1]
-			if amount == 0:
-				break
-			img = get_resource_icon(key)
-			screen.blit(img, (x, y))
-			x += 3 + img.get_width()
-			img = get_text(str(amount), (255, 255, 255), 14)
-			screen.blit(img, (x, y))
-			x += 8 + img.get_width()
-		
-		
-	def draw_button(self, id, index, screen, caption):
+		if target.startswith('build_'):
+
+			structure_id = target.split('_')[1]
+			s = structure.get_structure_by_id(structure_id)
+			
+			if self.details_bg == None:
+				self.details_bg = pygame.Surface((width, height), pygame.SRCALPHA)
+				self.details_bg.fill((0, 0, 0, 150))
+			
+			screen.blit(self.details_bg, (left, top))
+			title = get_text(structure.get_structure_name(structure_id), (255, 255, 255), 18)
+			screen.blit(title, (left + 5, top + 5))
+			
+			y = top + 5 + title.get_height() + 5
+			description = []
+			for line in structure.get_structure_description(structure_id).split('|'):
+				img = get_text(line, (255, 255, 255), 14)
+				screen.blit(img, (left + 5, y))
+				y += img.get_height() + 4
+			
+			resources = structure.get_structure_resources(structure_id)
+			counts = []
+			for key in resources.keys():
+				counts.append((key, resources[key]))
+			counts.sort(key=lambda x:x[1])
+			counts = counts[::-1]
+			
+			x = left + 5
+			y = bottom - 5 - 12
+			for count in counts:
+				key = count[0]
+				amount = count[1]
+				if amount == 0:
+					break
+				img = get_resource_icon(key)
+				screen.blit(img, (x, y))
+				x += 3 + img.get_width()
+				img = get_text(str(amount), (255, 255, 255), 14)
+				screen.blit(img, (x, y))
+				x += 8 + img.get_width()
+		else:
+			caption = None
+			if target.startswith('era_'):
+				if target == 'era_landing':
+					caption = "Landing Equipment"
+				elif target == 'era_lowtech':
+					caption = "Low-Tech Equipment"
+				elif target == 'era_medtech':
+					caption = "Medium-Tech Equipment"
+				elif target == 'era_hightech':
+					caption = "High-Tech Equipment"
+				else:
+					caption = "Space Travel"
+			elif target == 'main_demolish':
+				caption = "Demolish Building"
+			elif target == 'main_build':
+				caption = "Build Structure"
+			elif target == 'main_bots':
+				caption = "Deploy Bots"
+			
+			if caption != None:
+				text = get_text(caption, (255, 255, 255), 18)
+				height = text.get_height() + 10
+				if self.caption_bg == None:
+					self.caption_bg = pygame.Surface((width + 12, height), pygame.SRCALPHA)
+					self.caption_bg.fill((0, 0, 0, 150))
+				
+				screen.blit(self.caption_bg, (left, top))
+				screen.blit(text, (left + 5, top + 5))
+				
+			
+	def draw_button(self, id, index, screen, caption, hotkey=None):
 		y = 5
 		hide_border = False
 		if index == 0:
@@ -664,5 +697,7 @@ class ToolBar:
 				(255, 255, 255) if self.hovering == index else (128, 128, 128),
 				pygame.Rect(x, y, 40, 24),
 				1)
-			
+		
+		if hotkey != None:
+			screen.blit(get_text(hotkey.upper(), (255, 255, 255), 12), (x + 40, y + 22))
 		
