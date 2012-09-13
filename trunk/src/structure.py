@@ -176,7 +176,10 @@ def create(user_id, type, x, y):
 	return output
 
 LANDING_ERA = "landing"
-AGRICULTURAL = "agriculture"
+LOWTECH_ERA = "lowtech"
+MEDTECH_ERA = "medtech"
+HIGHTECH_ERA = "hightech"
+SPACE_ERA = "space"
 
 _structure_info = [
 	# columns:
@@ -186,18 +189,36 @@ _structure_info = [
 	# - limit
 	# - food
 	# - water
-	# - minerals
+	# - aluminum
+	# - copper
+	# - silicon
+	# - oil
 	# - formatted description
 	# - long description
 	# - size
-	['farm',           AGRICULTURAL, ['medicaltent'], 0, 0, 50, 25,   "Farm",                    "beans and carrots, oh my", 2],
-	['greenhouse',     LANDING_ERA,  [],              2, 0, 10, 0,    "Green House",             "Yay. Kale.", 1],
-	['hq',             None,         [],              0, 0, 0, 0,     "Headquarters",            "stores your precious ship plans", 1],
-	['medicaltent',    LANDING_ERA,  [],              1, 25, 50, 0,   "Medical Tent",            "Fixes papercuts and heartburn", 1],
-	['quarry',         AGRICULTURAL, ['medicaltent'], 0, 0, 25, 200,  "Quarry",                  "Produces stone", 2],
-	['turret',         LANDING_ERA,  [],              3, 0, 0, 0,     "Turret",                  "Bang bang!", 1],
-	['watertreatment', AGRICULTURAL, ['medicaltent'], 0, 0, 300, 100, "Water Treament Facility", "Produces more usable water", 2],
-	['radar',          AGRICULTURAL, ['medicaltent'], 0, 0, 0, 300,   "Radar",                   "Detects your closest neighbors", 1]
+	['hq',             None,         1, [],              0, 0, 0, 0, 0, 0, 0,     "Headquarters",            "stores your precious ship plans", 1],
+	
+	['greenhouse',     LANDING_ERA,  1, [],              2, 0, 10, 0, 0, 0, 0,    "Green House",             "Yay. Kale.", 1],
+	['medicaltent',    LANDING_ERA,  1, [],              1, 25, 50, 0, 0, 0, 0,   "Medical Tent",            "Fixes papercuts and heartburn", 1],
+	['turret',         LANDING_ERA,  1, [],              3, 0, 0, 0, 0, 0, 0,     "Turret",                  "Bang bang!", 1],
+	['beacon',         LANDING_ERA,  1, [],              3, 0, 0, 0, 0, 0, 0,     "Beacon",                  "Bang bang!", 1],
+	
+	['farm',           LOWTECH_ERA,  2, [],              0, 0, 50, 25, 0, 0, 0,   "Farm",                    "beans and carrots, oh my", 2],
+	['drill',          LOWTECH_ERA,  1, [],              0, 0, 25, 200, 0, 0, 0,  "Drill",                   "Produces stone", 1],
+	['quarry',         LOWTECH_ERA,  2, [],              0, 0, 25, 200, 0, 0, 0,  "Quarry",                  "Produces stone", 2],
+	['resevoir',       LOWTECH_ERA,  2, [],              0, 0, 300, 100, 0, 0, 0, "Resevoir",                "Produces more usable water", 2],
+	['fireturret',     LOWTECH_ERA,  1, [],              0, 0, 300, 100, 0, 0, 0, "Fire Turret",             "Produces more usable water", 1],
+	['foundry',        LOWTECH_ERA,  1, [],              0, 0, 25, 200, 0, 0, 0,  "Foundry",                 "Produces stone", 1],
+	
+	
+	['radar',          MEDTECH_ERA,  1, [],              0, 0, 0, 300, 0, 0, 0,   "Radar",                   "Detects your closest neighbors", 1],
+	['machinerylab',   MEDTECH_ERA,  1, [],              0, 0, 0, 300, 0, 0, 0,   "Machinery Lab",           "Detects your closest neighbors", 1],
+	['teslaturret',    MEDTECH_ERA,  1, [],              0, 0, 0, 300, 0, 0, 0,   "Tesla Turret",            "Detects your closest neighbors", 1],
+	
+	['lazorturret',    HIGHTECH_ERA, 1, [],              0, 0, 0, 300, 0, 0, 0,   "Lazor Turret",            "Detects your closest neighbors", 1],
+	['sciencelab',     HIGHTECH_ERA, 1, [],              0, 0, 0, 300, 0, 0, 0,   "Science Lab",             "Detects your closest neighbors", 1],
+	
+	['launchsite',     SPACE_ERA,    2, [],              0, 0, 0, 300, 0, 0, 0,   "Launch Site",             "Detects your closest neighbors", 2]
 ]
 
 _structure_by_era = {}
@@ -222,4 +243,4 @@ def get_structure_by_id(id):
 
 
 def get_structure_size(type):
-	return _structure_by_id[type][9]
+	return _structure_by_id[type][2]
