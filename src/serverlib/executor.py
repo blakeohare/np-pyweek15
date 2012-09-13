@@ -43,6 +43,12 @@ def do_things(action, args):
 					args.get('sector'),
 					args.get('loc'),
 					args.get('client_token'))
+			elif action == 'radar':
+				from serverlib import neighbors
+				return neighbors.find_neighbors(
+					user_id,
+					args.get('rx', None),
+					args.get('ry', None))
 			else:
 				return { 'success': False, 'message': "Unrecognized command" }
 		else:

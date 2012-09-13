@@ -196,7 +196,8 @@ _structure_info = [
 	['medicaltent',    LANDING_ERA,  [],              1, 25, 50, 0,   "Medical Tent",            "Fixes papercuts and heartburn", 1],
 	['quarry',         AGRICULTURAL, ['medicaltent'], 0, 0, 25, 200,  "Quarry",                  "Produces stone", 2],
 	['turret',         LANDING_ERA,  [],              3, 0, 0, 0,     "Turret",                  "Bang bang!", 1],
-	['watertreatment', AGRICULTURAL, ['medicaltent'], 0, 0, 300, 100, "Water Treament Facility", "Produces more usable water", 2]
+	['watertreatment', AGRICULTURAL, ['medicaltent'], 0, 0, 300, 100, "Water Treament Facility", "Produces more usable water", 2],
+	['radar',          AGRICULTURAL, ['medicaltent'], 0, 0, 0, 300,   "Radar",                   "Detects your closest neighbors", 1]
 ]
 
 _structure_by_era = {}
