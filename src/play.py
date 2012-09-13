@@ -8,7 +8,7 @@ from src import worldmap, settings, sprite, structure, terrain, title
 from src.font import get_text
 # types: key, type, mouseleft, mouseright, mousemove
 # action: left, right, up down, build, enter, demolish
-event_actions = 'left, right, up down, build, enter, demolish, debug'.split(', ')
+event_actions = 'left, right, up down, build, enter, demolish, shoot, debug'.split(', ')
 class MyEvent:
 	def __init__(self, type, action, down, x, y):
 		self.type = type
@@ -170,6 +170,8 @@ def main():
 					events.append(MyEvent('key', 'build', down, 0, 0))
 				elif event.key == pygame.K_RETURN:
 					events.append(MyEvent('key', 'action', down, 0, 0))
+				elif event.key in (pygame.K_z, pygame.K_SEMICOLON):
+					events.append(MyEvent('key', 'shoot', down, 0, 0))
 				
 				if len(events) > 0 and events[-1].type == 'key':
 					pressed_keys[events[-1].action] = events[-1].down
