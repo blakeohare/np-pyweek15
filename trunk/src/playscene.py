@@ -401,7 +401,15 @@ class PlayScene:
 			mx, my = self.mousex, self.mousey
 			
 			if mx > left and my > y and my < y + 20:
-				img = get_text(res[0].upper() + res[1:], (255, 255, 255), 14)
+				newname = {
+					'food': settings.RESOURCE_FOOD,
+					'water': settings.RESOURCE_WATER,
+					'oil': settings.RESOURCE_OIL,
+					'aluminum': settings.RESOURCE_ALUMINUM,
+					'copper': settings.RESOURCE_COPPER,
+					'silicon': settings.RESOURCE_SILICON
+				}
+				img = get_text(newname[res], (255, 255, 255), 14)
 				screen.blit(img, (left - 5 - img.get_width(), y + 1))
 			
 			y += 20

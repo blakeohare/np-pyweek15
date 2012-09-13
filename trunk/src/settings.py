@@ -78,4 +78,9 @@ usetgradient = True
 
 
 
-
+RESOURCE_FOOD = "Num nums"
+RESOURCE_WATER = "Wawa"
+RESOURCE_ALUMINUM = "Shinyium"
+RESOURCE_COPPER = "Rust"
+RESOURCE_SILICON = "Obtainium"
+RESOURCE_OIL = "Dark Chocolate"
