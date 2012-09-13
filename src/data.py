@@ -57,6 +57,11 @@ class MagicPotato:
 	def apply_poll_data(self, poll):
 		if not poll.get('success', False): return
 		
+		resources = poll.get('resources', {})
+		for key in resources.keys():
+			latest = int(resources[key] * 10)
+			self.escrow[key] = latest - self.resources[key]
+		
 		for sector_data in poll.get('sectors', []):
 			id = util.totuple(sector_data.get('id', None))
 			if sector_data.get('all', False):
