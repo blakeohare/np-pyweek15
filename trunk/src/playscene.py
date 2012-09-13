@@ -500,13 +500,9 @@ class ToolBar:
 	
 	def accept_key(self, key, playscene):
 		menu = self.menu.get(self.mode, {})
-		action = menu.get(key, None)
-		if action != None:
-			target_function = action[4]
-			target_menu = action[3]
-			if target_function != None:
-				target_function(playscene)
-			self.mode = target_menu
+		item = menu.get(key, None)
+		if item != None:
+			self.select_item(item, playscene)
 		
 	
 	def click(self, x, y, screen_width, playscene):

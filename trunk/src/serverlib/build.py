@@ -2,6 +2,8 @@ from serverlib import poll
 from serverlib import sql
 from serverlib import util
 
+import random
+
 def do_build(user_id, client_token, last_id, sector, loc, type, poll_afterwards=True):
 	sector = util.tsanitize(sector)
 	loc = util.tsanitize(loc)
@@ -13,7 +15,17 @@ def do_build(user_id, client_token, last_id, sector, loc, type, poll_afterwards=
 			data='Build:%s,%s' % (type, loc)
 			event_id = sql.insert(
 				'INSERT INTO `event` (`client_token`, `sector_xy`, `user_id`, `data`) VALUES (%s, %s, %s, %s)', (client_token, sector, user_id, data))
-			sql.insert('INSERT INTO `structure` (`type`, `sector_xy`, `loc_xy`, `user_id`, `event_id`) VALUES (%s, %s, %s, %s, %s)', (type, sector, loc, user_id, event_id))
+			quarry_data = ''
+			if type == 'quarry':
+				resources = 'a c s'.split(' ')
+				distribution = [int(random.random() * 101)]
+				rdist = int(random.random() * (100 - distribution[0] + 1))
+				distribution.append(rdist)
+				distribution.append(100 - sum(distribution))
+				random.shuffle(distribution)
+				
+				quarry_data = 'a' + str(distribution[0]) + 'c' + str(distribution[1]) + 's' + str(distribution[2])
+			sql.insert('INSERT INTO `structure` (`type`, `sector_xy`, `loc_xy`, `user_id`, `event_id`, `data`) VALUES (%s, %s, %s, %s, %s, %s)', (type, sector, loc, user_id, event_id, quarry_data))
 		if poll_afterwards:
 			return poll.do_poll(user_id, str(last_id) + '^' + sector)
 	else:
