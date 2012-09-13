@@ -48,7 +48,7 @@ class MagicPotato:
 		}
 	
 	def get_resource(self, key):
-		return self.resources[key] // 10
+		return int(self.resources[key] // 10)
 		
 	def spend_resource(self, key, amount):
 		self.resources[key] -= amount
@@ -244,8 +244,9 @@ class MagicPotato:
 		for key in self.escrow.keys():
 			amt = self.escrow[key]
 			if amt > 0:
-				self.escrow[key] -= 2
-				self.resources[key] += 2
+				debit = self.escrow[key] * 0.01
+				self.escrow[key] -= debit
+				self.resources[key] += debit
 			elif amt < 0:
 				self.resources[key] -= amt
 				self.escrow[key] = 0
