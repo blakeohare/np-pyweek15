@@ -86,7 +86,7 @@ class BuildingMenu(UiScene):
 						direction = directions.get(angle, "")
 						rows.append(get_text(str(user) + " " + str(distance) + " km " + direction, (255, 255, 255), 14)) 
 					
-					y = 100
+					y = 105
 					x = 100
 					for row in rows:
 						screen.blit(row, (x, y))
