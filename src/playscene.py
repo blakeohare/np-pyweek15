@@ -13,6 +13,7 @@ from src import terrain
 from src import battle
 from src import buildingmenu
 from src import effects
+from src import border
 
 from src.font import get_text
 from src.images import get_image
@@ -146,6 +147,12 @@ class PlayScene:
 			util.md5(str(time.time()) + "client token for session" + str(self.user_id))[:10],
 			1]
 		self.battle = None
+		
+		# Blake how do I make it so I don't include every building in existence?
+		# TODO: decide when to update which borders and when to include them
+		mybase = self.potato.get_structures_for_screen(self.cx, self.cy)
+		myborder = border.Border((255,0,255), [(b, 5) for b in mybase])
+		self.borders = [myborder]
 	
 	def get_new_client_token(self):
 		self.client_token[1] += 1
@@ -345,7 +352,7 @@ class PlayScene:
 			if self.battle != None:
 				entities += self.battle.get_sprites()
 			
-		worldmap.drawscene(screen, entities + effects.effects, (cx, cy))
+		worldmap.drawscene(screen, entities + effects.effects, (cx, cy), self.borders)
 		
 		if self.curiosity != None:
 			self.curiosity.render_skycrane(screen)
