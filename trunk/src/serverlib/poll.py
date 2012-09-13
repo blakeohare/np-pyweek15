@@ -28,6 +28,7 @@ def do_poll(user_id, sector_args):
 						structure['event_id']])
 					if max_id < structure['event_id']:
 						max_id = structure['event_id']
+				structures.sort(key=lambda x:x[4])
 				sector_data['valid_through'] = max_id
 			else:
 				# need recent history, get all events after a certain point
