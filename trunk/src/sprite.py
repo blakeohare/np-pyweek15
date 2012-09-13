@@ -6,6 +6,7 @@ class Sprite(object):
 	hp0 = 1
 	last_direction = 0
 	def __init__(self, x, y, z=None):
+		self.vx, self.vy = 0, 0
 		self.x, self.y = terrain.toCenterRender(x, y)
 		self.z = terrain.height(self.x, self.y) if z is None else z
 		self.alive = True

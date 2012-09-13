@@ -193,7 +193,7 @@ class PlayScene:
 		selected_building = self.potato.get_building_selection(you_x, you_y)
 		
 		if building_menu and selected_building != None:
-			self.next = buildingmenu.BuildingMenu(self)
+			self.next = buildingmenu.BuildingMenu(self, selected_building)
 		if demolish_building and selected_building != None:
 			x, y = selected_building.getModelXY()
 			self.blow_stuff_up(x, y)
