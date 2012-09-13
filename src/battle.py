@@ -34,12 +34,12 @@ class Battle:
 	def buildbasepath(self):
 		self.forbiddentiles = []
 		for building in self.buildings:
-			print building.btype, building.rsquares()
+			#print building.btype, building.rsquares()
 			self.forbiddentiles.extend(building.rsquares())
 		self.pathdistance = {}
 		self.pathparent = {}
 		tileq, d = self.hq.rsquares(), 0
-		print tileq
+		#print tileq
 		while tileq:
 			for tile in tileq:
 				self.pathdistance[tile] = d
@@ -77,7 +77,7 @@ class Battle:
 			t, atype = self.alienq.pop(0)
 			# TODO: choose a starting position based on the base layout
 			X0, Y0 = terrain.toModel(self.hq.x, self.hq.y)
-			print self.hq.x, self.hq.y, X0, Y0, X0 - Y0, -X0 - Y0
+			#print self.hq.x, self.hq.y, X0, Y0, X0 - Y0, -X0 - Y0
 			while True:
 				theta = random.random() * 1000
 				r = 12
