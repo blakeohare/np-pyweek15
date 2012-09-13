@@ -26,12 +26,12 @@ class Structure(object):
 
 	# All squares this building covers in render coordinates
 	def rsquares(self):
-		return [(self.x+dX-dY, self.y-dX-dY) for dX in range(self.size) for dY in range(self.size)]
+		return [(self.x+dX-dY, self.y+self.size-1-dX-dY) for dX in range(self.size) for dY in range(self.size)]
 
-	# All squares this building covers in model coordinates
-	def rsquares(self):
-		X, Y = int((self.x - self.y) // 2), int((-self.x - self.y)//2)
-		return [(X+dX, Y+dY) for dX in range(self.size) for dY in range(self.size)]
+	# All squares this building covers in model coordinates  -- not sure if this works yet
+#	def msquares(self):
+#		X, Y = int((self.x - self.y) // 2), int((-self.x - self.y)//2)
+#		return [(X+dX, Y+dY) for dX in range(self.size) for dY in range(self.size)]
 
 	def renderplatform(self, screen, looker=None):
 		looker = looker or camera
