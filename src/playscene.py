@@ -121,7 +121,159 @@ def get_resource_icon(key):
 		img.blit(t, (offset[key] * -12, 0))
 		_resource_icons[key] = img
 	return img
+
+_dark_bg = {}
+def get_dark_bg(width, height):
+	img = _dark_bg.get((width, height), None)
+	if img == None:
+		img = pygame.Surface((width, height)).convert_alpha()
+		img.fill((0, 0, 0, 160))
+		_dark_bg[(width, height)] = img
+	return img
+
+class DeployBotsScene:
+	def __init__(self, playscene):
+		self.next = self
+		self.playscene = playscene
+		player = self.playscene.player
+		tx, ty = terrain.nearesttile(player.x, player.y)
+		self.target_user = 0
+		self.mx, self.my = playscene.mousex, playscene.mousey
+		
+		for user_id in playscene.potato.borders_by_user.keys():
+			border = playscene.potato.borders_by_user[user_id]
+			
+			if (tx, ty) in border.tiles:
+				self.target_user = user_id
+				break
+		
+		self.ok_button = None
+		self.cancel_button = None
 	
+	def process_input(self, events, pressed):
+		if pressed['back']:
+			self.close_menu()
+		for event in events:
+			if event.type == 'mousemove':
+				self.mx = event.x
+				self.my = event.y
+			elif event.type == 'mouseleft':
+				if event.up:
+					hit = None
+					for button in (self.ok_button, self.cancel_button):
+						if button != None:
+							if self.mx >= button[0] and self.mx <= button[2] and self.my >= button[1] and self.my <= button[3]:
+								hit = button
+					
+					if hit == self.ok_button:
+						self.deploy()
+					elif hit == self.cancel_button:
+						self.close_menu()
+	
+	def deploy(self):
+		if self.target_user > 0:
+			buildings = self.playscene.potato.get_all_buildings_of_player_SLOW(self.target_user)
+			self.playscene.battle = battle.Battle(self.playscene.user_id, buildings, self.target_user)
+		self.close_menu()
+		
+	def update(self):
+		self.playscene.update()
+	
+	def close_menu(self):
+		self.next = self.playscene
+		self.playscene.next = self.playscene
+	
+	def render(self, screen):
+		width = screen.get_width()
+		height = screen.get_height()
+		
+		self.playscene.render(screen)
+		
+		line_height = 10
+		margin = 10
+		left = margin + line_height
+		bg = get_dark_bg(width - margin * 2, height - 35 - margin * 2)
+		y = 35 + margin
+		screen.blit(bg, (margin, y))
+		y += line_height
+		title = get_text("Deploy Seeker Bots", (255, 255, 255), 24)
+		
+		screen.blit(title, (left, y))
+		y += title.get_height() + line_height
+		
+		show_ok = False
+		
+		if self.target_user == 0:
+			text = get_text("You must be in another user's base to do this.", (255, 0, 0), 14)
+			screen.blit(text, (left, y))
+		elif self.target_user == self.playscene.user_id:
+			text = [
+				get_text("You can't deploy your own bots against yourself.", (255, 255, 255), 14),
+				get_text("That's just silly.", (255, 0, 255), 14)]
+			for t in text:
+				screen.blit(t, (left, y))
+				y += t.get_height() + line_height
+		else:
+			show_ok = True
+			text = get_text("Send bots to attack: " + self.playscene.potato.get_user_name(self.target_user), (255, 255, 255), 14)
+			screen.blit(text, (left, y))
+			y += line_height + text.get_height()
+			
+			num_bytes = 298378
+			x = left
+			text = [
+				get_text("If successful, you will gain ", (255, 255, 255), 14),
+				get_text(str(num_bytes), (0, 128, 255), 16),
+				get_text(" bytes of data.", (255, 255, 255), 14)]
+			for t in text:
+				screen.blit(t, (x, y))
+				x += t.get_width()
+			
+			y += line_height + text[0].get_height()
+			
+			text = get_text("Shall we proceed?", (255, 255, 255), 18)
+			screen.blit(text, (left, y))
+		
+		right = margin + bg.get_width()
+		bottom = 35 + margin + bg.get_height()
+		caption = get_text("Nevermind", (255, 255, 255), 24)
+		
+		bwidth = caption.get_width() + 10
+		bheight = caption.get_height() + 6
+		
+		bleft = right - line_height - bwidth
+		btop = bottom - line_height - bheight
+		brect = pygame.Rect(bleft, btop, bwidth, bheight)
+		hovering = self.mx >= bleft and self.mx <= bleft + bwidth and self.my >= btop and self.my < btop + bheight
+		color = (0, 0, 255) if hovering else (0, 0, 0)
+		
+		pygame.draw.rect(screen, color, brect)
+		pygame.draw.rect(screen, (255, 255, 255), brect, 1)
+		screen.blit(caption, (bleft + 5, btop + 3))
+		self.cancel_button = (bleft, btop, bleft + bwidth, btop + bheight)
+		
+		if show_ok:
+			bleft = margin + line_height
+			caption = get_text("FLY, MY PRETTIES!", (255, 255, 255), 24)
+			
+			bwidth = caption.get_width() + 10
+			bheight = caption.get_height() + 6
+			
+			#bleft = right - line_height - bwidth
+			btop = bottom - line_height - bheight
+			brect = pygame.Rect(bleft, btop, bwidth, bheight)
+			hovering = self.mx >= bleft and self.mx <= bleft + bwidth and self.my >= btop and self.my < btop + bheight
+			color = (0, 180, 0) if hovering else (0, 0, 0)
+			
+			pygame.draw.rect(screen, color, brect)
+			pygame.draw.rect(screen, (255, 255, 255), brect, 1)
+			screen.blit(caption, (bleft + 5, btop + 3))
+			
+			self.ok_button = (bleft, btop, bleft + bwidth, btop + bheight)
+		
+			
+	
+		
 class PlayScene:
 	def __init__(self, user_id, password, potato, starting_sector, starting_xy, show_landing_sequence):
 		self.curiosity = None
@@ -310,14 +462,7 @@ class PlayScene:
 		effects.update()
 	
 	def summon_bots(self):
-		# find player's location
-		# determine if it's another player's base
-		# FIGHT! FIGHT! FIGHT! FIGHT!
-		
-		# should probably throw in a confirmation menu
-		# where player can determine how many of which types of
-		# bots (of the ones available) they want to throw at this player.
-		print("Start fight")
+		self.next = DeployBotsScene(self)
 	
 	def render(self, screen):
 		self.last_width = screen.get_width()
