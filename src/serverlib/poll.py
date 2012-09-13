@@ -44,10 +44,12 @@ def do_poll(user_id, sector_args):
 	output['sectors'] = sectors
 	
 	your_buildings = sql.query("SELECT `type`, `data` FROM `structure` WHERE `user_id` = " + str(user_id))
-	resources = { 'water': 0.0, 'food': 0.0, 'oil': 0.0, 'aluminum': 0.0, 'copper': 0.0, 'silicon': 0 }
+	resources = { 'water': 0.1, 'food': 0.1, 'oil': 0.0, 'aluminum': 0.0, 'copper': 0.0, 'silicon': 0 }
 	for building in your_buildings:
 		if building['type'] == 'farm':
 			resources['food'] += 5
+		elif building['type'] == 'resevoir':
+			resources['water'] += 3
 		elif building['type'] == 'greenhouse':
 			resources['food'] += 1
 		elif building['type'] == 'drill':
