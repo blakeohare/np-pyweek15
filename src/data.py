@@ -16,6 +16,19 @@ class MagicPotato:
 		self.player_names = {}
 		self.player_name_search = []
 		self.active_selection = None
+		
+		# There are resources and escrow resources.
+		# Resources represents what the user will perceive.
+		# Escrow represents the difference between perception
+		# and how many resources the server thinks the user has.
+		# Both of these amounts are 10x in the model as what is 
+		# utlimately displayed e.g. if it says 200 here, it says 20 in the UI.
+		# If the user gains resources, they are transferred to the
+		# actual resources from escrow in increments of 5% per frame.
+		# This will make it appear as though the stream is constant. 
+		# If the user spends resources, it is subtracted immediately from the 
+		# actual resources. Escrow will be set to 0. 
+		
 		self.resources = {
 			'food': 0,
 			'water': 0,
@@ -25,7 +38,7 @@ class MagicPotato:
 			'oil': 0
 		}
 		
-		self.escrow_resources = {
+		self.escrow = {
 			'food': 0,
 			'water': 0,
 			'aluminum': 0,
@@ -33,7 +46,14 @@ class MagicPotato:
 			'silicon': 0,
 			'oil': 0
 		}
+	
+	def get_resource(self, key):
+		return self.resources[key] // 10
 		
+	def spend_resource(self, key, amount):
+		self.resources[key] -= amount
+		self.escrow[key] = 0
+	
 	def apply_poll_data(self, poll):
 		if not poll.get('success', False): return
 		
@@ -215,6 +235,15 @@ class MagicPotato:
 						self.player_names[id] = name
 			else:
 				i += 1
+		
+		for key in self.escrow.keys():
+			amt = self.escrow[key]
+			if amt > 0:
+				self.escrow[key] -= 2
+				self.resources[key] += 2
+			elif amt < 0:
+				self.resources[key] -= amt
+				self.escrow[key] = 0
 	
 	def get_user_name(self, user_id):
 		default_name = "?"*8
