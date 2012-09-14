@@ -24,10 +24,12 @@ def getfs():
 	x, y = min(modes)
 	z = max(n for n in (1,2,3,4,5,6,7,8) if x % n == 0 and y % n == 0 and fsmin * n <= x)
 	return int(x//z), int(y//z), z
-try:
-	fsx, fsy, fsz = getfs()
-except ImportError:
-	fsx, fsy, fsz = wsx, wsy, wsz
+#try:
+#	fsx, fsy, fsz = getfs()
+#except ImportError:
+#	fsx, fsy, fsz = wsx, wsy, wsz
+fsx, fsy, fsz = wsx, wsy, wsz
+
 
 # size of the (un-zoomed) screen
 sx, sy = wsx, wsy
