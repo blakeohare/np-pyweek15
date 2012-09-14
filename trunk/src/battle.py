@@ -3,11 +3,12 @@ from src import sprite, structure, terrain
 from src.font import get_text
 
 class Battle:
-	def __init__(self, user_id, buildings, other_user_id=None):
+	def __init__(self, user_id, buildings, border, other_user_id=None):
 		# if other_user_id is, then this is an alien vs player session
 		self.user_id = user_id
 		self.other_id = other_user_id
 		self.buildings = buildings
+		self.border = border
 		
 		print("base size: %s" % len(self.buildings))
 		hqs = [b for b in self.buildings if isinstance(b, structure.HQ)]
@@ -17,7 +18,7 @@ class Battle:
 #		self.buildbasepath()
 		
 		self.data_stolen = 0.0 # add to this in real time as the sprites successfully get into the HQ
-		self.aliens = []  # both aliens and bots
+		self.attackers = []  # both aliens and bots
 		
 		# queue of the aliens and the frames at which they'll appear
 		self.alienq = []
@@ -29,7 +30,7 @@ class Battle:
 		if self.is_computer_attacking():
 			self.alienq = [
 				(t, sprite.Alien)
-				for t in range(30, 400, 10)
+				for t in range(30, 40, 10)
 			]
 		else:
 			self.nbots0 = 40
@@ -75,21 +76,22 @@ class Battle:
 		return (0, 0)
 
 	def deploy(self, scene, target, btype):
-		X0, Y0 = terrain.toModel(self.hq.x, self.hq.y)
+		X0, Y0 = terrain.toModel(target.x, target.y)
 		#print self.hq.x, self.hq.y, X0, Y0, X0 - Y0, -X0 - Y0
+		r = 3
 		while True:
-            # TODO: get them to the base border
+            # TODO: this better
 			theta = random.random() * 1000
-			r = 12
 			X = int((X0 + r * math.sin(theta))//1)
 			Y = int((Y0 + r * math.cos(theta))//1)
 			x, y = terrain.nearesttile(X - Y, -X - Y)
-			if not terrain.isunderwater(x, y) and scene.empty_tile(x, y):
+			if not terrain.isunderwater(x, y) and not self.border.iswithin(x, y):
 				break
+			r += 0.2
 		alien = btype(X, Y)
 		targets = [b for b in self.buildings if b.attackable and b.hp >= 0]
 		alien.settarget(random.choice(targets))
-		self.aliens.append(alien)
+		self.attackers.append(alien)
 	
 	def attack_building(self, scene, building):
 		if building not in self.buildings:
@@ -114,16 +116,16 @@ class Battle:
 			self.deploy(scene, target, atype)
 
 		for b in self.buildings:
-			b.handleintruders(self.aliens)
+			b.handleintruders(self.attackers)
 		
-		for a in self.aliens: a.update(scene)
+		for a in self.attackers: a.update(scene)
 		for b in self.buildings: b.update(scene)
 		
-		self.aliens = [a for a in self.aliens if a.alive]
+		self.attackers = [a for a in self.attackers if a.alive]
 	
 	# aliens, seeker bots, projectiles
 	def get_sprites(self):
-		return self.aliens
+		return self.attackers
 	
 	def is_complete(self):
 		# HQ disabled
@@ -131,10 +133,10 @@ class Battle:
 			return True
 		if self.is_computer_attacking():
 			# All aliens defeated
-			if not self.alienq and not self.aliens:
+			if not self.alienq and not self.attackers:
 				return True
 		else:
-			if not self.nbots0 and not self.aliens:
+			if not self.nbots and not self.attackers:
 				return True
 		return False
 	##

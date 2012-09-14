@@ -142,9 +142,9 @@ class DeployBotsScene:
 		self.mx, self.my = playscene.mousex, playscene.mousey
 		
 		for user_id in playscene.potato.borders_by_user.keys():
-			border = playscene.potato.borders_by_user[user_id]
 			
-			if (tx, ty) in border.tiles:
+			bord = playscene.potato.borders_by_user[user_id]
+			if (tx, ty) in bord.tiles:
 				self.target_user = user_id
 				break
 		
@@ -174,7 +174,8 @@ class DeployBotsScene:
 	def deploy(self):
 		if self.target_user > 0:
 			buildings = self.playscene.potato.get_all_buildings_of_player_SLOW(self.target_user)
-			self.playscene.pendingbattle = battle.Battle(self.playscene.user_id, buildings, self.target_user)
+			bord = self.playscene.potato.borders_by_user[self.target_user]
+			self.playscene.pendingbattle = battle.Battle(self.playscene.user_id, buildings, bord, self.target_user)
 		self.close_menu()
 		
 	def update(self):
@@ -368,7 +369,8 @@ class PlayScene:
 					elif event.type == 'key':
 						if event.down and event.action == 'debug':
 							buildings = self.potato.get_all_buildings_of_player_SLOW(self.user_id)
-							self.pendingbattle = battle.Battle(self.user_id, buildings, None)
+							bord = self.potato.borders_by_user[self.user_id]
+							self.pendingbattle = battle.Battle(self.user_id, buildings, bord, None)
 						elif event.down and event.action == 'build':
 							if self.build_mode != None:
 								self.build_thing(self.build_mode)
@@ -468,16 +470,14 @@ class PlayScene:
 		if self.battle != None:
 			self.battle.update(self)
 			if self.battle.is_complete():
-				# TODO: do logic to apply results
-				self.battle.hq.healfull()   # Repair the HQ after the battle
-				self.battle = None
+				self.pendingbattle = 17  # dummy number
 		
 		for s in self.sprites: s.update(self)
 		for s in self.shots:
 			s.update(self)
 			s.handlealiens(self.sprites)
 			if self.battle:
-				s.handlealiens(self.battle.aliens)
+				s.handlealiens(self.battle.attackers)
 		self.sprites = [s for s in self.sprites if s.alive]
 		self.shots = [s for s in self.shots if s.alive]
 		
@@ -491,8 +491,15 @@ class PlayScene:
 		if self.pendingbattle:
 			self.blinkt += 1
 			if self.blinkt >= 10:
-				self.battle = self.pendingbattle
-				self.pendingbattle = None
+				if self.pendingbattle == 17:   # ending a battle
+					# TODO: do logic to apply results
+					if self.battle:
+						self.battle.hq.healfull()   # Repair the HQ after the battle
+						self.battle = None
+						self.pendingbattle = None
+				else:   # starting a battle
+					self.battle = self.pendingbattle
+					self.pendingbattle = None
 		elif self.blinkt:
 			self.blinkt -= 1
 	
