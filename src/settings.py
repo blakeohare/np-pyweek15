@@ -109,3 +109,23 @@ building_cost = {
 'teslaturret':  [50, 50, 100, 0, 0, 0],
 'resevoir':     [50, 50, 100, 0, 0, 0]
 }
+
+building_size = {
+	'hq': 1,
+	'drill': 1,
+	'foundry': 1,
+	'beacon': 1,
+	'machinerylab': 1,
+	'sciencelab': 1,
+	'launchsite': 2,
+	'farm': 2,
+	'greenhouse': 1,
+	'medicaltent': 1,
+	'quarry': 2,
+	'radar': 1,
+	'turret': 1,
+	'fireturret': 1,
+	'lazorturret': 1,
+	'teslaturret': 1,
+	'resevoir': 2
+}
