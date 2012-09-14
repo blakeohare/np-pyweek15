@@ -10,6 +10,8 @@ wsx, wsy, wsz = 400, 300, 2
 # minimum horizontal resolution in fullscreen mode
 fsmin = 400
 
+show_verbose_output = False
+
 # pick the best resolution for fullscreen mode
 def getfs():
 	import pygame
