@@ -67,6 +67,11 @@ class MagicPotato:
 			'oil': 0
 		}
 	
+	def starting_buildings(self, buildings):
+		for building in buildings:
+			self.buildings_available[building] = True
+		
+	
 	def is_building_available(self, type):
 		if settings.building_research.get(type) == 0:
 			return True
@@ -86,7 +91,7 @@ class MagicPotato:
 					(key, settings.building_research[key]))
 		
 		output.sort(key=lambda x:x[1])
-		return output
+		return output[:3]
 	
 	def bytes(self):
 		return self.bytes_stolen

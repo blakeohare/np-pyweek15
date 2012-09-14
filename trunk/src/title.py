@@ -47,7 +47,9 @@ class TitleScene(UiScene):
 				loc = hq[1]
 				user_id = response.get('user_id', 0)
 				is_new = response.get('is_new', False)
-				self.next = playscene.LoadingScene(user_id, self.password, sector, loc, is_new)
+				research = response.get('research', 0)
+				buildings = response.get('buildings', [])
+				self.next = playscene.LoadingScene(user_id, self.password, sector, loc, is_new, research, buildings)
 			self.auth_request = None
 	
 	def login_pressed(self):
