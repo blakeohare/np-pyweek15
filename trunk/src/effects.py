@@ -6,37 +6,67 @@
 # They need to at least have a y-coordinate, for drawing order.
 # Effects are not rendered on the minimap
 
-import pygame
+import pygame, random, math
 from src import camera
 
 effects = []
 
 def update():
-    global effects
-    for e in effects:
-        e.update()
-    effects = [e for e in effects if e.alive]
+	global effects
+	for e in effects:
+		e.update()
+	effects = [e for e in effects if e.alive]
 
 def add(e):
-    effects.append(e)
+	effects.append(e)
 
 class LaserBeam(object):
-    color = 255,255,128
-    lifetime = 4
-    def __init__(self, x0, y0, z0, x1, y1, z1):
-        self.x0, self.y0, self.z0 = x0, y0, z0
-        self.x1, self.y1, self.z1 = x1, y1, z1
-        self.y = (self.y0 + self.y1) / 2.
-        self.t = 0
-        self.alive = True
-    def update(self):
-        self.t += 1
-        self.alive = self.t <= self.lifetime
-    def render(self, screen, looker=None):
-        looker = looker or camera
-        p0 = looker.screenpos(self.x0, self.y0, self.z0)
-        p1 = looker.screenpos(self.x1, self.y1, self.z1)
-        pygame.draw.line(screen, self.color, p0, p1, 2)
+	color = 255,255,128
+	lifetime = 4
+	def __init__(self, x0, y0, z0, x1, y1, z1):
+		self.x0, self.y0, self.z0 = x0, y0, z0
+		self.x1, self.y1, self.z1 = x1, y1, z1
+		self.y = (self.y0 + self.y1) / 2.
+		self.t = 0
+		self.alive = True
+	def update(self):
+		self.t += 1
+		self.alive = self.t <= self.lifetime
+	def render(self, screen, looker=None):
+		looker = looker or camera
+		p0 = looker.screenpos(self.x0, self.y0, self.z0)
+		p1 = looker.screenpos(self.x1, self.y1, self.z1)
+		pygame.draw.line(screen, self.color, p0, p1, 2)
 
+class LightningBolt(object):
+	color0 = 200,200,255
+	color1 = 100,100,255
+	lifetime = 6
+	def __init__(self, x0, y0, z0, x1, y1, z1, r):
+		self.x0, self.y0, self.z0 = x0, y0, z0
+		self.x1, self.y1, self.z1 = x1, y1, z1
+		self.r = r
+		self.y = self.y1
+		self.t = 0
+		self.alive = True
+	def update(self):
+		self.t += 1
+		self.alive = self.t <= self.lifetime
+	def render(self, screen, looker=None):
+		looker = looker or camera
+		x0,y0 = looker.screenpos(self.x0, self.y0, self.z0)
+		x1,y1 = looker.screenpos(self.x1, self.y1, self.z1)
+		for _ in range(2):
+			ps = [(int(x0*f+x1*(1-f)+random.random()*20-10),
+				   int(y0*f+y1*(1-f)+random.random()*20-10))
+				   for f in (0.75, 0.5, 0.25)]
+			pygame.draw.lines(screen, self.color0, False, [(x0,y0)] + ps + [(x1,y1)], 2)
 
+		for _ in range(4):
+			theta = random.random() * 1000
+			x0,y0 = looker.screenpos(self.x1+self.r*math.sin(theta), self.y1+self.r*math.cos(theta), self.z1)
+			ps = [(int(x0*f+x1*(1-f)+random.random()*20-10),
+				   int(y0*f+y1*(1-f)+random.random()*20-10))
+				   for f in (0.75, 0.5, 0.25)]
+			pygame.draw.lines(screen, self.color1, False, [(x0,y0)] + ps + [(x1,y1)], 1)
 

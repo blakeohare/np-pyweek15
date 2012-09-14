@@ -289,6 +289,10 @@ class PlayScene:
 		self.show_landing_sequence = show_landing_sequence
 		self.cx = starting_sector[0] * 60 + starting_xy[0]
 		self.cy = starting_sector[1] * 60 + starting_xy[1]
+
+		#FIXME: this is just for testing so I can attack Blake easily - undo
+#		self.cx, self.cy = terrain.toModel(-73, 0)
+
 		self.player = sprite.You(self.cx, self.cy + 1)
 		self.player.lookatme()
 		self.sprites = [self.player]
@@ -304,7 +308,6 @@ class PlayScene:
 			util.md5(str(time.time()) + "client token for session" + str(self.user_id))[:10],
 			1]
 		self.battle = None
-		
 	
 	def get_new_client_token(self):
 		self.client_token[1] += 1
@@ -319,6 +322,7 @@ class PlayScene:
 	def process_input(self, events, pressed):
 		building_menu = False
 		demolish_building = False
+		attack_building = False
 		if self.curiosity != None:
 			pass
 		else:
@@ -347,6 +351,9 @@ class PlayScene:
 							shot = self.player.shoot()
 							if shot:
 								self.shots.append(shot)
+						elif event.down and event.action == 'build':
+							if not self.battle.is_computer_attacking():
+								attack_building = True
 			else:
 				for event in events:
 					if event.type == 'mouseleft':
@@ -383,6 +390,8 @@ class PlayScene:
 		if demolish_building and selected_building != None:
 			x, y = selected_building.getModelXY()
 			self.blow_stuff_up(x, y)
+		if attack_building and selected_building is not None:
+			self.battle.attack_building(self, selected_building)
 	
 	def blow_stuff_up(self, x, y):
 		col = util.floor(x)
@@ -534,22 +543,8 @@ class PlayScene:
 		self.player.drawhealth(screen)
 
 		if self.battle != None:
-			data = self.battle.bytes_stolen()
-			
-			if self.battle.is_computer_attacking():
-				text = "Bytes lost: " + str(data)
-				color = (255, 0, 0)
-			else:
-				text = "Bytes learned: " + str(data)
-				color = (0, 100, 255)
-			if data == 0:
-				text = "Attack in progress"
-			
-			text = get_text(text, color, 22)
-			x = ((screen.get_width() - text.get_width()) // 2)
-			y = screen.get_height() * 4 // 5
-			screen.blit(text, (x, y))
-		
+			self.battle.renderstatus(screen)
+				
 		left = 360
 		top = 40
 		y = top

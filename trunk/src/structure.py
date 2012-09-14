@@ -7,6 +7,7 @@ class Structure(object):
 	hp0 = 1
 	attackable = False
 	healthbarheight = 24
+	flashdamage = 0
 	# TODO: handle buildings with bigger footprints than 1x1
 	def __init__(self, user_id, x, y, z=None):
 		self.user_id = user_id
@@ -77,6 +78,10 @@ class Structure(object):
 			return
 		self.renderplatform(screen, looker)
 		path = "buildings/selection/%s.png" if self.selected else "buildings/%s.png"
+		if self.flashdamage:
+			if self.flashdamage % 2:
+				path = "buildings/damage/%s.png"
+			self.flashdamage -= 1
 		img = images.get_image(path % self.btype)
 		ix, iy = img.get_size()
 		y = py-iy+ix//4
@@ -97,6 +102,7 @@ class Structure(object):
 
 	def hurt(self, dhp):
 		self.hp = max(self.hp - dhp, 0)
+		self.flashdamage = 5
 	
 	def heal(self, dhp):
 		self.hp = min(self.hp + dhp, self.hp0)
@@ -178,18 +184,20 @@ class LazorTurret(Turret):
 	chargetime = 10
 	def addeffect(self, target):
 		effects.add(effects.LaserBeam(self.x, self.y, self.z + 22, target.x, target.y, target.z + 2))
+
 class TeslaTurret(Turret):
 	btype = "teslaturret"
 	splashrange = 3
 
 	def addeffect(self, target):
-		effects.add(effect.LightningBolt(self.x, self.y, self.z + 22, target.x, target.y, target.z + 2, self.splashrange))
+		effects.add(effects.LightningBolt(self.x, self.y, self.z + 22, target.x, target.y, target.z + 2, self.splashrange))
 
 	def attack(self, target, collaterals):
 		self.t = 0
 		target.hurt(self.strength)
 		for i in collaterals:
 			i.hurt(self.strength)
+		self.addeffect(target)
 
 	def handleintruders(self, intruders):
 		self.t += 1
