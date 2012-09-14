@@ -97,7 +97,7 @@ class Structure(object):
 		pygame.draw.line(surf, self.minicolor, (px,py-1), (px,py+1))
 
 
-	def update(self):
+	def update(self, scene):
 		pass
 
 	def hurt(self, dhp):
@@ -133,7 +133,7 @@ class Beacon(Structure):
 	def __init__(self, *args, **kw):
 		Structure.__init__(self, *args, **kw)
 #		self.hq = ....
-	def update(self):
+	def update(self, scene):
 		self.sparkt += 1
 		if self.sparkt >= 10:
 			self.sparkt = 0
@@ -184,7 +184,7 @@ class Turret(Structure):
 
 	def handleintruders(self, intruders):
 		self.t += 1
-		if self.t >= self.chargetime and intruders:
+		if self.t >= self.chargetime and intruders and self.hp > 0:
 			# Always fire at the nearest intruder
 			target = min(intruders, key = lambda i: (i.x-self.x)**2 + (i.y-self.y)**2)
 			if (target.x - self.x) ** 2 + (target.y - self.y) ** 2 < self.shootrange ** 2:
@@ -193,25 +193,30 @@ class Turret(Structure):
 class FireTurret(Turret):
 	btype = "fireturret"
 	h = 24
-	target = None
+	targetlimit = 2
+	def __init__(self, *args, **kw):
+		Turret.__init__(self, *args, **kw)
+		self.targets = []
 	def addeffect(self, target):
-		effects.add(effects.Tractor(self))
-		self.target = target
-		self.target.addtractor(self)
-	def update(self, target):
-		if self.target:
-			dx, dy = self.target.x - self.x, self.target.y - self.y
-			if dx**2 + dy**2 > self.shootrange**2:
-				self.target.removetractor(self)
-				self.target = None
+		self.targets.append(target)
+		target.addtractor(self)
+		effects.add(effects.Tractor(self, target))
+	def update(self, scene):
+		for target in list(self.targets):
+			dx, dy = target.x - self.x, target.y - self.y
+			print target, dx, dy, self.shootrange
+			if dx**2 + dy**2 > self.shootrange**2 or not target.alive or self.hp <= 0:
+				target.removetractor(self)
+				self.targets.remove(target)
 	def handleintruders(self, intruders):
-		if self.target:
+		if len(self.targets) >= self.targetlimit:
 			return
 		Turret.handleintruders(self, intruders)
 	def hurt(self, dhp):
 		Turret.hurt(self, dhp)
-		if self.hp <= 0 and self.target:
-			self.target.removetractor(self)
+		if self.hp <= 0:
+			for target in self.targets:
+				target.removetractor(self)
 
 class LazorTurret(Turret):
 	btype = "lazorturret"
@@ -236,7 +241,7 @@ class TeslaTurret(Turret):
 
 	def handleintruders(self, intruders):
 		self.t += 1
-		if self.t >= self.chargetime and intruders:
+		if self.t >= self.chargetime and intruders and self.hp > 0:
 			# fire at whatever will cause the most splash damage
 			targets = [i for i in intruders if (i.x-self.x)**2 + (i.y-self.y)**2 < self.shootrange ** 2]
 			if not targets: return

@@ -99,12 +99,14 @@ class Spark(object):
 class Tractor(object):
 	color = 255,0,128
 	width = 4
-	def __init__(self, source):
+	def __init__(self, source, target):
 		self.source = source
-		self.target = source.target
+		self.target = target
 		self.t = 0
+		self.alive = True
 	def update(self):
-		if self.source.target is not self.target:
+		self.y = (self.source.y + self.target.y) / 2.
+		if self.target not in self.source.targets:
 			self.alive = False
 	def render(self, screen, looker=None):
 		looker = looker or camera
