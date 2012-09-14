@@ -300,8 +300,7 @@ class PlayScene:
 		self.player = sprite.You(self.cx, self.cy + 1)
 		self.player.lookatme()
 		self.sprites = [self.player]
-		for _ in range(10):
-			self.sprites.append(sprite.Alien(self.cx + random.uniform(-30, 30), self.cy + random.uniform(-30, 30)))
+		self.explored = set()   # sectors that have been populated by free-range aliens
 		self.shots = []
 		self.poll_countdown = 0
 		self.poll = []
@@ -323,7 +322,7 @@ class PlayScene:
 	def empty_tile(self, x, y, exclude=None):
 		p = terrain.toiModel(x, y)
 		b = self.potato.buildings_by_coord.get(p)
-		return b == None or b == exclude
+		return b == None or b is exclude
 	
 	def process_input(self, events, pressed):
 		building_menu = False
@@ -469,6 +468,11 @@ class PlayScene:
 		if len(self.poll) == 0 and self.poll_countdown < 0:
 			self.poll_countdown = 10 * settings.fps
 		worldmap.killtime(0.01)  # Helps remove jitter when exploring
+
+		# TODO: this could just as easily be called once every 100 frames or so.
+		# Populate nearby sectors with aliens
+		if not self.battle:
+			self.explore()
 		
 		if self.battle != None:
 			self.battle.update(self)
@@ -476,6 +480,7 @@ class PlayScene:
 				self.pendingbattle = 17  # dummy number
 		
 		for s in self.sprites: s.update(self)
+		self.player.update(self)
 		for s in self.shots:
 			s.update(self)
 			s.handlealiens(self.sprites)
@@ -505,6 +510,28 @@ class PlayScene:
 					self.pendingbattle = None
 		elif self.blinkt:
 			self.blinkt -= 1
+
+	# populate nearby sectors and remove aliens that are too far afield
+	def explore(self):
+		import time
+		t0 = time.time()
+		sx0, sy0 = self.get_current_sector()
+		# TODO: look into performance
+		nexplored = set((sx0+dx, sy0+dy) for dx in (-1,0,1) for dy in (-1,0,1))
+		# remove aliens that are way out there
+		self.sprites = [s for s in self.sprites if s is self.player or s.getsector() in nexplored]
+		# populate sectors that are newly explored
+		# TODO: seed RNG based on sector so you get aliens in the same place?
+		nnew = len(nexplored - self.explored)
+		for sx, sy in nexplored - self.explored:
+			for _ in range(4):  # TODO: more and bigger aliens depending on how far out you are.
+				x, y = (sx + random.random()) * 60., (sy + random.random()) * 60.
+				# TODO: don't spawn inside a base
+				if not terrain.isunderwater(*terrain.toRender(x, y)):
+					self.sprites.append(sprite.Alien(x, y))
+		self.explored = nexplored
+		if nnew:
+			print("Explored %s new sectors in %.3fs" % (nnew, time.time() - t0))
 	
 	def summon_bots(self):
 		self.next = DeployBotsScene(self)
@@ -539,6 +566,7 @@ class PlayScene:
 					px, py = camera.screenpos(structure.x, structure.y, structure.z - 20)
 					labels.append([img, px-img.get_width()//2, py])
 			entities = structures + self.sprites + self.shots
+#			entities = structures + [self.player] + self.shots
 			if self.battle != None:
 				entities += self.battle.get_sprites()
 		
