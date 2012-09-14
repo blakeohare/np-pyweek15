@@ -16,6 +16,7 @@ from src import effects
 from src import border
 
 from src.font import get_text
+from src.font import get_tiny_text
 from src.images import get_image
 
 
@@ -614,7 +615,7 @@ class ToolBar:
 			'main' : {
 				'b': (1, "Build (b)", 'main_build', 'build', None),
 				'd': (2, "Demolish (d)", 'main_demolish', 'demolish', None),
-				's': (3, "Summon Bots (s)", 'main_bots', 'main', self.summon_bots)
+				'e': (3, "Deploy Bots (e)", 'main_bots', 'main', self.summon_bots)
 			},
 			
 			'build' : {
@@ -655,6 +656,33 @@ class ToolBar:
 			'era_space' : {
 				's' : (1, "Build Launch Site (s)", 'build_launchsite', 'build_launchsite', None)
 			}
+		}
+		
+		self.tiny_captions = {
+			'era_landing': "Landing",
+			'era_lowtech': "LowTech",
+			'era_medtech': "MedTech",
+			'era_hightech': "HighTech",
+			'era_space': "Launch Site",
+			'main_build': "Build",
+			'main_demolish': "Demolish",
+			'main_bots': "Deploy Bots",
+			'build_greenhouse': "Greenhouse",
+			'build_medicaltent': "Med. Tent",
+			'build_turret': "Turret",
+			'build_beacon': "Beacon",
+			'build_farm': "Farm",
+			'build_resevoir': "Resevoir",
+			'build_fireturret': "Fire Tur.",
+			'build_drill': "Drill",
+			'build_quarry': "Quarry",
+			'build_foundry': "Foundry",
+			'build_radar': "Radar",
+			'build_teslaturret': "Tesla Tur.",
+			'build_machinerylab': "Mach. Lab",
+			'build_lazorturret': "Lazor Tur.",
+			'build_sciencelab': "Science Lab",
+			'build_launchsite': "Launch Site"
 		}
 		
 		eras = structure.get_eras()
@@ -893,5 +921,7 @@ class ToolBar:
 				1)
 		
 		if hotkey != None:
-			screen.blit(get_text(hotkey.upper(), (255, 255, 255), 12), (x + 40, y + 22))
-		
+			screen.blit(get_text(hotkey.upper(), (255, 255, 255), 12), (x + 40, y + 15))
+			tc = self.tiny_captions.get(id, None)
+			if tc != None:
+				screen.blit(get_tiny_text(tc), (x, y + 23))
