@@ -306,7 +306,7 @@ class PlayScene:
 		self.shots = []
 		self.poll_countdown = 0
 		self.poll = []
-		self.toolbar = ToolBar()
+		self.toolbar = ToolBar(self)
 		self.last_width = 400
 		self.build_mode = None
 		self.client_token = [
@@ -628,7 +628,8 @@ class PlayScene:
 			pygame.draw.rect(screen, (0,0,0), (0,h-sh,w,sh), 0)
 
 class ToolBar:
-	def __init__(self):
+	def __init__(self, playscene):
+		self.playscene = playscene
 		self.bg = None
 		self.mode = 'main'
 		self.hovering = -1
@@ -745,6 +746,7 @@ class ToolBar:
 		buttons['era_medtech'] = buttons['build_radar']
 		buttons['era_hightech']= buttons['build_lazorturret']
 		buttons['era_space']   = buttons['build_launchsite']
+		buttons['locked'] = get_image('toolbar/locked.png')
 		self.details_bg = None
 		self.caption_bg = None
 
@@ -803,18 +805,26 @@ class ToolBar:
 			self.mode = 'era_' + s[1]
 		
 	
+	def is_available(self, id, playscene):
+		if id.startswith('build_'):
+			if playscene.potato.is_building_available(id.split('_')[1]):
+				return True
+			return False
+		return True
+	
 	def select_item(self, item, playscene):
-		action = item[4]
-		next_mode = item[3]
-		
-		if action != None:
-			action(playscene)
-		
-		self.mode = next_mode
-		
-		playscene.build_mode = None
-		if self.mode.startswith('build_'):
-			playscene.build_mode = self.mode.split('_')[1]
+		if self.is_available(item[2], playscene):
+			action = item[4]
+			next_mode = item[3]
+			
+			if action != None:
+				action(playscene)
+			
+			self.mode = next_mode
+			
+			playscene.build_mode = None
+			if self.mode.startswith('build_'):
+				playscene.build_mode = self.mode.split('_')[1]
 	
 	def press_button(self, column, playscene):
 		playscene.build_mode = None
@@ -856,9 +866,16 @@ class ToolBar:
 				index = item[0]
 				caption = item[1]
 				button_key = item[2]
-				self.draw_button(button_key, index, screen, caption, key.upper())
-				if self.hovering == index:
-					self.render_details_menu(item, screen)
+				
+				if self.is_available(button_key, self.playscene):
+					
+					self.draw_button(button_key, index, screen, caption, key.upper())
+					if self.hovering == index:
+						self.render_details_menu(item, screen)
+				else:
+					self.draw_button('locked', index, screen, "", "")
+					if self.hovering == index:
+						self.render_details_menu((index, "Conduct Research to Unlock", 'locked', 'locked', None), screen)
 		
 		if self.mode != 'main':
 			self.draw_button('back', 0, screen, "Back (ESC)")
@@ -933,6 +950,8 @@ class ToolBar:
 				caption = "Build Structure"
 			elif target == 'main_bots':
 				caption = "Deploy Bots"
+			elif target == 'locked':
+				caption = "Research to Unlock"
 			
 			if caption != None:
 				text = get_text(caption, (255, 255, 255), 18)
