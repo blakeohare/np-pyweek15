@@ -2,6 +2,7 @@ import pygame
 from src import scenefactory, util
 from src.images import get_image
 from src.font import get_text
+from src import jukebox
 
 page1 = util.trim("""
 They say that in these enlightened times, society has
@@ -75,7 +76,7 @@ class StoryScene:
 			self.next = scenefactory.build_scene('title', [])
 	
 	def update(self):
-		pass
+		jukebox.ensure_playing('groovycolony')
 	
 	# TODO: fade transitions
 	
@@ -125,6 +126,7 @@ class CreditsScene:
 	
 	def update(self):
 		self.counter += 1
+		jukebox.ensure_playing('credits')
 	
 	def render(self, screen):
 		screen.fill((0, 0, 0))

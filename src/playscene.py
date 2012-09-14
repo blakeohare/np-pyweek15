@@ -3,6 +3,7 @@ import time, random
 
 from src import camera
 from src import data
+from src import jukebox
 from src import network
 from src import settings
 from src import sprite
@@ -37,6 +38,7 @@ class LoadingScene:
 		pass
 	
 	def update(self):
+		jukebox.ensure_playing(None)
 		if self.poll.has_response():
 			response = self.poll.get_response()
 			if response.get('success', False):
@@ -441,6 +443,7 @@ class PlayScene:
 		return (util.floor(x // 60), util.floor(y // 60))
 	
 	def update(self):
+		jukebox.ensure_playing('general')
 		if self.curiosity != None:
 			self.curiosity.update()
 			if self.curiosity.is_done():

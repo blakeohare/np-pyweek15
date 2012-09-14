@@ -4,7 +4,7 @@ import os
 from collections import defaultdict
 
 from src import menus
-from src import worldmap, settings, sprite, structure, terrain, title
+from src import worldmap, settings, sprite, structure, terrain, title, jukebox
 from src.font import get_text
 # types: key, type, mouseleft, mouseright, mousemove
 # action: left, right, up down, build, enter, demolish
@@ -139,6 +139,8 @@ def main():
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				scene = None
+			elif event.type == pygame.USEREVENT:
+				jukebox.song_ended()
 			elif event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION):
 				x = vscreen.get_width() * event.pos[0] // rscreen.get_width()
 				y = vscreen.get_height() * event.pos[1] // rscreen.get_height()

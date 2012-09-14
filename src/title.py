@@ -1,11 +1,11 @@
 from src.menus import *
 from src.images import get_image
 from src import playscene
-#from src import play
 from src import util
 from src import slideshows
 from src import tutorial
 from src import scenefactory
+from src import jukebox
 
 class TitleScene(UiScene):
 	def __init__(self):
@@ -31,6 +31,7 @@ class TitleScene(UiScene):
 	
 	def update(self):
 		UiScene.update(self)
+		jukebox.ensure_playing('title')
 		if len(self.username.text) == 0:
 			self.button.disable()
 		else:
