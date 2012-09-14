@@ -20,9 +20,10 @@ def update():
 def add(e):
 	effects.append(e)
 
-class LaserBeam(object):
-	color = 255,255,128
-	lifetime = 4
+class Gunshot(object):
+	color = 24,24,24
+	lifetime = 2
+	width = 2
 	def __init__(self, x0, y0, z0, x1, y1, z1):
 		self.x0, self.y0, self.z0 = x0, y0, z0
 		self.x1, self.y1, self.z1 = x1, y1, z1
@@ -36,7 +37,12 @@ class LaserBeam(object):
 		looker = looker or camera
 		p0 = looker.screenpos(self.x0, self.y0, self.z0)
 		p1 = looker.screenpos(self.x1, self.y1, self.z1)
-		pygame.draw.line(screen, self.color, p0, p1, 2)
+		pygame.draw.line(screen, self.color, p0, p1, self.width)
+
+class LaserBeam(Gunshot):
+	color = 255,255,128
+	lifetime = 4
+	width = 2
 
 class LightningBolt(object):
 	color0 = 200,200,255
@@ -69,4 +75,41 @@ class LightningBolt(object):
 				   int(y0*f+y1*(1-f)+random.random()*20-10))
 				   for f in (0.75, 0.5, 0.25)]
 			pygame.draw.lines(screen, self.color1, False, [(x0,y0)] + ps + [(x1,y1)], 1)
+
+
+class Spark(object):
+	color = 255,0,255
+	def __init__(self, x0, y0, z0, x1, y1, z1):
+		self.x0, self.y0, self.z0 = x0, y0, z0
+		self.x1, self.y1, self.z1 = x1, y1, z1
+		self.x, self.y, self.z = x0, y0, z0
+		self.dx, self.dy, self.dz = x1-x0, y1-y0, z1-z0
+		self.d = math.sqrt(dx**2 + dy**2)
+		self.t = 0
+		self.alive = True
+	def update(self):
+		self.t += 1
+		self.alive = self.t <= self.lifetime
+	def render(self, screen, looker=None):
+		looker = looker or camera
+		p0 = looker.screenpos(self.x0, self.y0, self.z0)
+		p1 = looker.screenpos(self.x1, self.y1, self.z1)
+		pygame.draw.line(screen, self.color, p0, p1, 2)
+
+class Tractor(object):
+	color = 255,0,128
+	width = 4
+	def __init__(self, source):
+		self.source = source
+		self.target = source.target
+		self.t = 0
+	def update(self):
+		if self.source.target is not self.target:
+			self.alive = False
+	def render(self, screen, looker=None):
+		looker = looker or camera
+		p0 = looker.screenpos(self.source.x, self.source.y, self.source.z + self.source.h)
+		p1 = looker.screenpos(self.target.x, self.target.y, self.target.z + 2)
+		pygame.draw.line(screen, self.color, p0, p1, self.width)
+
 
