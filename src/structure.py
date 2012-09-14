@@ -204,7 +204,6 @@ class FireTurret(Turret):
 	def update(self, scene):
 		for target in list(self.targets):
 			dx, dy = target.x - self.x, target.y - self.y
-			print target, dx, dy, self.shootrange
 			if dx**2 + dy**2 > self.shootrange**2 or not target.alive or self.hp <= 0:
 				target.removetractor(self)
 				self.targets.remove(target)

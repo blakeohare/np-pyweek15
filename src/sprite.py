@@ -189,7 +189,7 @@ class Attacker(Sprite):
 	attackrange = 1
 	seerange = 6
 	strength = 1
-	shootable = True
+	shootable = False
 
 	def __init__(self, *args, **kw):
 		Sprite.__init__(self, *args, **kw)
@@ -287,6 +287,7 @@ class Attacker(Sprite):
 	
 
 class Alien(Attacker):
+	shootable = True
 
 	def update(self, scene):
 		if self.target:
