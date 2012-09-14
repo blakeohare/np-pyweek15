@@ -33,7 +33,7 @@ class Request(threading.Thread):
 	def update_address(self, new_address):
 		global _server_address
 		_server_address = new_address
-		print("SERVER HAS MOVED TO:", new_address)
+		util.verboseprint("SERVER HAS MOVED TO:", new_address)
 		util.write_file('server.txt', new_address)
 	
 	def run(self):
@@ -44,15 +44,15 @@ class Request(threading.Thread):
 		data = None
 		try:
 			url = _server_address + '/server.py?' + urlencode(self.args)
-			print("Sending: " + url)
+			util.verboseprint("Sending: " + url)
 			c = urlopen(url)
 			raw_bytes = c.read()
 			if 'bytes' in str(type(raw_bytes)): # Ugh, new Python 3 annoyance I learned just now
 				raw_bytes = raw_bytes.decode('utf-8')
 			data = deserialize_thing(raw_bytes)
-			print("RECEIVED: ", data)
+			util.verboseprint("RECEIVED: " + str(data))
 			if data == None:
-				print("RAW DATA:", raw_bytes.replace('<br />', "\n"))
+				util.verboseprint("RAW DATA: " + raw_bytes.replace('<br />', "\n"))
 			c.close()
 			
 			if data != None and data.get('redirect') != None:
