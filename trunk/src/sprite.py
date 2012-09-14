@@ -308,9 +308,12 @@ class Alien(Attacker):
 		self.setheight()
 
 	def render(self, screen, looker=None):
+		looker = looker or camera
+		px, py = self.screenpos(looker)
+		if not looker.isvisible(px, py, 100):
+			return
 		self.rendershadow(screen)
 		self.drawtractor(screen, looker)
-		px, py = self.screenpos(looker)
 		pygame.draw.circle(screen, self.minicolor, (px, py-self.size), self.size)
 
 class Seeker(Attacker):
@@ -322,8 +325,11 @@ class Seeker(Attacker):
 		self.setheight(3)
 
 	def render(self, screen, looker=None):
+		looker = looker or camera
+		px, py = self.screenpos(looker)
+		if not looker.isvisible(px, py, 100):
+			return
 		self.rendershadow(screen)
 		self.drawtractor(screen, looker)
-		px, py = self.screenpos(looker)
 		pygame.draw.circle(screen, self.minicolor, (px, py-self.size), self.size)
 

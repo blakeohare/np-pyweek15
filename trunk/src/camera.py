@@ -31,6 +31,10 @@ def lookat(x, y, z = 0):
 def isvisible(px, py, margin=100):
     return -margin <= px <= settings.sx + margin and -margin <= py <= settings.sy + margin
 
+# This is in pixel coordinates. A completely diff coordinate system.
+def rectvisible(x, y, x1, y1):
+	return x < x0 + settings.sx and x1 > x0 and y < y0 + settings.sy and y1 > y0
+
 
 # A camera centered at the origin
 class camera0:

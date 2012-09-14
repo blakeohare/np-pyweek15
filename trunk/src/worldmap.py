@@ -236,7 +236,7 @@ def killtimequeuesize():
 
 
 def drawscene(screen, entities, cursorpos = None, borders = None):
-    screen.fill((0,0,0))
+#    screen.fill((0,0,0))
     drawpanels(screen, camera.x0//1-settings.sx//2, camera.y0//1-settings.sy // 2, settings.sx, settings.sy)
     if borders:
         for border in borders:
