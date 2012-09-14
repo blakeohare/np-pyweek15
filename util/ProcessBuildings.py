@@ -25,7 +25,7 @@ for building in building_files:
 	for changeTo in (
 		(0, 100, 255, 1, "selection"),
 		(255, 0, 0, 1, "damage"),
-		(None, None, None, 0.5, "disabled")):
+		(100,100,100, 0.3, "disabled")):
 			
 		image = Image.open(full_path)
 		pixels = image.load()
@@ -44,12 +44,12 @@ for building in building_files:
 				a = color[3]
 				
 				
-				if changeTo[3] == 1:
+				if changeTo[0] is not None:
 					r = r // 2 + changeTo[0] // 2
 					g = g // 2 + changeTo[1] // 2
 					b = b // 2 + changeTo[2] // 2
-				else:
-					a = a // 2
+				if changeTo[3] != 1:
+					a = int(a*changeTo[3])
 				
 				pixels[x, y] = (r, g, b, a)
 				

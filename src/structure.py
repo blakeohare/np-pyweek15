@@ -10,6 +10,7 @@ class Structure(object):
 	flashdamage = 0
 	tframe = 0
 	platsurface = None
+	destroyed = False
 	# TODO: handle buildings with bigger footprints than 1x1
 	def __init__(self, user_id, x, y, z=None):
 		self.user_id = user_id
@@ -89,11 +90,15 @@ class Structure(object):
 		if not looker.isvisible(px, py, 100):
 			return
 		self.renderplatform(screen, looker)
+		if self.destroyed:
+			return
 		path = "buildings/selection/%s.png" if self.selected else "buildings/%s.png"
 		if self.flashdamage:
 			if self.flashdamage % 2:
 				path = "buildings/damage/%s.png"
 			self.flashdamage -= 1
+		elif self.hp <= 0:
+			path = "buildings/disabled/%s.png"
 		img = images.get_image(path % self.imagename())
 		ix, iy = img.get_size()
 		y = py-iy+ix//4
@@ -116,6 +121,9 @@ class Structure(object):
 		self.hp = max(self.hp - dhp, 0)
 		self.flashdamage = 5 
 	
+	def destroy(self):
+		self.destroyed = True
+
 	def heal(self, dhp):
 		self.hp = min(self.hp + dhp, self.hp0)
 	

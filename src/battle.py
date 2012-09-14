@@ -89,8 +89,7 @@ class Battle:
 				break
 			r += 0.2
 		alien = btype(X, Y)
-		targets = [b for b in self.buildings if b.attackable and b.hp >= 0]
-		alien.settarget(random.choice(targets))
+		alien.settarget(target)
 		self.attackers.append(alien)
 	
 	def attack_building(self, scene, building):
@@ -115,13 +114,22 @@ class Battle:
 			target = random.choice(targets)
 			self.deploy(scene, target, atype)
 
+		self.hq.attackable = True
+
 		for b in self.buildings:
 			b.handleintruders(self.attackers)
+			if b.btype == "beacon" and b.hp > 0:
+				self.hq.attackable = False
 		
 		for a in self.attackers: a.update(scene)
 		for b in self.buildings: b.update(scene)
 		
 		self.attackers = [a for a in self.attackers if a.alive]
+		
+		if self.is_computer_attacking():
+			for b in self.buildings:
+				if b.hp <= 0 and b is not self.hq:
+					b.destroy()
 	
 	# aliens, seeker bots, projectiles
 	def get_sprites(self):
@@ -182,11 +190,11 @@ class Battle:
 	# actual values are coordinates of the building
 	
 	# TODO: this function should probably be invoked at some point, I imagine.
-	def new_buildings_destroyed(self):
-		dead = [b for b in self.buildings if b is not self.hq and b.hp <= 0]
-		if dead:
-			self.buildings = [b for b in self.buildings if b not in dead]
-		return dead
+#	def new_buildings_destroyed(self):
+#		dead = [b for b in self.buildings if b is not self.hq and b.hp <= 0]
+#		if dead:
+#			self.buildings = [b for b in self.buildings if b not in dead]
+#		return dead
 	
 	# return buildings that have been damaged when a player attacks another player
 	# this will be 

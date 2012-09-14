@@ -298,6 +298,9 @@ class Attacker(Sprite):
 
 class Alien(Attacker):
 	shootable = True
+	hp0 = 10
+	runspeed = 0.3
+	strength = 2
 
 	def update(self, scene):
 		if self.target:
@@ -318,6 +321,9 @@ class Alien(Attacker):
 
 class Seeker(Attacker):
 	minicolor = 200, 200, 200
+	runspeed = 0.3
+	strength = 2
+	hp0 = 10
 
 	def update(self, scene):
 		self.approachtarget(scene)

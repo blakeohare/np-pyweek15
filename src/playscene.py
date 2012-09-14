@@ -505,6 +505,17 @@ class PlayScene:
 				if self.pendingbattle == 17:   # ending a battle
 					# TODO: do logic to apply results
 					if self.battle:
+						for building in self.battle.buildings:
+							if building.destroyed:
+								print "blowing up %s %s" % building.getModelXY()
+								self.blow_stuff_up(*building.getModelXY())
+						if self.battle.is_computer_attacking():
+							 for building in self.battle.buildings:
+							 	if building.hp > 0:
+								 	building.healfull()   # TODO: charge for this valuable service
+						else:
+							 for building in self.battle.buildings:
+							 	building.healfull()
 						self.battle.hq.healfull()   # Repair the HQ after the battle
 						self.battle = None
 						self.pendingbattle = None
@@ -568,6 +579,9 @@ class PlayScene:
 					img = get_text(name, (255, 255, 255), 18)
 					px, py = camera.screenpos(structure.x, structure.y, structure.z - 20)
 					labels.append([img, px-img.get_width()//2, py])
+			# Don't show destroyed buildings outside battle
+			if self.battle is None:
+				structure = [s for s in structures if not s.destroyed]
 			entities = structures + self.sprites + self.shots
 #			entities = structures + [self.player] + self.shots
 			if self.battle != None:
