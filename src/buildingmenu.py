@@ -2,6 +2,7 @@ from src.menus import *
 from src import network, structure, settings
 from src.font import get_tiny_text
 import math
+import random
 
 def abs(x):
 	if x < 0: return -x
@@ -26,18 +27,107 @@ class BuildingMenu(UiScene):
 		right = 295
 		if building.btype == 'hq': 
 			self.init_hq(playscene, left, top, right, bottom)
+		elif building.btype == 'radar':
+			self.init_radar(left, top, right, bottom)
 		elif building.btype == 'machinerylab':
+			top = self.add_title(left, top, "Machinery Lab")
 			self.init_build_bot(1, playscene, left, top, right, bottom)
 		elif building.btype == 'foundry':
+			top = self.add_title(left, top, "Foundry")
 			self.init_build_bot(2, playscene, left, top, right, bottom)
 		elif building.btype == 'sciencelab':
+			top = self.add_title(left, top, "Science Lab")
 			self.init_build_bot(3, playscene, left, top, right, bottom)
-			
-	def init_build_bot(self, type, playscene, left, top, right, bottom):
+		elif building.btype == 'drill':
+			top = self.add_title(left, top, "Drill")
+		elif building.btype == 'quarry':
+			top = self.add_title(left, top, "Quarry")
+			self.init_quarry(left, top, right, bottom)
+		elif building.btype == 'beacon':
+			top = self.add_title(left, top, "Shield Generator")
+			self.init_beacon(left, top, right, bottom)
+		elif building.btype == 'turret':
+			top = self.add_title(left, top, "Basic Turret")
+			self.init_turret(1, left, top, right, bottom)
+		elif building.btype == 'fireturret':
+			top = self.add_title(left, top, "Fire Turret")
+			self.init_turret(2, left, top, right, bottom)
+		elif building.btype == 'teslaturret':
+			top = self.add_title(left, top, "Tesla Turret")
+			self.init_turret(3, left, top, right, bottom)
+		elif building.btype == 'lazorturret':
+			top = self.add_title(left, top, "Laz0r Turret")
+			self.init_turret(4, left, top, right, bottom)
+		elif building.btype == 'medicaltent':
+			top = self.add_title(left, top, "Medical Tent")
+			self.init_medtent(left, top, right, bottom)
+		self.add_cancel_button(left, bottom)
+	
+	def init_turret(self, type, left, top, right, bottom):
+		pass
+	
+	
+	def add_label(self, x, y, text, size):
+		img = get_text(text, (255, 255, 255), size)
+		h = img.get_height()
+		img = Image(x, y, img)
+		self.add_element(img)
+		return h
+	
+	def init_medtent(self, left, top, right, bottom):
+		a = self.building.x * 3 + 13
+		b = self.building.y * 7 + 4
+		papercuts = a % 36
+		facelifts = b % 17
+		warts = (a + b) % 4
 		y = top
-		title = get_text(["Machinery Lab", "Foundry", "Science Lab"][type - 1], (255, 255, 255), 24)
+		y += 4 + self.add_label(left, y, "Papercuts treated: " + str(papercuts), 14)
+		y += 4 + self.add_label(left, y, "Facelifts performed: " + str(facelifts), 14)
+		y += 4 + self.add_label(left, y, "Warts removed: " + str(warts), 14)
+		
+		y += 10
+		y += self.add_label(left, y, "First Aid Advice of the Day:", 14) + 3
+		
+		
+		advice = random.choice([
+			['Undercooked space goats can lead to',
+			 'discoloration of the stool. Do not',
+			 'panic for this is temporary and',
+			 '(relatively) harmless.'],
+			 
+			['lorem ipsum dolar sit amet consicutor', 'lksdfjkldja jfklaj lkj lkf'],
+			['lorem ipsum dolar sit amet consicutor', 'lksdfjkldja jfklaj lkj lkf'],
+			['lorem ipsum dolar sit amet consicutor', 'lksdfjkldja jfklaj lkj lkf'],
+			['lorem ipsum dolar sit amet consicutor', 'lksdfjkldja jfklaj lkj lkf']
+		])
+		
+		for line in advice:
+			img = get_tiny_text(line)
+			self.add_element(Image(left, y, img))
+			y += img.get_height() + 2
+		
+	
+	def init_radar(self, left, top, right, bottom):
+		x, y = self.building.getModelXY()
+		self.radar_signal = network.send_radar(self.user_id, self.playscene.password, int(x), int(y))
+		self.rx = x
+		self.ry = y
+	
+	def add_title(self, left, top, title):
+		y = top
+		title = get_text(title, (255, 255, 255), 24)
 		self.add_element(Image(left, y, title))
 		y += title.get_height() + 5
+		return y
+		
+	def init_build_bot(self, type, playscene, left, top, right, bottom):
+		pass
+	
+	def add_cancel_button(self, left, bottom):
+		self.add_element(Button(left, bottom - 17, "Close", self.dismiss, True))
+	
+	def init_drill(self, playscene, left, top, right, bottom):
+		pass
 	
 	def init_hq(self, playscene, left, top, right, bottom):
 		y = top
@@ -63,11 +153,6 @@ class BuildingMenu(UiScene):
 			"Research will cause a mainframe reboot")))
 		self.add_element(Image(left, y + 5 + 10, get_tiny_text(
 			"which lowers your shields during time.")))
-		
-			
-		
-		self.add_element(Button(left, bottom - 17, "Cancel", self.dismiss, True))
-		
 	
 	def press_hover_region(self, arg):
 		print (arg)
@@ -101,13 +186,6 @@ class BuildingMenu(UiScene):
 		UiScene.update(self)
 		self.playscene.update()
 		
-		if self.initialized == False:
-			if self.building.btype == 'radar':
-				x, y = self.building.getModelXY()
-				self.radar_signal = network.send_radar(self.user_id, self.playscene.password, int(x), int(y))
-				self.rx = x
-				self.ry = y
-			self.initialized = True
 	
 	def render_hq(self, screen):
 		pass
