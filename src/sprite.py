@@ -1,5 +1,5 @@
 import pygame, math, random
-from src import worldmap, camera, settings, terrain, effects
+from src import worldmap, camera, settings, terrain, effects, images
 from src.images import get_image
 
 
@@ -119,19 +119,12 @@ class You(Sprite):
 		self.setheight()
 
 	def render(self, screen):
-		if len(little_yous) == 0:
-			sheet = get_image('playersprite.png')
-			for direction in range(8):
-				for y in range(4):
-					yc = (0, 1, 0, 2)[y]
-					img = pygame.Surface((11, 21)).convert_alpha()
-					img.fill((0, 0, 0, 0))
-					img.blit(sheet, (-11 * direction, -21 * yc))
-					little_yous[(direction, y)] = img
+		if not little_yous:
+			little_yous.update(images.spritesheet('playersprite.png', 8, 3))
 		i = 0
 		if self.moving:
 			i = (self.counter // 3) % 4
-		img = little_yous[(self.last_direction, i)]
+		img = little_yous[(self.last_direction, (0,1,0,2)[i])]
 		
 		self.rendershadow(screen)
 		px, py = self.screenpos()
@@ -301,6 +294,9 @@ class Alien(Attacker):
 	hp0 = 10
 	runspeed = 0.3
 	strength = 2
+	frames = {}
+	fname = "purplealien.png"
+	fcounter = 0
 
 	def update(self, scene):
 		if self.target:
@@ -316,8 +312,13 @@ class Alien(Attacker):
 		if not looker.isvisible(px, py, 100):
 			return
 		self.rendershadow(screen)
+		if not self.frames:
+			self.frames.update(images.spritesheet(self.fname, 4, 3))
 		self.drawtractor(screen, looker)
-		pygame.draw.circle(screen, self.minicolor, (px, py-self.size), self.size)
+		self.fcounter += 1
+		a = [0,1,0,2][int(self.fcounter * self.v * 3) % 4] if self.vx or self.vy else 0
+		frame = self.frames[(self.last_direction//2, a)]
+		screen.blit(frame, (px-10, py-15))
 
 class Seeker(Attacker):
 	minicolor = 200, 200, 200
@@ -336,6 +337,5 @@ class Seeker(Attacker):
 		if not looker.isvisible(px, py, 100):
 			return
 		self.rendershadow(screen)
-		self.drawtractor(screen, looker)
 		pygame.draw.circle(screen, self.minicolor, (px, py-self.size), self.size)
 
