@@ -129,3 +129,23 @@ building_size = {
 	'teslaturret': 1,
 	'resevoir': 2
 }
+
+building_research = {
+	'hq': 0,
+	'greenhouse': 0,
+	'medicaltent': 0,
+	'turret': 0,
+	'farm': 50,
+	'quarry': 75,
+	'resevoir': 100,
+	'beacon': 150,
+	'drill': 200,
+	'fireturret': 225,
+	'radar': 250,
+	'foundry': 275,
+	'machinerylab': 300,
+	'teslaturret': 325,
+	'lazorturret': 350,
+	'sciencelab': 400,
+	'launchsite': 600
+}
