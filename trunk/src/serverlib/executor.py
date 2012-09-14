@@ -49,6 +49,11 @@ def do_things(action, args):
 					user_id,
 					args.get('rx', None),
 					args.get('ry', None))
+			elif action == 'research':
+				from serverlib import research
+				return research.apply_research(
+					user_id,
+					args.get('type', None))
 			else:
 				return { 'success': False, 'message': "Unrecognized command" }
 		else:
