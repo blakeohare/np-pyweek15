@@ -1,5 +1,5 @@
 import pygame
-from src import camera, images, terrain, util, effects
+from src import camera, images, terrain, util, effects, settings
 
 class Structure(object):
 	minicolor = 192, 192, 192
@@ -278,6 +278,15 @@ _structure_info = [
 	
 	['launchsite',     SPACE_ERA,    2, [],              0, 0, 0, 300, 0, 0, 0,   "Launch Site",             "Detects your closest neighbors"]
 ]
+
+for i in range(len(_structure_info)):
+	row = _structure_info[i]
+	key = row[0]
+	
+	j = 0
+	while j < 6:
+		row[j + 4] = settings.building_cost[key][j]
+		j += 1
 
 def get_structure_name(id):
 	return _structure_by_id[id][-2]
