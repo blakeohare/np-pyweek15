@@ -26,6 +26,18 @@ class BuildingMenu(UiScene):
 		right = 295
 		if building.btype == 'hq': 
 			self.init_hq(playscene, left, top, right, bottom)
+		elif building.btype == 'machinerylab':
+			self.init_build_bot(1, playscene, left, top, right, bottom)
+		elif building.btype == 'foundry':
+			self.init_build_bot(2, playscene, left, top, right, bottom)
+		elif building.btype == 'sciencelab':
+			self.init_build_bot(3, playscene, left, top, right, bottom)
+			
+	def init_build_bot(self, type, playscene, left, top, right, bottom):
+		y = top
+		title = get_text(["Machinery Lab", "Foundry", "Science Lab"][type - 1], (255, 255, 255), 24)
+		self.add_element(Image(left, y, title))
+		y += title.get_height() + 5
 	
 	def init_hq(self, playscene, left, top, right, bottom):
 		y = top

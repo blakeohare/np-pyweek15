@@ -32,7 +32,8 @@ class MagicPotato:
 		self.borders_by_user = {}
 		self.buildings_available = {}
 		self.bytes_stolen = 0
-
+		self.unlock = False
+		
 		# Hack time. Since the potato instance is a singleton, might as well make it a global :P
 		global hotpotato
 		hotpotato = self
@@ -73,6 +74,8 @@ class MagicPotato:
 		
 	
 	def is_building_available(self, type):
+		if self.unlock: return True
+		
 		if settings.building_research.get(type) == 0:
 			return True
 		if self.buildings_available.get(type) == None:
