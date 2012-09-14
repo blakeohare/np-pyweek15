@@ -312,7 +312,7 @@ class MagicPotato:
 				self.escrow[key] -= debit
 				self.resources[key] += debit
 			elif amt < 0:
-				self.resources[key] -= amt
+				self.resources[key] += amt
 				self.escrow[key] = 0
 	
 	def get_user_name(self, user_id):
