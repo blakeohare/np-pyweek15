@@ -657,50 +657,54 @@ class ToolBar:
 			},
 			
 			'build' : {
-				'a': (1, "Landing Equipment (e)", 'era_landing', 'era_landing', None),
-				'w': (2, "Low-Tech Phase (w)", 'era_lowtech', 'era_lowtech', None),
-				'e': (3, "Medium-Tech Phase (d)", 'era_medtech', 'era_medtech', None),
-				'g': (4, "High-Tech Phase (g)", 'era_hightech', 'era_hightech', None),
-				's': (5, "Space Travel Phase (s)", 'era_space', 'era_space', None)
+				'r': (1, "Resource Generating (r)", 'era_landing', 'era_landing', None),
+				'd': (2, "Defensive Structures (d)", 'era_lowtech', 'era_lowtech', None),
+				'f': (3, "Offensive Structures (f)", 'era_medtech', 'era_medtech', None),
+				's': (4, "Miscellaneous (s)", 'era_hightech', 'era_hightech', None)
+				#'s': (5, "Launch", 'era_space', 'era_space', None)
 			},
 			
+			# Landing == Resources
 			'era_landing' : {
 				'g': (1, "Build Green House (g)", 'build_greenhouse', 'build_greenhouse', None),
-				'e': (2, "Build Medical Tent (e)", 'build_medicaltent', 'build_medicaltent', None),
-				't': (3, "Build Basic Turret (t)", 'build_turret', 'build_turret', None),
-				'b': (4, "Build Beacon (b)", 'build_beacon', 'build_beacon', None)
+				'f': (2, "Build Farm (f)", 'build_farm', 'build_farm', None),
+				'd': (3, "Build Drill (d)", 'build_drill', 'build_drill', None),
+				'r': (4, "Build Resevoir (r)", 'build_resevoir', 'build_resevoir', None),
+				'q': (5, "Build Quarry (q)", 'build_quarry', 'build_quarry', None)
 			},
 			
+			# LowTech == Defense
 			'era_lowtech' : {
-				'f': (1, "Build Farm (f)", 'build_farm', 'build_farm', None),
-				'r': (2, "Build Resevoir (r)", 'build_resevoir', 'build_resevoir', None),
-				't': (3, "Build Fire Turret (t)", 'build_fireturret', 'build_fireturret', None),
-				'd': (4, "Build Drill (d)", 'build_drill', 'build_drill', None),
-				'q': (5, "Build Quarry (q)", 'build_quarry', 'build_quarry', None),
-				'y': (6, "Build Foundry (y)", 'build_foundry', 'build_foundry', None)
+				'b': (1, "Build Beacon (b)", 'build_beacon', 'build_beacon', None),
+				't': (2, "Build Basic Turret (t)", 'build_turret', 'build_turret', None),
+				'f': (3, "Build Fire Turret (f)", 'build_fireturret', 'build_fireturret', None),
+				's': (4, "Build Tesla Turret (s)", 'build_teslaturret', 'build_teslaturret', None),
+				'z': (5, "Build Laz0r Turret (z)", 'build_lazorturret', 'build_lazorturret', None)
 			},
 			
+			# Med Tech == Offense
 			'era_medtech' : {
-				'r' : (1, "Build Radar (r)", 'build_radar', 'build_radar', None),
-				't' : (2, "Build Tesla Turret (t)", 'build_teslaturret', 'build_teslaturret', None),
-				'a' : (3, "Build Machinery Lab (a)", 'build_machinerylab', 'build_machinerylab', None)
+				'a': (1, "Build Machinery Lab (a)", 'build_machinerylab', 'build_machinerylab', None),
+				's': (2, "Build Science Lab (s)", 'build_sciencelab', 'build_sciencelab', None),
+				'f': (3, "Build Foundry (f)", 'build_foundry', 'build_foundry', None)
 			},
 			
+			# High Tech == Misc
 			'era_hightech' : {
-				't' : (1, "Build Laz0r Turret (t)", 'build_lazorturret', 'build_lazorturret', None),
-				's' : (2, "Build Science Lab (s)", 'build_sciencelab', 'build_sciencelab', None)
+				'e': (1, "Build Medical Tent (e)", 'build_medicaltent', 'build_medicaltent', None),
+				'r': (2, "Build Radar (r)", 'build_radar', 'build_radar', None),
+				's': (3, "Build Launch Site (s)", 'build_launchsite', 'build_launchsite', None)
 			},
 			
 			'era_space' : {
-				's' : (1, "Build Launch Site (s)", 'build_launchsite', 'build_launchsite', None)
 			}
 		}
 		
 		self.tiny_captions = {
-			'era_landing': "Landing",
-			'era_lowtech': "LowTech",
-			'era_medtech': "MedTech",
-			'era_hightech': "HighTech",
+			'era_landing': "Resource",
+			'era_lowtech': "Defensive",
+			'era_medtech': "Offensive",
+			'era_hightech': "Misc.",
 			'era_space': "Launch Site",
 			'main_build': "Build",
 			'main_demolish': "Demolish",
@@ -912,13 +916,13 @@ class ToolBar:
 			caption = None
 			if target.startswith('era_'):
 				if target == 'era_landing':
-					caption = "Landing Equipment"
+					caption = "Resource Generating"
 				elif target == 'era_lowtech':
-					caption = "Low-Tech Equipment"
+					caption = "Defensive Structures"
 				elif target == 'era_medtech':
-					caption = "Medium-Tech Equipment"
+					caption = "Offensive Structures"
 				elif target == 'era_hightech':
-					caption = "High-Tech Equipment"
+					caption = "Miscellaneous"
 				else:
 					caption = "Space Travel"
 			elif target == 'main_demolish':
