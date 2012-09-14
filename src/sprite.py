@@ -41,6 +41,10 @@ class Sprite(object):
 	def getModelXY(self):
 		return terrain.toModel(self.x, self.y)
 
+	def getsector(self):
+		sx, sy = self.getModelXY()
+		return sx//60, sy//60
+
 	def setModelXY(self, x, y):
 		self.x, self.y = terrain.toRender(self.x - .5, self.y - .5)
 
