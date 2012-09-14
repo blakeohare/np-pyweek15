@@ -1,5 +1,5 @@
 import pygame, math, random
-from src import worldmap, camera, settings, terrain
+from src import worldmap, camera, settings, terrain, effects
 from src.images import get_image
 
 
@@ -284,7 +284,13 @@ class Attacker(Sprite):
 	def drawmini(self, surf, x0, y0):
 		px, py = int((self.x - x0)//1), int((-self.y + y0)//1)
 		surf.set_at((px, py), self.minicolor)
-	
+
+	def drawtractor(self, screen, looker=None):
+		if not self.tractors: return
+		looker = looker or camera
+		x0, y0 = looker.screenpos(self.x, self.y, self.z + 3)
+		w, h = 3+int(random.random() * 6), 3+int(random.random()*6)
+		pygame.draw.rect(screen, effects.Tractor.color, (x0-w,y0-h,2*w,2*h))
 
 class Alien(Attacker):
 	shootable = True
@@ -299,6 +305,7 @@ class Alien(Attacker):
 
 	def render(self, screen, looker=None):
 		self.rendershadow(screen)
+		self.drawtractor(screen, looker)
 		px, py = self.screenpos(looker)
 		pygame.draw.circle(screen, self.minicolor, (px, py-self.size), self.size)
 
@@ -312,6 +319,7 @@ class Seeker(Attacker):
 
 	def render(self, screen, looker=None):
 		self.rendershadow(screen)
+		self.drawtractor(screen, looker)
 		px, py = self.screenpos(looker)
 		pygame.draw.circle(screen, self.minicolor, (px, py-self.size), self.size)
 

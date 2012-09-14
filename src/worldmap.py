@@ -226,7 +226,7 @@ def killtime(dt=0):
     while time.time() < tf:
         dt = tf - time.time()
         m = terrain.thinkparcels(0.5 * dt)
-        m += thinkpanels(0.4 * dt) 
+        m += thinkpanels(0.4 * dt)
         m += thinkminimap(0.1 * dt)
         if not m: break
         n += m

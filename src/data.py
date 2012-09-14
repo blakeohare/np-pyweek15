@@ -29,6 +29,10 @@ class MagicPotato:
 		self.sector_by_user = {}
 		self.user_by_sector = {}
 		self.borders_by_user = {}
+
+		# Hack time. Since the potato instance is a singleton, might as well make it a global :P
+		global hotpotato
+		hotpotato = self
 		
 		# There are resources and escrow resources.
 		# Resources represents what the user will perceive.
