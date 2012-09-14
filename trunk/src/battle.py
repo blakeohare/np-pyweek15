@@ -30,7 +30,7 @@ class Battle:
 		if self.is_computer_attacking():
 			self.alienq = [
 				(t, sprite.Alien)
-				for t in range(30, 40, 10)
+				for t in range(30, 400, 10)
 			]
 		else:
 			self.nbots0 = 40

@@ -8,6 +8,7 @@ class Structure(object):
 	attackable = False
 	healthbarheight = 24
 	flashdamage = 0
+	tframe = 0
 	# TODO: handle buildings with bigger footprints than 1x1
 	def __init__(self, user_id, x, y, z=None):
 		self.user_id = user_id
@@ -36,9 +37,9 @@ class Structure(object):
 
 	def renderplatform(self, screen, looker=None):
 		looker = looker or camera
+		if self.landing_hack: return
 		# TODO: this should probably be cached into an image
 		x, y, z = self.x, self.y, self.z
-		# TODO: this better
 		if self.size == 1:
 			z0, z1, z2, z3 = terrain.ihcorners(x, y)
 			p0,p1,p2,p3,p4,p5,p6 = [looker.screenpos(a,b,c) for a,b,c in
@@ -56,10 +57,9 @@ class Structure(object):
 			rightps = t1, b2, b3, b4, t2
 			topps = t0, t1, t2, t3
 
-		if not self.landing_hack:
-			pygame.draw.polygon(screen, (0,100,100), leftps)   # left panel
-			pygame.draw.polygon(screen, (0,50,50), rightps)    # right panel
-			pygame.draw.polygon(screen, (0,70,70), topps)      # top panel
+		pygame.draw.polygon(screen, (70,70,70), leftps)   # left panel
+		pygame.draw.polygon(screen, (30,30,30), rightps)    # right panel
+		pygame.draw.polygon(screen, (50,50,50), topps)      # top panel
 
 	def renderhealthbar(self, surf, looker=None):
 		looker = looker or camera
@@ -70,6 +70,9 @@ class Structure(object):
 		pygame.draw.rect(surf, (100,0,0), (px+1, py+1, self.hp0*2, 4))
 		if self.hp > 0:
 			pygame.draw.rect(surf, (0,255,0), (px+1, py+1, self.hp*2, 4))
+
+	def imagename(self):
+		return self.btype
 
 	def render(self, screen, looker=None):
 		looker = looker or camera
@@ -82,7 +85,7 @@ class Structure(object):
 			if self.flashdamage % 2:
 				path = "buildings/damage/%s.png"
 			self.flashdamage -= 1
-		img = images.get_image(path % self.btype)
+		img = images.get_image(path % self.imagename())
 		ix, iy = img.get_size()
 		y = py-iy+ix//4
 		screen.blit(img, (px-ix//2, y))
@@ -125,6 +128,7 @@ class Drill(Structure):
 	btype = "drill"
 class Foundry(Structure):
 	btype = "foundry"
+# This now protects your HQ
 class Beacon(Structure):
 	btype = "beacon"
 	attackable = True
@@ -132,13 +136,22 @@ class Beacon(Structure):
 	sparkt = 0
 	def __init__(self, *args, **kw):
 		Structure.__init__(self, *args, **kw)
-#		self.hq = ....
-	def update(self, scene):
+		from src import data
+		p = data.hotpotato
+		bs = p.buildings_by_sector[p.sector_by_user[self.user_id]]
+		self.hq = [b for b in bs if b.btype == "hq"][0]
+	def render(self, *args, **kw):
+		Structure.render(self, *args, **kw)
 		self.sparkt += 1
-		if self.sparkt >= 10:
+		if self.sparkt >= 30 and self.hp > 0:
 			self.sparkt = 0
-#			hq = self.hq
-#			effects.add(effects.Spark(self.x, self.y, self.z + 20, hq.x, hq.y, hq.z + 2)
+			hq = self.hq
+			effects.add(effects.Spark(self.x, self.y, self.z + 22, hq.x, hq.y, hq.z + 10))
+
+	def imagename(self):
+		if self.hp <= 0: return self.btype
+		self.tframe += 1
+		return self.btype + ["", "1", "2", "3"][self.tframe % 8 // 2]
 
 class MachineryLab(Structure):
 	btype = "machinerylab"
@@ -217,12 +230,21 @@ class FireTurret(Turret):
 			for target in self.targets:
 				target.removetractor(self)
 
+	def imagename(self):
+		if self.hp <= 0: return self.btype
+		self.tframe += 1
+		return self.btype + ("1" if self.tframe % 20 > 10 else "")
+
 class LazorTurret(Turret):
 	btype = "lazorturret"
 	strength = 1
 	chargetime = 10
 	def addeffect(self, target):
 		effects.add(effects.LaserBeam(self.x, self.y, self.z + 22, target.x, target.y, target.z + 2))
+	def imagename(self):
+		if self.hp <= 0: return self.btype
+		self.tframe += 1
+		return self.btype + ("1" if self.tframe % 20 > 10 else "")
 
 class TeslaTurret(Turret):
 	btype = "teslaturret"
@@ -249,6 +271,11 @@ class TeslaTurret(Turret):
 				for target in targets]
 			target, collaterals = max(tcs, key = lambda tc: len(tc[1]))
 			self.attack(target, collaterals)
+
+	def imagename(self):
+		if self.hp <= 0: return self.btype
+		self.tframe += 1
+		return self.btype + ("1" if self.tframe % 2 < 1 else "2")
 
 class Resevoir(Structure):
 	btype = "resevoir"

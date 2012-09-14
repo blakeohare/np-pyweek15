@@ -78,23 +78,28 @@ class LightningBolt(object):
 
 
 class Spark(object):
-	color = 255,0,255
+	color = 255,128,255
+	v = 1.0
 	def __init__(self, x0, y0, z0, x1, y1, z1):
 		self.x0, self.y0, self.z0 = x0, y0, z0
-		self.x1, self.y1, self.z1 = x1, y1, z1
+#		self.x1, self.y1, self.z1 = x1, y1, z1
 		self.x, self.y, self.z = x0, y0, z0
 		self.dx, self.dy, self.dz = x1-x0, y1-y0, z1-z0
-		self.d = math.sqrt(dx**2 + dy**2)
-		self.t = 0
+		self.d = math.sqrt(self.dx**2 + self.dy**2)
+		self.t, self.p = 0, -self.v
 		self.alive = True
 	def update(self):
 		self.t += 1
-		self.alive = self.t <= self.lifetime
+		self.p += self.v
+		self.alive = self.p < self.d
 	def render(self, screen, looker=None):
 		looker = looker or camera
-		p0 = looker.screenpos(self.x0, self.y0, self.z0)
-		p1 = looker.screenpos(self.x1, self.y1, self.z1)
-		pygame.draw.line(screen, self.color, p0, p1, 2)
+		for dp in (0.,0.4,0.8):
+			f = (self.p + dp) / self.d
+			if f > 1 or f < 0: continue
+			h = f*(1-f)*150
+			p1 = looker.screenpos(self.x0+self.dx*f, self.y0+self.dy*f, self.z0+self.dz*f+h)
+			pygame.draw.circle(screen, self.color, p1, 3, 1)
 
 class Tractor(object):
 	color = 255,0,128
