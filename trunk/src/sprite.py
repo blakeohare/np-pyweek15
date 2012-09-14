@@ -325,6 +325,9 @@ class Seeker(Attacker):
 	runspeed = 0.3
 	strength = 2
 	hp0 = 10
+	frames = {}
+	fname = "seekerbot.png"
+	fcounter = 0
 
 	def update(self, scene):
 		self.approachtarget(scene)
@@ -337,5 +340,11 @@ class Seeker(Attacker):
 		if not looker.isvisible(px, py, 100):
 			return
 		self.rendershadow(screen)
-		pygame.draw.circle(screen, self.minicolor, (px, py-self.size), self.size)
+		if not self.frames:
+			self.frames.update(images.spritesheet(self.fname, 1, 2))
+		self.drawtractor(screen, looker)
+		self.fcounter += 1
+		a = [0,1][int(self.fcounter * 0.5) % 2]
+		frame = self.frames[(0, a)]
+		screen.blit(frame, (px-12, py-15))
 
