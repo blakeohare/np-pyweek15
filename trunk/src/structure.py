@@ -102,7 +102,7 @@ class Structure(object):
 
 	def hurt(self, dhp):
 		self.hp = max(self.hp - dhp, 0)
-		self.flashdamage = 5
+		self.flashdamage = 5 
 	
 	def heal(self, dhp):
 		self.hp = min(self.hp + dhp, self.hp0)
@@ -127,6 +127,19 @@ class Foundry(Structure):
 	btype = "foundry"
 class Beacon(Structure):
 	btype = "beacon"
+	attackable = True
+	hp0 = 3
+	sparkt = 0
+	def __init__(self, *args, **kw):
+		Structure.__init__(self, *args, **kw)
+#		self.hq = ....
+	def update(self):
+		self.sparkt += 1
+		if self.sparkt >= 10:
+			self.sparkt = 0
+#			hq = self.hq
+#			effects.add(effects.Spark(self.x, self.y, self.z + 20, hq.x, hq.y, hq.z + 2)
+
 class MachineryLab(Structure):
 	btype = "machinerylab"
 class ScienceLab(Structure):
@@ -161,7 +174,8 @@ class Turret(Structure):
 	t = 0
 
 	def addeffect(self, target):
-		pass
+		# TODO: also a small gunshot effect at the top of the turret
+		effects.add(effects.Gunshot(self.x, self.y, self.z + 22, target.x, target.y, target.z + 2))
 
 	def attack(self, target):
 		target.hurt(self.strength)
@@ -175,9 +189,30 @@ class Turret(Structure):
 			target = min(intruders, key = lambda i: (i.x-self.x)**2 + (i.y-self.y)**2)
 			if (target.x - self.x) ** 2 + (target.y - self.y) ** 2 < self.shootrange ** 2:
 				self.attack(target)
-
+# Actually I'm making this into a tractor turret.
 class FireTurret(Turret):
 	btype = "fireturret"
+	h = 24
+	target = None
+	def addeffect(self, target):
+		effects.add(effects.Tractor(self))
+		self.target = target
+		self.target.addtractor(self)
+	def update(self, target):
+		if self.target:
+			dx, dy = self.target.x - self.x, self.target.y - self.y
+			if dx**2 + dy**2 > self.shootrange**2:
+				self.target.removetractor(self)
+				self.target = None
+	def handleintruders(self, intruders):
+		if self.target:
+			return
+		Turret.handleintruders(self, intruders)
+	def hurt(self, dhp):
+		Turret.hurt(self, dhp)
+		if self.hp <= 0 and self.target:
+			self.target.removetractor(self)
+
 class LazorTurret(Turret):
 	btype = "lazorturret"
 	strength = 1

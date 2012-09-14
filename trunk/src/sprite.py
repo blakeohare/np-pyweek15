@@ -195,6 +195,7 @@ class Attacker(Sprite):
 		Sprite.__init__(self, *args, **kw)
 		self.target = None
 		self.path = None
+		self.tractors = []
 
 	def settarget(self, target):
 		self.target = target
@@ -202,13 +203,22 @@ class Attacker(Sprite):
 
 	def setpath(self, path):
 		self.path = path
+	
+	def addtractor(self, tractor):
+		if tractor not in self.tractors:
+			self.tractors.append(tractor)
+	
+	def removetractor(self, tractor):
+		if tractor in self.tractors:
+			self.tractors.remove(tractor)
 
 	def speedfactor(self):
 		v = math.sqrt(self.vx**2 + self.vy**2)
 		if v <= 0: return 1
 		gx, gy = terrain.grad(self.x, self.y)
 		d = (self.vx * gx + self.vy * gy) / v
-		return min(max(1 - 0.15 * d, 0.3), 1)
+		t = 0.3 if self.tractors else 1
+		return min(max(1 - 0.12 * d, 0.4), 1) * t
 
 	def approachtarget(self, scene):
 		self.v = self.runspeed
