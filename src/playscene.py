@@ -22,7 +22,7 @@ from src.images import get_image
 
 
 class LoadingScene:
-	def __init__(self, user_id, password, sector, loc, new):
+	def __init__(self, user_id, password, sector, loc, new, research, buildings):
 		self.next = self
 		self.user_id = user_id
 		self.password = password
@@ -33,6 +33,8 @@ class LoadingScene:
 		self.poll = network.send_poll(user_id, password, sector, {})
 		self.potato = data.MagicPotato()
 		self.loading_x = 200 - get_text("Loading..", (255, 255, 255), 22).get_width() // 2
+		self.potato.bytes_stolen = research
+		self.potato.starting_buildings(buildings)
 	
 	def process_input(self, events, pressed):
 		pass

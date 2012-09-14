@@ -48,7 +48,7 @@ def light_authenticate(user_id, password):
 def heavy_authenticate(user, password, register_if_new=False, is_new=False):
 	failure_message = { 'success': False, 'message': "Invalid username/password." }
 	login_id = util.alphanums(user)
-	result = sql.query("SELECT `user_id`, `password`, `hq_sector`, `hq_loc` FROM `user` WHERE `login_id`=%s LIMIT 1",(login_id,) )
+	result = sql.query("SELECT `user_id`, `password`, `hq_sector`, `hq_loc`, `research` FROM `user` WHERE `login_id`=%s LIMIT 1",(login_id,) )
 	if len(result) == 0:
 		if register_if_new:
 			user_id = add_user(user, password)
@@ -58,12 +58,21 @@ def heavy_authenticate(user, password, register_if_new=False, is_new=False):
 		return failure_message
 	
 	data = result[0]
+	
+	user_id = data['user_id']
+	buildings_db = sql.query("SELECT `type` FROM `research_unlocked` WHERE `user_id` = " + str(user_id))
+	buildings = []
+	for building in buildings_db:
+		buildings.append(building['type'])
+	
 	if data['password'] == password:
 		return {
 			'success': True,
 			'user_id': data['user_id'],
 			'hq': (data['hq_sector'], data['hq_loc']),
-			'is_new': is_new
+			'is_new': is_new,
+			'research': data['research'],
+			'buildings': buildings
 		}
 	else:
 		return failure_message

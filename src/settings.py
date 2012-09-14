@@ -10,7 +10,7 @@ wsx, wsy, wsz = 400, 300, 2
 # minimum horizontal resolution in fullscreen mode
 fsmin = 400
 
-show_verbose_output = False
+show_verbose_output = True
 
 # pick the best resolution for fullscreen mode
 def getfs():
