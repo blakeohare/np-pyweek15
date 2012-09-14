@@ -4,6 +4,7 @@ from src import camera
 from src import util
 from src import network
 from src import border
+from src import settings
 
 def max(a, b): return a if a > b else b
 def min(a, b): return a if a < b else b
@@ -29,6 +30,8 @@ class MagicPotato:
 		self.sector_by_user = {}
 		self.user_by_sector = {}
 		self.borders_by_user = {}
+		self.buildings_available = {}
+		self.bytes_stolen = 0
 
 		# Hack time. Since the potato instance is a singleton, might as well make it a global :P
 		global hotpotato
@@ -63,7 +66,34 @@ class MagicPotato:
 			'silicon': 0,
 			'oil': 0
 		}
+	
+	def is_building_available(self, type):
+		if settings.building_research.get(type) == 0:
+			return True
+		if self.buildings_available.get(type) == None:
+			return False
+		return True
+	
+	def buildings_to_research(self):
+		b = self.bytes()
+		output = []
+		for key in settings.building_research.keys():
+			if key == 'hq': continue
+			if key in self.buildings_available.keys():
+				continue
+			if settings.building_research[key] <= b:
+				output.append(
+					(key, settings.building_research[key]))
 		
+		output.sort(key=lambda x:x[1])
+		return output
+	
+	def bytes(self):
+		return self.bytes_stolen
+	
+	def modify_bytes(self, newbytes):
+		self.bytes_stolen = newbytes
+		self.building_availability_cache = None
 	
 	def get_resource(self, key):
 		return int(self.resources[key] // 10)
