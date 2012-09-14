@@ -10,6 +10,7 @@ class Sprite(object):
 	last_direction = 0
 	vx, vy = 0, 0
 	shootable = False
+	target = None
 	def __init__(self, x, y, z=None):
 		self.vx, self.vy = 0, 0
 		self.x, self.y = terrain.toCenterRender(x, y)
@@ -78,7 +79,7 @@ class Sprite(object):
 	def walk(self, isempty, speedfactor = 1):
 		nx = self.x + self.vx * speedfactor
 		ny = self.y + self.vy * speedfactor
-		if not self.cango(isempty, nx, ny):
+		if not self.cango(isempty, nx, ny, self.target):
 			return False
 		self.x, self.y = nx, ny
 		return True
@@ -179,7 +180,7 @@ class Ray(Sprite):
 
 
 # Alien base class
-class Alien(Sprite):
+class Attacker(Sprite):
 	walkspeed = 0.05
 	runspeed = 0.1
 	hp0 = 3
@@ -209,56 +210,60 @@ class Alien(Sprite):
 		d = (self.vx * gx + self.vy * gy) / v
 		return min(max(1 - 0.15 * d, 0.3), 1)
 
-	def update(self, scene):
-		if self.target:
-			self.v = self.runspeed
-			dx, dy = self.target.x - self.x, self.target.y - self.y
-			if dx**2 + dy**2 < self.attackrange ** 2:
-				self.vx, self.vy = 0, 0
-				self.attack(self.target)
-			# choose the next place to walk to
-			if not self.waypoint:
-				dirs = [(-1,-1),(-1,1),(1,-1),(1,1)]
-				dirs.sort(key = lambda d: -d[0]*dx - d[1]*dy)
-				d0, d1 = dirs[0:2]
-				a0, a1 = d0[0]*dx + d0[1]*dy, d1[0]*dx + d1[1]*dy
-				# first choice of direction with probability a0/(a0+a1)
-				fdir = d0 if random.random() * (a0 + a1) <= a0 else d1
+	def approachtarget(self, scene):
+		self.v = self.runspeed
+		dx, dy = self.target.x - self.x, self.target.y - self.y
+		if dx**2 + dy**2 < self.attackrange ** 2:
+			self.vx, self.vy = 0, 0
+			self.attack(self.target)
+		# choose the next place to walk to
+		if not self.waypoint:
+			dirs = [(-1,-1),(-1,1),(1,-1),(1,1)]
+			dirs.sort(key = lambda d: -d[0]*dx - d[1]*dy)
+			d0, d1 = dirs[0:2]
+			a0, a1 = d0[0]*dx + d0[1]*dy, d1[0]*dx + d1[1]*dy
+			# first choice of direction with probability a0/(a0+a1)
+			fdir = d0 if random.random() * (a0 + a1) <= a0 else d1
+			if self.cango(scene.empty_tile, self.x + fdir[0], self.y + fdir[1], self.target):
+				self.waypoint = self.x + fdir[0], self.y + fdir[1]
+			else:
+				d0 = d0 if fdir == d1 else d1
+				d1 = dirs[2]
+				# second choice of direction with probability 5*a1/(a0+5*a1)
+				fdir = d0
 				if self.cango(scene.empty_tile, self.x + fdir[0], self.y + fdir[1], self.target):
 					self.waypoint = self.x + fdir[0], self.y + fdir[1]
 				else:
-					d0 = d0 if fdir == d1 else d1
-					d1 = dirs[2]
-					# second choice of direction with probability 5*a1/(a0+5*a1)
-#					fdir = d0 if random.random() * (a0 + 5 * a1) <= 5 * a1 else d1
-					fdir = d0
+					fdir = d0 if fdir == d1 else d1
 					if self.cango(scene.empty_tile, self.x + fdir[0], self.y + fdir[1], self.target):
-						self.waypoint = self.x + fdir[0], self.y + fdir[1]
-					else:
-						fdir = d0 if fdir == d1 else d1
-						if self.cango(scene.empty_tile, self.x + fdir[0], self.y + fdir[1], self.target):
-							print("WARNING! Can't go in any of 3 directions?!?!", self.x, self.y)
-						self.waypoint = self.x + fdir[0], self.y + fdir[1]
-			dx, dy = self.waypoint[0] - self.x, self.waypoint[1] - self.y
-			if dx**2 + dy**2 < self.v**2:
-				self.x, self.y = self.waypoint
-				self.waypoint = None
-			else:
-				d = math.sqrt(dx**2 + dy**2)
-				self.move(dx/d, dy/d)
+						print("WARNING! Can't go in any of 3 directions?!?!", self.x, self.y)
+					self.waypoint = self.x + fdir[0], self.y + fdir[1]
+		dx, dy = self.waypoint[0] - self.x, self.waypoint[1] - self.y
+		if dx**2 + dy**2 < self.v**2:
+			self.x, self.y = self.waypoint
+			self.waypoint = None
 		else:
-			if random.random() < 0.1:
-				dx, dy = self.x - scene.player.x, self.y - scene.player.y
-				if dx ** 2 + dy ** 2 < self.seerange ** 2:
-					self.settarget(scene.player)
+			d = math.sqrt(dx**2 + dy**2)
+			self.move(dx/d, dy/d)
+
+	# attack the player if close enough, otherwise go in some random direction
+	def wander(self, scene):
+		if random.random() < 0.1:
+			dx, dy = self.x - scene.player.x, self.y - scene.player.y
+			if dx ** 2 + dy ** 2 < self.seerange ** 2:
+				self.settarget(scene.player)
+			else:
+				self.v = self.walkspeed
+				if self.vx or self.vy:
+					self.move(0, 0)
 				else:
-					self.v = self.walkspeed
-					if self.vx or self.vy:
-						self.move(0, 0)
-					else:
-						dx = 0.707 if random.random() < 0.5 else -0.707
-						dy = 0.707 if random.random() < 0.5 else -0.707
-						self.move(dx, dy)
+					dx = 0.707 if random.random() < 0.5 else -0.707
+					dy = 0.707 if random.random() < 0.5 else -0.707
+					self.move(dx, dy)
+
+	def update(self, scene):
+		if self.target:
+			self.approachtarget(scene)
 		self.walk(scene.empty_tile, self.speedfactor())
 		self.setheight()
 
@@ -270,10 +275,32 @@ class Alien(Sprite):
 		px, py = int((self.x - x0)//1), int((-self.y + y0)//1)
 		surf.set_at((px, py), self.minicolor)
 	
+
+class Alien(Attacker):
+
+	def update(self, scene):
+		if self.target:
+			self.approachtarget(scene)
+		else:
+			self.wander(scene)
+		self.walk(scene.empty_tile, self.speedfactor())
+		self.setheight()
+
 	def render(self, screen, looker=None):
 		self.rendershadow(screen)
 		px, py = self.screenpos(looker)
 		pygame.draw.circle(screen, self.minicolor, (px, py-self.size), self.size)
 
+class Seeker(Attacker):
+	minicolor = 200, 200, 200
 
+	def update(self, scene):
+		self.approachtarget(scene)
+		self.walk(scene.empty_tile, self.speedfactor())
+		self.setheight(3)
+
+	def render(self, screen, looker=None):
+		self.rendershadow(screen)
+		px, py = self.screenpos(looker)
+		pygame.draw.circle(screen, self.minicolor, (px, py-self.size), self.size)
 
