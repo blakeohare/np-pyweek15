@@ -65,12 +65,20 @@ class Border(object):
 			s.fill((0,0,0,0))
 			pygame.draw.lines(s, self.color, False, [(x-x0,y-y0) for x,y in ps])
 			self.surfs.append((x0,y0,s))
+		
+		self.xmin = min(x for x,y,s in self.surfs) - 10
+		self.xmax = max(x+s.get_width() for x,y,s in self.surfs) + 10
+		self.ymin = min(y for x,y,s in self.surfs) - 10
+		self.ymax = max(y+s.get_height() for x,y,s in self.surfs) + 10
 
 	def iswithin(self, x, y):
 		return (x,y) in self.tiles
 
 	def render(self, surf, looker = None):
 		looker = looker or camera
+		
+		if not looker.rectvisible(self.xmin, self.ymin, self.xmax, self.ymax):
+			return
 		
 		if looker is camera:
 			for x, y, s in self.surfs:
@@ -81,19 +89,4 @@ class Border(object):
 			ps = [looker.screenpos(x,y,terrain.iheight(x,y)) for x,y in line]
 			pygame.draw.lines(surf, self.color, False, ps)
 		return
-
-		for (x0,y0), (x1,y1) in self.segs:
-			z0 = terrain.iheight(x0,y0)
-			z1 = terrain.iheight(x1,y1)
-			p0 = looker.screenpos(x0,y0,z0)
-			p1 = looker.screenpos(x1,y1,z1)
-			pygame.draw.line(surf, self.color, p0, p1)
-		return
-		
-		# draw points (for testing)
-		for x, y in self.tiles:
-			z = terrain.iheight(x, y)
-			p = looker.screenpos(x, y, z)
-			surf.set_at(p, self.color)
-
 
