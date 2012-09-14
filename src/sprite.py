@@ -217,7 +217,7 @@ class Attacker(Sprite):
 		if v <= 0: return 1
 		gx, gy = terrain.grad(self.x, self.y)
 		d = (self.vx * gx + self.vy * gy) / v
-		t = 0.3 if self.tractors else 1
+		t = 0.5 if self.tractors else 1
 		return min(max(1 - 0.12 * d, 0.4), 1) * t
 
 	def approachtarget(self, scene):

@@ -117,6 +117,7 @@ class Battle:
 			b.handleintruders(self.aliens)
 		
 		for a in self.aliens: a.update(scene)
+		for b in self.buildings: b.update(scene)
 		
 		self.aliens = [a for a in self.aliens if a.alive]
 	
