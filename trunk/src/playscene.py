@@ -173,7 +173,7 @@ class DeployBotsScene:
 	def deploy(self):
 		if self.target_user > 0:
 			buildings = self.playscene.potato.get_all_buildings_of_player_SLOW(self.target_user)
-			self.playscene.battle = battle.Battle(self.playscene.user_id, buildings, self.target_user)
+			self.playscene.pendingbattle = battle.Battle(self.playscene.user_id, buildings, self.target_user)
 		self.close_menu()
 		
 	def update(self):
@@ -308,6 +308,8 @@ class PlayScene:
 			util.md5(str(time.time()) + "client token for session" + str(self.user_id))[:10],
 			1]
 		self.battle = None
+		self.pendingbattle = None
+		self.blinkt = 0
 	
 	def get_new_client_token(self):
 		self.client_token[1] += 1
@@ -365,7 +367,7 @@ class PlayScene:
 					elif event.type == 'key':
 						if event.down and event.action == 'debug':
 							buildings = self.potato.get_all_buildings_of_player_SLOW(self.user_id)
-							self.battle = battle.Battle(self.user_id, buildings, None)
+							self.pendingbattle = battle.Battle(self.user_id, buildings, None)
 						elif event.down and event.action == 'build':
 							if self.build_mode != None:
 								self.build_thing(self.build_mode)
@@ -484,6 +486,14 @@ class PlayScene:
 			self.sprites.append(self.player)
 			self.player.alive = True
 		effects.update()
+		
+		if self.pendingbattle:
+			self.blinkt += 1
+			if self.blinkt >= 10:
+				self.battle = self.pendingbattle
+				self.pendingbattle = None
+		elif self.blinkt:
+			self.blinkt -= 1
 	
 	def summon_bots(self):
 		self.next = DeployBotsScene(self)
@@ -568,6 +578,13 @@ class PlayScene:
 				screen.blit(img, (left - 5 - img.get_width(), y + 1))
 			
 			y += 20
+
+		if self.blinkt:
+			h = screen.get_height()
+			w = screen.get_width()
+			sh = min(h * self.blinkt // 10, h // 2 + 1)
+			pygame.draw.rect(screen, (0,0,0), (0,0,w,sh), 0)
+			pygame.draw.rect(screen, (0,0,0), (0,h-sh,w,sh), 0)
 
 class ToolBar:
 	def __init__(self):
