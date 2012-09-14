@@ -22,7 +22,7 @@ from src.images import get_image
 
 
 class LoadingScene:
-	def __init__(self, user_id, password, sector, loc, new, research, buildings):
+	def __init__(self, user_id, password, sector, loc, new, research, buildings, unlock):
 		self.next = self
 		self.user_id = user_id
 		self.password = password
@@ -35,7 +35,7 @@ class LoadingScene:
 		self.loading_x = 200 - get_text("Loading..", (255, 255, 255), 22).get_width() // 2
 		self.potato.bytes_stolen = research
 		self.potato.starting_buildings(buildings)
-	
+		self.potato.unlock = unlock
 	def process_input(self, events, pressed):
 		pass
 	
