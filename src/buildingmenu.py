@@ -64,7 +64,29 @@ class BuildingMenu(UiScene):
 		self.add_cancel_button(left, bottom)
 	
 	def init_turret(self, type, left, top, right, bottom):
-		pass
+		description = [[''],
+			# Lines are this long:
+			#"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+			
+			# Basic
+			["Shoots things. Good for some basic",
+			 "defense."],
+			
+			# Fire
+			["Mmmm...Fire"],
+			
+			# Tesla
+			["Bazat!"],
+			
+			# Lazor
+			["PEW PEW!"]
+			][type]
+		
+		y = top
+		for line in description:
+			img = get_tiny_text(line)
+			self.add_element(Image(left, y, img))
+			y += img.get_height() + 3
 	
 	
 	def add_label(self, x, y, text, size):
@@ -95,10 +117,17 @@ class BuildingMenu(UiScene):
 			 'panic for this is temporary and',
 			 '(relatively) harmless.'],
 			 
-			['lorem ipsum dolar sit amet consicutor', 'lksdfjkldja jfklaj lkj lkf'],
-			['lorem ipsum dolar sit amet consicutor', 'lksdfjkldja jfklaj lkj lkf'],
-			['lorem ipsum dolar sit amet consicutor', 'lksdfjkldja jfklaj lkj lkf'],
-			['lorem ipsum dolar sit amet consicutor', 'lksdfjkldja jfklaj lkj lkf']
+			['lorem ipsum dolar sit amet consicutor',
+			 'lksdfjkldja jfklaj lkj lkf'],
+			 
+			['lorem ipsum dolar sit amet consicutor',
+			 'lksdfjkldja jfklaj lkj lkf'],
+			 
+			['lorem ipsum dolar sit amet consicutor',
+			 'lksdfjkldja jfklaj lkj lkf'],
+			
+			['lorem ipsum dolar sit amet consicutor',
+			 'lksdfjkldja jfklaj lkj lkf']
 		])
 		
 		for line in advice:
