@@ -9,6 +9,7 @@ class Structure(object):
 	healthbarheight = 24
 	flashdamage = 0
 	tframe = 0
+	platsurface = None
 	# TODO: handle buildings with bigger footprints than 1x1
 	def __init__(self, user_id, x, y, z=None):
 		self.user_id = user_id
@@ -39,27 +40,35 @@ class Structure(object):
 		looker = looker or camera
 		if self.landing_hack: return
 		# TODO: this should probably be cached into an image
-		x, y, z = self.x, self.y, self.z
-		if self.size == 1:
-			z0, z1, z2, z3 = terrain.ihcorners(x, y)
-			p0,p1,p2,p3,p4,p5,p6 = [looker.screenpos(a,b,c) for a,b,c in
-					((x-1,y,z), (x,y-1,z), (x+1,y,z), (x,y+1,z), (x-1,y,z0), (x,y-1,z1), (x+1,y,z2))]
-			leftps = p0, p4, p5, p1
-			rightps = p1, p5, p6, p2
-			topps = p0, p1, p2, p3
-		elif self.size == 2:
-			z0, z1, z2, z3, z4 = [terrain.iheight(x+dx,y+dy) for dx,dy in
-				[(-2,0),(-1,-1),(0,-2),(1,-1),(2,0)]]
-			b0,b1,b2,b3,b4,t0,t1,t2,t3 = [looker.screenpos(x+a,y+b,c) for a,b,c in
-				[(-2,0,z0), (-1,-1,z1), (0,-2,z2), (1,-1,z3), (2,0,z4),
-				 (-2,0,z),(0,-2,z),(2,0,z),(0,2,z)]]
-			leftps = t0, b0, b1, b2, t1
-			rightps = t1, b2, b3, b4, t2
-			topps = t0, t1, t2, t3
+		if not self.platsurface:
+			x, y, z = self.x, self.y, self.z
+			if self.size == 1:
+				z0, z1, z2, z3 = terrain.ihcorners(x, y)
+				p0,p1,p2,p3,p4,p5,p6 = [looker.screenpos(a,b,c) for a,b,c in
+						((x-1,y,z), (x,y-1,z), (x+1,y,z), (x,y+1,z), (x-1,y,z0), (x,y-1,z1), (x+1,y,z2))]
+				leftps = p0, p4, p5, p1
+				rightps = p1, p5, p6, p2
+				topps = p0, p1, p2, p3
+			elif self.size == 2:
+				z0, z1, z2, z3, z4 = [terrain.iheight(x+dx,y+dy) for dx,dy in
+					[(-2,0),(-1,-1),(0,-2),(1,-1),(2,0)]]
+				b0,b1,b2,b3,b4,t0,t1,t2,t3 = [looker.screenpos(x+a,y+b,c) for a,b,c in
+					[(-2,0,z0), (-1,-1,z1), (0,-2,z2), (1,-1,z3), (2,0,z4),
+					 (-2,0,z),(0,-2,z),(2,0,z),(0,2,z)]]
+				leftps = t0, b0, b1, b2, t1
+				rightps = t1, b2, b3, b4, t2
+				topps = t0, t1, t2, t3
 
-		pygame.draw.polygon(screen, (70,70,70), leftps)   # left panel
-		pygame.draw.polygon(screen, (30,30,30), rightps)    # right panel
-		pygame.draw.polygon(screen, (50,50,50), topps)      # top panel
+			xs, ys, = zip(*(leftps + rightps + topps))
+			x0, y0 = min(xs), min(ys)
+			s = pygame.Surface((max(xs) - x0 + 1, max(ys) - y0 + 1)).convert_alpha()
+			s.fill((0,0,0,0))
+			pygame.draw.polygon(s, (70,70,70), [(x-x0,y-y0) for x,y in leftps])   # left panel
+			pygame.draw.polygon(s, (30,30,30), [(x-x0,y-y0) for x,y in rightps])    # right panel
+			pygame.draw.polygon(s, (50,50,50), [(x-x0,y-y0) for x,y in topps])      # top panel
+			self.platsurface = s, x0+looker.x0, y0+looker.y0
+		s, x0, y0 = self.platsurface
+		screen.blit(s, (x0-looker.x0, y0-looker.y0))
 
 	def renderhealthbar(self, surf, looker=None):
 		looker = looker or camera

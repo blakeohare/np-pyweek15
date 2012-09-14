@@ -469,7 +469,8 @@ class PlayScene:
 		
 		if len(self.poll) == 0 and self.poll_countdown < 0:
 			self.poll_countdown = 10 * settings.fps
-		worldmap.killtime(0.01)  # Helps remove jitter when exploring
+		if self.battle is None:
+			worldmap.killtime(0.01)  # Helps remove jitter when exploring
 
 		# TODO: this could just as easily be called once every 100 frames or so.
 		# Populate nearby sectors with aliens
