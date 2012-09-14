@@ -204,4 +204,8 @@ def send_radar(user_id, password, rx, ry):
 	return _send_command('radar', {
 		'rx': rx,
 		'ry': ry }, user_id, password)
-		
+
+def send_quarry(user_id, password, sector, xy):
+	return _send_command('quarrydata', {
+		'sector': sector,
+		'xy': xy }, user_id, password)

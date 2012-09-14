@@ -54,7 +54,14 @@ def do_things(action, args):
 				return research.apply_research(
 					user_id,
 					args.get('type', None))
+			elif action == 'quarrydata':
+				from serverlib import quarrydata
+				return quarrydata.get_quarry_data(
+					user_id,
+					args.get('sector', None),
+					args.get('xy', None))
 			else:
 				return { 'success': False, 'message': "Unrecognized command" }
+		
 		else:
 			return { 'success': False, 'message': "Invalid username/password." }	

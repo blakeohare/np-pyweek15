@@ -89,6 +89,7 @@ class BuildingMenu(UiScene):
 			y += img.get_height() + 3
 	
 	
+	
 	def add_label(self, x, y, text, size):
 		img = get_text(text, (255, 255, 255), size)
 		h = img.get_height()
@@ -96,6 +97,22 @@ class BuildingMenu(UiScene):
 		self.add_element(img)
 		return h
 	
+	def init_quarry(self, left, top, right, bottom):
+		x, y = self.building.getModelXY()
+		x = int(x // 1)
+		y = int(y // 1)
+		sx = x // 60
+		sy = y // 60
+		x = x % 60
+		y = y % 60
+		
+		
+		self.quarry_done = False
+		self.quarry_analysis = network.send_quarry(
+			self.playscene.user_id, self.playscene.password,
+			str(sx) + '^' + str(sy),
+			str(x) + '^' + str(y))
+		
 	def init_medtent(self, left, top, right, bottom):
 		a = self.building.x * 3 + 13
 		b = self.building.y * 7 + 4
@@ -277,6 +294,31 @@ class BuildingMenu(UiScene):
 			screen.blit(img, (screen.get_width() // 2 - img.get_width() // 2, screen.get_height() // 2 - img.get_height() // 2))
 
 	
+	def render_quarry(self, screen):
+		left = 105
+		top = 90
+		if not self.quarry_done:
+			if self.quarry_analysis.has_response():
+				response = self.quarry_analysis.get_response()
+				y = top
+				if response != None:
+					aluminum = response.get('a', 0)
+					copper = response.get('c', 0)
+					silicon = response.get('s', 0)
+					
+					y += 5 + self.add_label(left, y, settings.RESOURCE_ALUMINUM + ": " + str(aluminum) + " upm", 18)
+					y += 5 + self.add_label(left, y, settings.RESOURCE_COPPER + ": " + str(copper) + " upm", 18)
+					y += 5 + self.add_label(left, y, settings.RESOURCE_SILICON + ": " + str(silicon) + " upm", 18)
+				else:
+					self.add_label(left, y, "Information is not available", 14)
+				self.quarry_done = True
+			img = get_text("Analyzing Soil...", (255, 255, 255), 18)
+			screen.blit(img, (left, top))
+		
+		if self.quarry_done:
+			pass
+				
+	
 	def render(self, screen):
 		self.playscene.render(screen)
 		UiScene.render(self, screen)
@@ -285,7 +327,9 @@ class BuildingMenu(UiScene):
 			self.render_radar(screen)
 		elif self.building.btype == 'hq':
 			self.render_hq(screen)
-		
+		elif self.building.btype == 'quarry':
+			self.render_quarry(screen)
+			
 		i = 0
 		while i < len(self.hover_regions):
 			hr = self.hover_regions[i]
