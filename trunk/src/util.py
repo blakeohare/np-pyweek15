@@ -1,5 +1,6 @@
 import os
 import hashlib
+import time
 
 # a dirty/stupid way to do it but it doesn't need to be fast
 def trim(string):
@@ -53,3 +54,15 @@ def alphanums(string):
 	for char in string:
 		output.append(_alpha.get(char, ''))
 	return ''.join(output)
+
+class Profiler:
+	def __init__(self, name):
+		self.name = name
+		self.start = time.time()
+		
+	def stop(self):
+		diff = int(1000 * (time.time() - self.start))
+		print self.name, diff, 'ms'
+
+def profile(name):
+	return Profiler(name)
