@@ -406,7 +406,14 @@ class PlayScene:
 		
 		cost = structure.get_structure_resources(type)
 		
-		if self.try_spend_resources(cost['food'], cost['water'], cost['aluminum'], cost['copper'], cost['silicon'], cost['oil']):
+		if self.potato.try_spend_resources(
+			cost['food'],
+			cost['water'],
+			cost['aluminum'],
+			cost['copper'],
+			cost['silicon'],
+			cost['oil']):
+			
 			self.poll.append(
 				network.send_build(
 					self.user_id, self.password,
