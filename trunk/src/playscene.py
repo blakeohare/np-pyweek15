@@ -395,17 +395,24 @@ class PlayScene:
 			self.user_id, self.password,
 			sx, sy, x, y, self.get_new_client_token())
 	
+	def show_error(self, string):
+		pass
+	
 	def build_thing(self, type):
 		# TODO: verify you can build this item
 		sx,sy = self.get_current_sector()
 		x,y = self.player.getModelXY()
 		client_token = self.get_new_client_token()
-		self.poll.append(
-			network.send_build(
-				self.user_id, self.password,
-				type,
-				util.floor(sx), util.floor(sy), util.floor(x % 60), util.floor(y % 60), (util.floor(sx), util.floor(sy)), self.potato.last_id_by_sector, client_token)
-			)
+		
+		cost = structure.get_structure_resources(type)
+		
+		if self.try_spend_resources(cost['food'], cost['water'], cost['aluminum'], cost['copper'], cost['silicon'], cost['oil']):
+			self.poll.append(
+				network.send_build(
+					self.user_id, self.password,
+					type,
+					util.floor(sx), util.floor(sy), util.floor(x % 60), util.floor(y % 60), (util.floor(sx), util.floor(sy)), self.potato.last_id_by_sector, client_token)
+				)
 			
 	
 	def get_current_sector(self):

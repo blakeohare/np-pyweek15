@@ -84,3 +84,26 @@ RESOURCE_ALUMINUM = "Shinyium"
 RESOURCE_COPPER = "Rust"
 RESOURCE_SILICON = "Obtainium"
 RESOURCE_OIL = "Dark Chocolate"
+
+
+building_cost = {
+# food, water, aluminum, copper, silicon, oil
+
+'hq':           [50, 50, 100, 0, 0, 0],
+'drill':        [50, 50, 100, 0, 0, 0],
+'foundry':      [50, 50, 100, 0, 0, 0],
+'beacon':       [50, 50, 100, 0, 0, 0],
+'machinerylab': [50, 50, 100, 0, 0, 0],
+'sciencelab':   [50, 50, 100, 0, 0, 0],
+'launchsite':   [50, 50, 100, 0, 0, 0],
+'farm':         [50, 50, 100, 0, 0, 0],
+'greenhouse':   [50, 50, 100, 0, 0, 0],
+'medicaltent':  [50, 50, 100, 0, 0, 0],
+'quarry':       [50, 50, 100, 0, 0, 0],
+'radar':        [50, 50, 100, 0, 0, 0],
+'turret':       [50, 50, 100, 0, 0, 0],
+'fireturret':   [50, 50, 100, 0, 0, 0],
+'lazorturret':  [50, 50, 100, 0, 0, 0],
+'teslaturret':  [50, 50, 100, 0, 0, 0],
+'resevoir':     [50, 50, 100, 0, 0, 0]
+}

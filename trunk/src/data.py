@@ -63,6 +63,23 @@ class MagicPotato:
 	
 	def get_resource(self, key):
 		return int(self.resources[key] // 10)
+	
+	def try_spend_resources(self, f, w, a, c, s, o):
+		if self.resources['food'] < f: return False
+		if self.resources['water'] < w: return False
+		if self.resources['aluminum'] < a: return False
+		if self.resources['copper'] < c: return False
+		if self.resources['silicon'] < s: return False
+		if self.resources['oil'] < o: return False
+		
+		self.resources['food'] -= f
+		self.resources['water'] -= w
+		self.resources['aluminum'] -= a
+		self.resources['copper'] -= c
+		self.resources['silicon'] -= s
+		self.resources['oil'] -= o
+		
+		return True
 		
 	def spend_resource(self, key, amount):
 		self.resources[key] -= amount
