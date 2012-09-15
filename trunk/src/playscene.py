@@ -706,11 +706,16 @@ class PlayScene:
 		
 		px, py = self.player.getModelXY()
 		bords = self.potato.get_borders_near_sector(int(px // 60), int(py // 60))
+		t0 = time.time()
 		for s in self.sprites:
+			# HACK
+			if (s.x - self.player.x) ** 2 + (s.y - self.player.y) ** 2 > 80 ** 2:
+				continue
 			s.update(self)
 			if s.freerange:
 				if any(border.iswithin(s.x, s.y) for border in bords):
 					s.die()
+#		print len(self.sprites), time.time() - t0
 		self.player.update(self)
 		for s in self.shots:
 			s.update(self)
@@ -824,7 +829,9 @@ class PlayScene:
 			# Don't show destroyed buildings outside battle
 			if self.battle is None:
 				structure = [s for s in structures if not s.destroyed]
-			entities = structures + self.sprites + self.shots
+			entities = structures + self.shots
+			# HACK
+			entities += [s for s in self.sprites if (s.x - self.player.x) ** 2 + (s.y - self.player.y) ** 2 < 40 ** 2]
 #			entities = structures + [self.player] + self.shots
 			if self.battle != None:
 				entities += self.battle.get_sprites()

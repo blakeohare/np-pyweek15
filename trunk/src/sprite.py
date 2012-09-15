@@ -1,4 +1,4 @@
-import pygame, math, random
+import pygame, math, random, time
 from src import worldmap, camera, settings, terrain, effects, images, jukebox, network
 from src.images import get_image
 
@@ -347,12 +347,14 @@ class Alien(Attacker):
 		Attacker.__init__(self, x, y)
 
 	def update(self, scene):
+		t0 = time.time()
 		if self.target:
 			self.approachtarget(scene)
 		else:
 			self.wander(scene)
 		self.walk(scene.empty_tile, self.speedfactor())
 		self.setheight()
+#		print time.time() - t0
 
 	def render(self, screen, looker=None):
 		looker = looker or camera
