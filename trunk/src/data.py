@@ -76,6 +76,26 @@ class MagicPotato:
 		# TODO: verify within border
 		return True
 	
+	def is_touching_other_building(self, user_id, sector_x, sector_y, target_x, target_y, building_id):
+		size = structure.get_structure_size(building_id)
+		buildings = self.get_all_buildings_of_player_SLOW(user_id)
+		tx = int(target_x // 1)
+		ty = int(target_y // 1)
+		occupied = {}
+		for building in buildings:
+			x, y = building.getModelXY()
+			x = int(x // 1)
+			y = int(y // 1)
+			for px in range(x - 1, x + size + 1):
+				for py in range(y - 1, y + size + 1):
+					occupied[(px, py)] = True
+		
+		for px in range(tx, tx + size):
+			for py in range(ty, ty + size):
+				if occupied.get((px, py)) != None:
+					return True
+		return False
+	
 	def is_within_sector(self, user_id, sector_x, sector_y, target_x, target_y, building_id):
 		size = structure.get_structure_size(building_id)
 		tx, ty = int(target_x // 1), int(target_y // 1)

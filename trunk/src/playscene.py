@@ -481,6 +481,17 @@ class PlayScene:
 		return not any(border.iswithin(tx, ty) for border in borders)
 	
 	def process_input(self, events, pressed):
+		
+		if self.tutorial:
+			if self.tutorial_instance.current_step == 5:
+				x, y = self.player.getModelXY()
+				if x > 85 and x < 94 and y > 27 and y < 39:
+					self.tutorial_instance.current_step += 1
+			pages = self.tutorial_instance.get_active_dialog()
+			if pages != None:
+				title = self.tutorial_instance.active_step()[0]
+				self.next = TutorialDialogScene(self, pages, title)
+		
 		building_menu = False
 		demolish_building = False
 		attack_building = False  # set to 0, 1, or 2 to be an attack type
@@ -580,7 +591,8 @@ class PlayScene:
 			'count_limit': "You cannot build more buildings of that type.",
 			'outside_sector': "You cannot build that far from your headquarters.",
 			'outside_border': "You must build within your borders.",
-			'insufficient_resources': "Insufficient resources."
+			'insufficient_resources': "Insufficient resources.",
+			'adjacency_error': "You cannot build a building next to another building"
 		}
 		
 		error = errors[key]
@@ -603,6 +615,10 @@ class PlayScene:
 		
 		if not self.potato.is_within_sector(self.user_id, sx, sy, x, y, type):
 			self.show_error('outside_sector')
+			return
+		
+		if self.potato.is_touching_other_building(self.user_id, sx, sy, x, y, type):
+			self.show_error('adjacency_error')
 			return
 		
 		if not self.potato.is_within_borders(self.user_id, sx, sy, x, y):
@@ -643,12 +659,6 @@ class PlayScene:
 		self.current_research = None
 	
 	def update(self, bdsoverride=True):
-		
-		if self.tutorial:
-			pages = self.tutorial_instance.get_active_dialog()
-			if pages != None:
-				title = self.tutorial_instance.active_step()[0]
-				self.next = TutorialDialogScene(self, pages, title)
 		
 		bot_deploy_success = self.potato.deploy_success(bdsoverride)
 		if bot_deploy_success != None:

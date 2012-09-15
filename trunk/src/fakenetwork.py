@@ -84,7 +84,7 @@ class Tutorial:
 					["Excellent work. You're a natural at",
 					 "this"],
 					
-					["NOw it's time to do some reseach"],
+					["Now it's time to do some reseach"],
 					
 					["Blah blah blah something about shields.",
 					 "going down"]
@@ -124,7 +124,7 @@ class Tutorial:
 			],
 			
 			[
-				# challenge 5 - attack neighbor
+				# challenge 5 - see neighbor
 				"Neighborhood Meet-n-Greet",
 				[
 					["Looks like you have company to the",
@@ -181,6 +181,12 @@ class Tutorial:
 	def active_step(self):
 		return self.steps[self.current_step]
 
+	def update_resources(self, diff):
+		for key in 'food water aluminum oil copper silicon'.split(' '):
+			
+			amt = 1.0 if (key in ('food', 'water')) else 0.0
+			self.resources[key] = self.resources.get(key, 0) + amt * diff
+			
 _tutorial = None
 def active_tutorial():
 	global _tutorial
@@ -205,16 +211,19 @@ def send_poll(user_id, password, sector, last_id_by_sector):
 	now = time.time()
 	tut = active_tutorial()
 	diff = now - tut.last_poll
+	tut.last_poll = now
 	
 	output = { 'success': True }
 	
+	tut.update_resources(diff)
+	
 	output['resources'] = {
-		'food': 10,
-		'water': 10,
-		'oil': 0,
-		'aluminum': 0,
-		'copper': 0,
-		'silicon': 0
+		'food': tut.resources.get('food', 0),
+		'water': tut.resources.get('water', 0),
+		'oil': tut.resources.get('oil', 0),
+		'aluminum': tut.resources.get('aluminum', 0),
+		'copper': tut.resources.get('copper', 0),
+		'silicon': tut.resources.get('silicon', 0)
 	}
 	
 	if tut.first_poll:
@@ -304,3 +313,42 @@ def send_username_fetch(user_ids):
 			[1, "You"],
 			[2, "Evil Doer"]]
 	})
+def send_start_research(user_id, password, subject):
+	# TODO: disable research from HQ before this tutorial step
+	
+	tut = active_tutorial()
+	if tut.current_step == 2:
+		tut.current_step += 1
+		tut.resources['food'] += 100
+		tut.resources['water'] += 100
+		tut.resources['aluminum'] += 200
+		tut.resources['copper'] += 200
+		tut.resources['silicon'] += 200
+		
+		return FakeResponse({ 'success': True })
+	else:
+		return FakeResponse({ 'success': False })
+
+def send_getbots(user_id, password):
+	tut = active_tutorial()
+	output = { 'success': True }
+	output['a'] = tut.bots[0]
+	output['b'] = tut.bots[1]
+	output['c'] = tut.bots[2]
+	return FakeResponse(output)
+
+def send_buildbots(user_id, password, type):
+	tut = active_tutorial()
+	
+	if tut.bots[0] == 5:
+		return FakeResponse({ 'success': False, 'message': "Can't build more than 5" })
+	
+	tut.bots[0] += 1
+	
+	if tut.bots[0] == 5:
+		print("Should be progressing to the next step")
+		tut.current_step += 1
+	
+	
+	output = { 'success': True, 'a': tut.bots[0], 'b': 0, 'c': 0 }
+	return FakeResponse(output)
