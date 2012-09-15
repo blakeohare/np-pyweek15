@@ -227,4 +227,7 @@ def send_start_research(user_id, password, subject):
 
 # alien_type = 1, 2, 3
 def send_alien_award(user_id, password, alien_type):
-	return _send_command('alien_kill', { 'alien_type': alien_type }, user_id, password)
+	return _send_command('alienkill', { 'alientype': alien_type }, user_id, password)
+
+def send_battle_success(user_id, password, attacked_id, bytes):
+	return _send_command('attacksuccess', { 'numbytes': bytes, 'attacked': attacked_id }, user_id, password)

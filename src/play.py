@@ -6,6 +6,8 @@ from collections import defaultdict
 from src import menus
 from src import worldmap, settings, sprite, structure, terrain, title, jukebox
 from src.font import get_text
+from src.images import get_image
+
 # types: key, type, mouseleft, mouseright, mousemove
 # action: left, right, up down, build, enter, demolish
 event_actions = 'left, right, up down, build, enter, demolish, shoot, debug'.split(', ')
@@ -120,6 +122,11 @@ class PlayScene(object):
 def main():
 	
 	pygame.init()
+	
+	icon = get_image('icon.png')
+	pygame.display.set_icon(icon)
+	pygame.display.set_caption("Shunned Survivor")
+	
 	rscreen, vscreen = get_screen()
 	
 	last_fps = 30

@@ -463,6 +463,6 @@ class StrongBot(Seeker):
 	chargetime = 50
 	hp0 = 20
 	frames = {}
-	fname = "seekerbot._purple.png"
+	fname = "seekerbot_purple.png"
 
 

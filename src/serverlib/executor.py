@@ -77,10 +77,14 @@ def do_things(action, args):
 			elif action == 'start_research':
 				from serverlib import research
 				return research.apply_research(user_id, args.get('subject', None))
-			elif action == 'alien_kill':
+			elif action == 'alienkill':
 				from serverlib import serverbattle
 				return serverbattle.award_resources(
-					user_id, args.get('alien_type', 'x'))
+					user_id, args.get('alientype', 'x'))
+			elif action == 'attacksuccess':
+				from serverlib import serverbattle
+				return serverbattle.award_bytes(
+					user_id, args.get('attacked', 0), args.get('numbytes', 0))
 			else:
 				return { 'success': False, 'message': "Unrecognized command" }
 		
