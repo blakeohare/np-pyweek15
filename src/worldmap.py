@@ -241,9 +241,11 @@ def drawscene(screen, entities, cursorpos = None, borders = None):
     if borders:
         for border in borders:
             border.render(screen)
-    if cursorpos:
-        cx, cy = cursorpos
-        highlighttile(screen, cx, cy)
+    if cursorpos is not None:
+        cx, cy, s = cursorpos
+        for a in range(s):
+        	for b in range(s):
+		        highlighttile(screen, cx-a-b, cy-a+b)
         drawfadinggrid(screen, cx, cy)
     esort = sorted(entities, key = lambda e: -e.y)
     for entity in esort:
