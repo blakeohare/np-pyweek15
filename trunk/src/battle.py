@@ -3,7 +3,7 @@ from src import sprite, structure, terrain, jukebox
 from src.font import get_text
 
 class Battle:
-	def __init__(self, user_id, buildings, border, other_user_id=None, bots=[0, 0, 0]):
+	def __init__(self, user_id, buildings, border, other_user_id=None, bots=[0, 0, 0], nbytes=0):
 		# if other_user_id is, then this is an alien vs player session
 		self.user_id = user_id
 		self.other_id = other_user_id
@@ -28,7 +28,7 @@ class Battle:
 		# Number of bots that can be deployed
 		self.nbots0 = 0, 0, 0
 		
-		nbytes = 100
+		self.nbytes = nbytes
 		# TODO: make this harder depending on the era and/or your bases's strength
 		if self.is_computer_attacking():
 			self.alienq = sorted(
@@ -181,7 +181,7 @@ class Battle:
 	# @return {!int} The number of bytes stolen.
 	#
 	def bytes_stolen(self):
-		return self.data_stolen + 10
+		return self.nbytes
 	
 	# This function is done.
 	def is_computer_attacking(self):

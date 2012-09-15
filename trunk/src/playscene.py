@@ -202,7 +202,8 @@ class DeployBotsScene:
 		if self.target_user > 0:
 			buildings = self.playscene.potato.get_all_buildings_of_player_SLOW(self.target_user)
 			bord = self.playscene.potato.borders_by_user[self.target_user]
-			self.playscene.pendingbattle = battle.Battle(self.playscene.user_id, buildings, bord, self.target_user, [a, b, c])
+			num_bytes = self.playscene.potato.get_value_of_attack(self.playscene.user_id, self.target_user)
+			self.playscene.pendingbattle = battle.Battle(self.playscene.user_id, buildings, bord, self.target_user, [a, b, c], nbytes=num_bytes)
 		
 		self.close_menu()
 	
