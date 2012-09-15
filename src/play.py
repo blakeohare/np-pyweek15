@@ -173,6 +173,12 @@ def main():
 					events.append(MyEvent('key', 'down', down, 0, 0))
 				elif event.key == pygame.K_SPACE:
 					events.append(MyEvent('key', 'build', down, 0, 0))
+				elif event.key == pygame.K_1:
+					events.append(MyEvent('key', 'b1', down, 0, 0))
+				elif event.key == pygame.K_2:
+					events.append(MyEvent('key', 'b2', down, 0, 0))
+				elif event.key == pygame.K_3:
+					events.append(MyEvent('key', 'b3', down, 0, 0))
 				elif event.key == pygame.K_RETURN:
 					events.append(MyEvent('key', 'action', down, 0, 0))
 				elif event.key in (pygame.K_z, pygame.K_SEMICOLON):
