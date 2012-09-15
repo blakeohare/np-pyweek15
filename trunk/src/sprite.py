@@ -14,6 +14,7 @@ class Sprite(object):
 	diesound = None
 	hurtsound = None
 	reelstep = None
+	awardnumber = None
 	freerange = False  # can only exist outside borders
 	def __init__(self, x, y, z=None):
 		self.vx, self.vy = 0, 0
@@ -164,7 +165,7 @@ class You(Sprite):
 			little_yous.update(images.spritesheet('playersprite.png', 8, 3))
 		i = 0
 		if self.moving:
-			i = (self.counter // 3) % 4
+			i = int(self.counter * self.v * 1 // 1) % 4
 		img = little_yous[(self.last_direction, (0,1,0,2)[i])]
 		
 #		self.rendershadow(screen)
