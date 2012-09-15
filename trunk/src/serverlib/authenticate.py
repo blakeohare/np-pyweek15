@@ -22,7 +22,7 @@ def add_user(user, password):
 	sector = str(start[0]) + '^' + str(start[1])
 	location = str(start[2]) + '^' + str(start[3])
 	
-	user_id = sql.insert('INSERT INTO `user` (`name`, `login_id`, `password`, `hq_sector`, `hq_loc`) values (%s,%s,%s,%s,%s)',
+	user_id = sql.insert('INSERT INTO `user` (`name`, `login_id`, `password`, `hq_sector`, `hq_loc`, `research`) values (%s,%s,%s,%s,%s, 50)',
 		(user, login_id, password, sector, location))
 	
 	sql.insert("INSERT INTO `resource_status` (`user_id`) VALUES (" + str(user_id) + ")")

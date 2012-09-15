@@ -558,6 +558,10 @@ class PlayScene:
 		x,y = self.player.getModelXY()
 		return (util.floor(x // 60), util.floor(y // 60))
 	
+	def bytes_awarded(self, attacked_id, num_bytes):
+		network.send_battle_success(self.user_id, self.password, attacked_id, num_bytes)
+		self.potato.bytes_stolen += num_bytes
+	
 	def battle_victorious(self):
 		if self.current_research != None:
 			self.potato.add_research(self.current_research, self)

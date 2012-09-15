@@ -10,6 +10,8 @@ class Battle:
 		self.buildings = buildings
 		self.border = border
 		
+		self.end_notification_sent = False
+		
 		print("base size: %s" % len(self.buildings))
 		hqs = [b for b in self.buildings if isinstance(b, structure.HQ)]
 		print("number of HQs: %s" % len(hqs))
@@ -17,7 +19,7 @@ class Battle:
 
 #		self.buildbasepath()
 		
-		self.data_stolen = 0.0 # add to this in real time as the sprites successfully get into the HQ
+		self.data_stolen = 0 # add to this in real time as the sprites successfully get into the HQ
 		self.attackers = []  # both aliens and bots
 		
 		# queue of the aliens and the frames at which they'll appear
@@ -149,7 +151,11 @@ class Battle:
 	def is_complete(self, playscene):
 		# HQ disabled
 		if self.hq.hp <= 0:
-			playscene.battle_failure()
+			if self.is_computer_attacking():
+				playscene.battle_failed()
+			elif not self.end_notification_sent:
+				playscene.bytes_awarded(self.other_id, self.bytes_stolen())
+				self.end_notification_sent = True
 			return True
 		if self.is_computer_attacking():
 			# All aliens defeated
@@ -164,7 +170,7 @@ class Battle:
 	# @return {!int} The number of bytes stolen.
 	#
 	def bytes_stolen(self):
-		return self.data_stolen
+		return self.data_stolen + 10
 	
 	# This function is done.
 	def is_computer_attacking(self):

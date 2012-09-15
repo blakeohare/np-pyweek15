@@ -31,11 +31,11 @@ class BuildingMenu(UiScene):
 			self.init_hq(playscene, left, top, right, bottom)
 		elif building.btype == 'radar':
 			self.init_radar(left, top, right, bottom)
-		elif building.btype == 'machinerylab':
-			top = self.add_title(left, top, "Machinery Lab")
-			self.init_build_bot(1, playscene, left, top, right, bottom)
 		elif building.btype == 'foundry':
 			top = self.add_title(left, top, "Foundry")
+			self.init_build_bot(1, playscene, left, top, right, bottom)
+		elif building.btype == 'machinerylab':
+			top = self.add_title(left, top, "Machinery Lab")
 			self.init_build_bot(2, playscene, left, top, right, bottom)
 		elif building.btype == 'sciencelab':
 			top = self.add_title(left, top, "Science Lab")
