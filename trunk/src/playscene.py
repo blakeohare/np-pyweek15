@@ -368,7 +368,7 @@ class ResearchOhNoScene:
 		
 
 class TutorialDialogScene:
-	def __init__(self, playscene, pages, title):
+	def __init__(self, playscene, pages, title, last=False):
 		self.playscene = playscene
 		self.next = self
 		self.title = title
@@ -377,6 +377,8 @@ class TutorialDialogScene:
 		bg.fill((0, 0, 0, 180))
 		self.bg = bg
 		self.pages = pages
+		
+		self.done = self.pages[-1][0] == "This concludes the training mission."
 	
 	def process_input(self, events, pressed):
 		for event in events:
@@ -384,9 +386,13 @@ class TutorialDialogScene:
 				if event.action == 'build' and event.down:
 					self.pages = self.pages[1:]
 					if len(self.pages) == 0:
-						self.next = self.playscene
-						self.playscene.next = self.playscene
-	
+						if self.done:
+							from src import title
+							self.next = title.TitleScene()
+						else:
+							self.next = self.playscene
+							self.playscene.next = self.playscene
+		
 	def update(self):
 		pass
 	
@@ -498,7 +504,8 @@ class PlayScene:
 			pages = self.tutorial_instance.get_active_dialog()
 			if pages != None:
 				title = self.tutorial_instance.active_step()[0]
-				self.next = TutorialDialogScene(self, pages, title)
+				self.toolbar.mode == 'main'
+				self.next = TutorialDialogScene(self, pages, title, self.tutorial_instance.current_step == 6)
 		
 		building_menu = False
 		demolish_building = False

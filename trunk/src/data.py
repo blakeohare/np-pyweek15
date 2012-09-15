@@ -146,7 +146,8 @@ class MagicPotato:
 				self.deploy_request = network.send_deploy(playscene.user_id, playscene.password)
 			else:
 				self.deploy_request = network.send_getbots(playscene.user_id, playscene.password)
-	
+		print(self.deploy_request.get_response())
+		
 	def deploy_success(self, clear_status=True):
 		if self.deploy_request != None:
 			if self.deploy_request.has_response():

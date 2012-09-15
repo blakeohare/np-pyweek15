@@ -168,8 +168,11 @@ class Tutorial:
 				# challenge 5 - see neighbor
 				"Neighborhood Meet-n-Greet",
 				[
-					["Looks like you have company to the",
-					 "Southeast. Go over there."]
+					 ["It looks like there's another base",
+                     "towards the southeast. A base where",
+                     "we can get resources and maybe even",
+                     "information! Maybe you should go",
+                     "meet the neighbors?"],
 				],
 				[],
 				[],
@@ -180,9 +183,20 @@ class Tutorial:
 				# challenege 6 - ATTACK
 				"ATTACK",
 				[
-					["Press the deploy bots button.",
-					 "To attack, walk up to a building",
-					 "and press 1, 2, or 3."],
+				      ["Seems like our neighbors have some",
+                     "awfully nice technology. Time to use",
+                     "those bots! To deploy, select the",
+                     "Deploy Bots option from the menu. Then"],
+                     
+                     ["approach a building to attack and press",
+                     "1, 2, or 3 to deploy the corresponding",
+                     "type of bot."],
+                     
+                     ["And don't worry; after all, this is a",
+                     "prison planet, so everyone here is a",
+                     "horrible person anyway."],
+                     
+                     ["Well, except you, of course!"],
 				],
 				[],
 				[],
@@ -192,13 +206,21 @@ class Tutorial:
 				# challenge 7 - Explain research & conclusion
 				"Conclusion",
 				[
-					["Mention about stealing bytes."],
-					
-					["Conclusion- be sure to mention",
-					 " that you can research tons ",
-					 "of things and eventaully build"],
-					 
-					["a launch pad"]
+					  ["If you managed to bring the enemy HQ",
+                     "down to one health, you'll be awarded",
+                     "with bytes of data. Collect bytes to",
+                     "unlock more technologies!"],
+                    
+                    ["Don't forget to explore my build menu,",
+                     "because there's so much more! Like a",
+                     "medical tent, different factories, and",
+                     "ways to gather more resources."],
+                     
+                    ["In fact, if we gather enough resources",
+                     "and technology, we might even be able",
+                     "to find you a way home!"],
+                     
+                     ["This concludes the training mission."]
 				],
 				[],
 				[],
@@ -372,6 +394,9 @@ def send_start_research(user_id, password, subject):
 		tut.resources['copper'] += 200
 		tut.resources['silicon'] += 200
 		
+		from src import data
+		
+		
 		return FakeResponse({ 'success': True })
 	else:
 		return FakeResponse({ 'success': False })
@@ -387,15 +412,27 @@ def send_getbots(user_id, password):
 def send_buildbots(user_id, password, type):
 	tut = active_tutorial()
 	
-	if tut.bots[0] == 5:
+	if tut.bots[0] == 3:
 		return FakeResponse({ 'success': False, 'message': "Can't build more than 5" })
 	
 	tut.bots[0] += 1
 	
-	if tut.bots[0] == 5:
-		print("Should be progressing to the next step")
+	if tut.bots[0] == 3:
+		
 		tut.current_step += 1
 	
 	
 	output = { 'success': True, 'a': tut.bots[0], 'b': 0, 'c': 0 }
 	return FakeResponse(output)
+
+
+def send_deploy(user_id, password):
+	tut = active_tutorial()
+	return FakeResponse({ 'success': True, 'a': tut.bots[0], 'b': 0, 'c': 0 })
+	
+def send_battle_success(user_id, password, attacked_id, bytes):
+	
+	if attacked_id == 2:
+		tut = active_tutorial()
+		tut.current_step += 1
+	return FakeResponse({ "success": True })
