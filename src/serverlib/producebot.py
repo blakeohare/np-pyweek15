@@ -28,7 +28,7 @@ def produce_bot(user_id, type):
 			current['type_b'],
 			current['type_c']]
 	
-	max = total * 5
+	max = total * 3
 	
 	if current[s] < max:
 		cost = [None, settings.BOT_COST_1, settings.BOT_COST_2, settings.BOT_COST_3][s]
