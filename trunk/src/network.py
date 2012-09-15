@@ -200,9 +200,11 @@ def send_build(user_id, password, type, sector_x, sector_y, loc_x, loc_y, sector
 		return fake().send_build(user_id, password, type, sector_x, sector_y, loc_x, loc_y, sector_you_care_about, last_ids_by_sector, client_token)
 	
 	poll_sectors = _get_poll_args(sector_you_care_about, last_ids_by_sector)
+	last_id = last_ids_by_sector.get((sector_x, sector_y), 0)
 	return _send_command('build', {
 		'type': type,
 		'sector': util.fromtuple((sector_x, sector_y)),
+		'last_id': last_id,
 		'loc': util.fromtuple((loc_x, loc_y)),
 		'client_token': client_token,
 		'poll_sectors': poll_sectors

@@ -36,6 +36,8 @@ class MagicPotato:
 		self.unlock = False
 		self.bots_owned = None
 		self.deploy_request = None
+		self.queue_epic_battle = False
+		self.epic_battle_won = False
 		
 		# Hack time. Since the potato instance is a singleton, might as well make it a global :P
 		global hotpotato
@@ -223,7 +225,7 @@ class MagicPotato:
 		self.resources[key] -= amount
 		self.escrow[key] = 0
 	
-	def apply_poll_data(self, poll):
+	def apply_poll_data(self, poll, you_id):
 		if not poll.get('success', False): return
 		
 		# users that have building adds/removes
@@ -258,6 +260,8 @@ class MagicPotato:
 						if self.last_id_by_sector.get(id, 0) < event_id:
 							self.add_structure(owner, type, id[0], id[1], loc[0], loc[1])
 							self.last_id_by_sector[id] = event_id
+							#if owner == you_id and type == 'launchsite':
+							#	self.queue_epic_battle = True
 			else:
 				# list of new events
 				events = sector_data.get('events', [])
@@ -284,6 +288,8 @@ class MagicPotato:
 									loc = util.totuple(parts[1])
 									self.add_structure(user_id, type, id[0], id[1], loc[0], loc[1])
 									dirty_users[user_id] = True
+									if type == 'launchsite' and user_id == you_id:
+										self.queue_epic_battle = True
 							elif datakey == 'demolish':
 								x, y = map(int, datavalue.split('^'))
 								self.remove_structure(id, x, y)

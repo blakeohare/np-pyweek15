@@ -164,7 +164,7 @@ class CreditsScene:
 
 class EndingScene:
 	def __init__(self):
-		pass
+		self.next = self
 	
 	def process_input(self, events, pressed):
 		pass
