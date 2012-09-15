@@ -63,6 +63,83 @@ class BuildingMenu(UiScene):
 			self.init_medtent(left, top, right, bottom)
 		self.add_cancel_button(left, bottom)
 	
+	def init_beacon(self, left, top, right, bottom):
+		pass
+	
+	def init_build_bot(self, type, playscene, left, top, right, bottom):
+		self.has_data = False
+		self.bot_query = network.send_getbots(playscene.user_id, playscene.password)
+		self.bot_type = type
+		self.build_bot_command = None
+	
+	def add_bot(self, type, cost):
+		if self.build_bot_command != None: return
+		
+		if self.playscene.potato.try_spend_resources(cost['food'], cost['water'], cost['aluminum'], cost['copper'], cost['silicon'], cost['oil']):
+			self.build_bot_command = network.send_buildbots(self.playscene.user_id, self.playscene.password, type)
+	
+	def add_bot1(self):
+		self.add_bot(1, settings.BOT_COST_1)
+	
+	def add_bot2(self):
+		self.add_bot(2, settings.BOT_COST_2)
+	
+	def add_bot3(self):
+		self.add_bot(3, settings.BOT_COST_3)
+	
+	def render_bot_factory_invalidate(self):
+		for i in range(3):
+			ui = self.totals[i]
+			count = self.counts[i]
+			ui.img = get_text(self.botnames[i] + ": " + str(count), (255, 255, 255), 18)
+	
+	def render_bot_factory(self, screen):
+		self.bot_data = None
+		
+		if self.build_bot_command != None and self.build_bot_command.has_response():
+			r = self.build_bot_command.get_response()
+			if r != None:
+				if r.get('success', False):
+					self.build_bot_command = None
+					self.counts[0] = r.get('a', 0)
+					self.counts[1] = r.get('b', 0)
+					self.counts[2] = r.get('c', 0)
+					self.render_bot_factory_invalidate()
+				else:
+					err = r.get('error', None)
+					if err == 'capacity':
+						pass # TODO:SOUND "Arsenal Capacity Exceeded"
+					elif err == 'resources':
+						pass # TODO:SOUND "Insufficient resources"
+					else:
+						pass
+						
+		
+		if not self.has_data:
+			if self.bot_query.has_response():
+				self.has_data = True
+				results = self.bot_query.get_response()
+				if results != None:
+					self.counts = [results.get('a', 0), results.get('b', 0), results.get('c', 0)]
+					left = 105
+					top = 90
+					self.botnames = ["Type 1 Bot", "Type 2 Bot", "Type 3 Bot"]
+					self.totals = []
+					y = top
+					for i in range(3):
+						y += 5 + self.add_label(left, y, self.botnames[i] + ": " + str(self.counts[i]), 18)
+						self.totals.append(self.elements[-1])
+					
+					handler = [self.add_bot1, self.add_bot2, self.add_bot3][self.bot_type - 1]
+
+					self.add_element(Button(left, y + 10, "Build " + self.botnames[self.bot_type - 1], handler, True))
+
+			img = get_text("Cataloging the arsenal...", (255, 255, 255), 18)
+			screen.blit(img, (screen.get_width() // 2 - img.get_width() // 2, screen.get_height() // 2 - img.get_height() // 2))
+			
+		if self.initialized:
+			pass
+	
 	def init_turret(self, type, left, top, right, bottom):
 		description = [[''],
 			# Lines are this long:
@@ -165,9 +242,6 @@ class BuildingMenu(UiScene):
 		self.add_element(Image(left, y, title))
 		y += title.get_height() + 5
 		return y
-		
-	def init_build_bot(self, type, playscene, left, top, right, bottom):
-		pass
 	
 	def add_cancel_button(self, left, bottom):
 		self.add_element(Button(left, bottom - 17, "Close", self.dismiss, True))
@@ -322,14 +396,14 @@ class BuildingMenu(UiScene):
 	def render(self, screen):
 		self.playscene.render(screen)
 		UiScene.render(self, screen)
-		
 		if self.building.btype == 'radar':
 			self.render_radar(screen)
 		elif self.building.btype == 'hq':
 			self.render_hq(screen)
 		elif self.building.btype == 'quarry':
 			self.render_quarry(screen)
-			
+		elif self.building.btype in ('machinerylab', 'foundry', 'sciencelab'):
+			self.render_bot_factory(screen)
 		i = 0
 		while i < len(self.hover_regions):
 			hr = self.hover_regions[i]

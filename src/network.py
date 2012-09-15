@@ -209,3 +209,9 @@ def send_quarry(user_id, password, sector, xy):
 	return _send_command('quarrydata', {
 		'sector': sector,
 		'xy': xy }, user_id, password)
+
+def send_getbots(user_id, password):
+	return _send_command('getbots', {}, user_id, password)
+
+def send_buildbots(user_id, password, type):
+	return _send_command('buildbot', { 'type': type }, user_id, password)
