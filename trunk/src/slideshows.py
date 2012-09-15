@@ -6,42 +6,48 @@ from src import jukebox
 
 page1 = util.trim("""
 They say that in these enlightened times, society has
-evolved beyond the need for the old barbaric customs
-of punishing crime. Long gone are the stocks, the 
-electric chair, and the prison cell; instead, those
-who inflict pain or suffering on others are gently
-removed from whatever external factors have caused
-their distress.
+evolved beyond the need for barbaric customs of 
+punishing crime. Long gone are the stocks, the electric
+chair, and the prison cell; instead, those who inflict
+pain or suffering on others are gently removed and
+placed on a lush deserted planet where they are given
+the freedom to live peaceful, fulfilling lives in a
+community of equals.
 """).split('\n')
 
 page2 = util.trim("""
-They are placed on a deserted, lush planet in another
-solar system, where they are given the freedom to 
-live peaceful, fulfilling lives without any penalties
-or reproach for their actions in a community of equals.
+However, they are wrong.
 """).split('\n')
 
 page3 = util.trim("""
-Of course, "they" are wrong.
+In truth, not just criminals but anyone who disagrees
+with the ruling government is forever exiled to this
+remote prison planet. Life on this prison planet is
+brutal; it's difficult to scrape out a living when
+some of your neighbors are petty thieves and killers,
+and the knowledge that no one has ever escaped only
+makes existence that much harder.
 """).split('\n')
 
 page4 = util.trim("""
-In truth, you've been exiled to a planet on which you're
-just scraping by, trying to stay alive; a planet which
-is populated by other prisoners ranging from petty
-thieves to killers; and a planet that might not be quite
-as deserted as you've been led to believe. Strange things
-have been happening to folks around you, and there are
-signs that there might be life other than you around.
-
+Of course, if all this weren't bad enough, there are
+whispers among the exiles that the planet might not
+be quite as deserted as they were told. Prisoners are
+disappearing, buildings are being destroyed, and there
+are disturbing signs that they might not be alone on
+this world, and the new neighbors aren't very friendly.
 """).split('\n')
 
 page5 = util.trim("""
-Unfortunately, those signs include burned out buildings
-and the odd disappearance, so that life might not be any
-friendlier than your fellow outcasts. Maybe someday you'll
-be able to escape this place, but right now you'd better
-figure out how to survive first.
+You're about to find all of this out for yourself, as
+the transport ship you are on descends to the planet's
+surface, and your sentence is carried out. You're going
+to have to learn to survive on this barren world, by
+taming the land, taking advantage of your neighbors'
+prosperity, and coping with the mysterious threat. It's
+going to take a lot of hard work and fast thinking, but
+maybe, just maybe, eventually you'll even find a way to
+get back home.
 """).split('\n')
 
 pages = [page1, page2, page3, page4, page5]
@@ -51,15 +57,15 @@ class StoryScene:
 		self.next = self
 		self.images = [
 			get_image('backgrounds/story1.png'),
-			get_image('backgrounds/story2.png'),
 			None,
+			get_image('backgrounds/story2.png'),
 			get_image('backgrounds/story3.png'),
 			get_image('backgrounds/story4.png')]
 		
 		self.pos = [
 			(10, 10),
 			(10, 10),
-			(120, 140),
+			(50, 140),
 			(10, 10),
 			(10, 10)
 		]
