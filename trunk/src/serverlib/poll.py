@@ -66,9 +66,9 @@ def do_poll(user_id, sector_args):
 			x = x[1].split('s')
 			c = int(x[0])
 			s = int(x[1])
-			resources['aluminum'] += a / 20.0
-			resources['copper'] += c / 20.0
-			resources['silicon'] += s / 20.0
+			resources['aluminum'] += a / 1.0
+			resources['copper'] += c / 2.0
+			resources['silicon'] += s / 4.0
 	
 	import time
 	now = int(time.time())
