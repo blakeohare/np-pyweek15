@@ -219,8 +219,8 @@ class Ray(Sprite):
 
 # Alien base class
 class Attacker(Sprite):
-	walkspeed = 0.05
-	runspeed = 0.1
+	walkspeed = 0.025
+	runspeed = 0.05
 	hp0 = 3
 	minicolor = 255, 255, 0
 	size = 6
@@ -334,7 +334,8 @@ class Attacker(Sprite):
 class Alien(Attacker):
 	shootable = True
 	hp0 = 1
-	runspeed = 0.2
+	walkspeed = 0.5
+	runspeed = 0.1
 	strength = 1
 	frames = {}
 	fname = "purplealien.png"
@@ -374,8 +375,8 @@ class Alien(Attacker):
 class CheapAlien(Alien):
 	minicolor = 200, 0, 200
 	hp0 = 2
-	runspeed = 0.15
-	walkspeed = 0.08
+	runspeed = 0.08
+	walkspeed = 0.04
 	strength = 1
 	frames = {}
 	fname = "bluealien.png"
@@ -384,8 +385,8 @@ class CheapAlien(Alien):
 class QuickAlien(Alien):
 	minicolor = 200, 0, 200
 	hp0 = 1
-	runspeed = 0.35
-	walkspeed = 0.15
+	runspeed = 0.15
+	walkspeed = 0.08
 	strength = 1
 	frames = {}
 	fname = "purplealien.png"
@@ -394,8 +395,8 @@ class QuickAlien(Alien):
 class StrongAlien(Alien):
 	minicolor = 200, 0, 200
 	hp0 = 10
-	runspeed = 0.1
-	walkspeed = 0.05
+	runspeed = 0.05
+	walkspeed = 0.025
 	strength = 2
 	frames = {}
 	fname = "purplealien.png"
@@ -404,7 +405,7 @@ class StrongAlien(Alien):
 
 class Seeker(Attacker):
 	minicolor = 200, 200, 200
-	runspeed = 0.3
+	runspeed = 0.08
 	strength = 1
 	attackrange = 3.5
 	chargetime = 25
@@ -441,7 +442,7 @@ class Seeker(Attacker):
 		screen.blit(frame, (px-12, py-15))
 
 class CheapBot(Seeker):
-	runspeed = 0.15
+	runspeed = 0.08
 	attackrange = 3.5
 	chargetime = 40
 	hp0 = 10
@@ -450,7 +451,7 @@ class CheapBot(Seeker):
 	fname = "seekerbot_blue.png"
 
 class QuickBot(Seeker):
-	runspeed = 0.4
+	runspeed = 0.15
 	attackrange = 3.5
 	chargetime = 20
 	hp0 = 5
@@ -459,7 +460,7 @@ class QuickBot(Seeker):
 	fname = "seekerbot_green.png"
 
 class StrongBot(Seeker):
-	runspeed = 0.1
+	runspeed = 0.05
 	attackrange = 3.5
 	chargetime = 50
 	hp0 = 20

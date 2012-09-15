@@ -1,5 +1,5 @@
 from src.menus import *
-from src import network, structure, settings
+from src import network, structure, settings, jukebox
 from src.font import get_tiny_text
 import math
 import random
@@ -382,7 +382,8 @@ class BuildingMenu(UiScene):
 				for row in rows:
 					screen.blit(row, (x, y))
 					y += row.get_height() + 5
-				
+				jukebox.play_voice("scanning")
+
 			else:
 				text = "Radar is broken right now. Might be the clouds."
 				if signal != None:
@@ -392,7 +393,6 @@ class BuildingMenu(UiScene):
 		else:
 			img = get_text("Scanning...", (255, 255, 255), 18)
 			screen.blit(img, (screen.get_width() // 2 - img.get_width() // 2, screen.get_height() // 2 - img.get_height() // 2))
-			jukebox.play_voice("scanning")
 
 	
 	def render_quarry(self, screen):
