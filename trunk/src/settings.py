@@ -53,7 +53,7 @@ attackblake = "--attackblake" in sys.argv
 
 cursorgridsize = 4
 
-trackvalue = 0.2
+trackvalue = 0.4
 
 showminimap = True
 minimapsize = 64
