@@ -218,3 +218,6 @@ def send_buildbots(user_id, password, type):
 
 def send_deploy(user_id, password):
 	return _send_command('dispatchbots', { }, user_id, password)
+
+def send_give_resources_debug(user_id, password):
+	return _send_command('debug_resources', { }, user_id, password)

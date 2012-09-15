@@ -65,3 +65,7 @@ def dispatch(user_id):
 	sql.query("UPDATE `bots` SET `type_a` = 0, `type_b` = 0, `type_c` = 0 WHERE `user_id` = " + str(user_id) + " LIMIT 1")
 	
 	return counts
+
+def DEBUG_resources(user_id):
+	sql.query("UPDATE `resource_status` SET `food` = `food` + 9999, `water` = `water` + 9999, `aluminum` = `aluminum` + 9999, `copper` = `copper` + 9999, `silicon` = `silicon` + 9999, `oil` = `oil` + 9999 WHERE `user_id` = " + str(user_id) + " LIMIT 1")
+	return { 'success': True }
