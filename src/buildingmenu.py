@@ -10,6 +10,10 @@ def abs(x):
 	if x < 0: return -x
 	return x
 
+def get_resource_icon(key):
+	from src import playscene
+	return playscene.get_resource_icon(key)
+
 class BuildingMenu(UiScene):
 	def __init__(self, playscene, building):
 		UiScene.__init__(self)
@@ -52,7 +56,7 @@ class BuildingMenu(UiScene):
 			top = self.add_title(left, top, "Basic Turret")
 			self.init_turret(1, left, top, right, bottom)
 		elif building.btype == 'fireturret':
-			top = self.add_title(left, top, "Tractor Turret")
+			top = self.add_title(left, top, "Fire Turret")
 			self.init_turret(2, left, top, right, bottom)
 		elif building.btype == 'teslaturret':
 			top = self.add_title(left, top, "Tesla Turret")
@@ -143,14 +147,43 @@ class BuildingMenu(UiScene):
 					top = 90
 					self.totals = []
 					y = top
+					
+					img = get_tiny_text("Builds " + settings.botnames[self.bot_type - 1] + 's')
+					self.add_element(Image(left, y, img))
+					y += img.get_height()
+					
+					img = get_tiny_text("(Limit 3 per " + ('Foundry', 'Machinery Lab', 'Science Lab')[self.bot_type - 1] + ")")
+					self.add_element(Image(left, y, img))
+					y += img.get_height()
+					
+					y += 5
+					
 					for i in range(3):
 						y += 5 + self.add_label(left, y, settings.botnames[i] + ": " + str(self.counts[i]), 18)
 						self.totals.append(self.elements[-1])
 					
 					handler = [self.add_bot1, self.add_bot2, self.add_bot3][self.bot_type - 1]
 
+					costs = [
+						settings.BOT_COST_1,
+						settings.BOT_COST_2,
+						settings.BOT_COST_3
+					][self.bot_type - 1]
+					
+					y += 13
+					rimages = []
+					for key in 'food water aluminum copper silicon oil'.split(' '):
+						if costs.get(key, 0) > 0:
+							rimages.append(get_resource_icon(key))
+							rimages.append(get_tiny_text(costs[key]))
+					
+					x = left
+					for img in rimages:
+						self.add_element(Image(x, y, img))
+						x += img.get_width() + 2
+					y += 5
 					self.add_element(Button(left, y + 10, "Build " + settings.botnames[self.bot_type - 1], handler, True))
-
+					
 			img = get_text("Cataloging the arsenal...", (255, 255, 255), 18)
 			screen.blit(img, (screen.get_width() // 2 - img.get_width() // 2, screen.get_height() // 2 - img.get_height() // 2))
 			

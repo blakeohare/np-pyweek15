@@ -41,6 +41,7 @@ def makenblit(col, row, tf):
 _tiny_cache = {}
 
 def get_tiny_text(text):
+	text = str(text)
 	img = _tiny_cache.get(text, None)
 	if img == None:
 		if len(_letters) == 0:
