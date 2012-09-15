@@ -751,6 +751,7 @@ class PlayScene:
 						self.battle.hq.healfull()   # Repair the HQ after the battle
 						self.battle = None
 						self.pendingbattle = None
+					self.explored = set()
 				else:   # starting a battle
 					jukebox.play_sound("klaxon")
 					jukebox.play_voice("incoming_attack")

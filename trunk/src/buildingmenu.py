@@ -256,6 +256,7 @@ class BuildingMenu(UiScene):
 		self.radar_signal = network.send_radar(self.user_id, self.playscene.password, int(x), int(y))
 		self.rx = x
 		self.ry = y
+		jukebox.play_voice("scanning")
 	
 	def add_title(self, left, top, title):
 		y = top
@@ -382,7 +383,6 @@ class BuildingMenu(UiScene):
 				for row in rows:
 					screen.blit(row, (x, y))
 					y += row.get_height() + 5
-				jukebox.play_voice("scanning")
 
 			else:
 				text = "Radar is broken right now. Might be the clouds."
