@@ -176,6 +176,7 @@ class DeployBotsScene:
 		
 		self.ok_button = None
 		self.cancel_button = None
+		self.deployed = False
 	
 	def process_input(self, events, pressed):
 		if pressed['back']:
@@ -192,9 +193,10 @@ class DeployBotsScene:
 							if self.mx >= button[0] and self.mx <= button[2] and self.my >= button[1] and self.my <= button[3]:
 								hit = button
 					
-					if hit == self.ok_button:
+					if hit == self.ok_button and self.ok_button is not None:
 						if self.deploy_request == None:
 							self.playscene.potato.deploy_bots(self.playscene, True)
+							self.deployed = True
 					elif hit == self.cancel_button:
 						self.close_menu()
 	
@@ -209,6 +211,7 @@ class DeployBotsScene:
 	
 	def update(self):
 		self.playscene.update(False)
+		if not self.deployed: return
 		deploying = self.playscene.potato.deploy_success(True)
 		
 		if deploying != None and deploying != 'deploying':
