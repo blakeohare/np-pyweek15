@@ -1184,10 +1184,15 @@ class ToolBar:
 	def render_action_menu(self, screen, caption, button_id):
 		text = get_text(caption, (255, 255, 255), 24)
 		
-		screen.blit(text, (40, 9))
+		screen.blit(text, (40, 12))
 		button = self.buttons[button_id]
 		r = screen.blit(button, (screen.get_width() - button.get_width() - 8, 5))
 		pygame.draw.rect(screen, (0, 128, 255), r, 1)
+		
+		if button_id.startswith('build_'):
+			id = button_id.split('_')[1]
+			self.render_cost(screen, id, 100, 18)
+		
 			
 	
 	def render(self, screen):
@@ -1228,6 +1233,33 @@ class ToolBar:
 		else:
 			self.draw_button('main_exit', 100, screen, "Exit")
 
+	def render_cost(self, screen, structure_id, left, bottom):
+		
+			resources = structure.get_structure_resources(structure_id)
+			counts = []
+			for key in resources.keys():
+				counts.append((key, resources[key]))
+			counts.sort(key=lambda z:z[1])
+			counts = counts[::-1]
+			
+			x = left + 5
+			y = bottom - 5 - 12
+			for count in counts:
+				key = count[0]
+				amount = count[1]
+				if amount == 0:
+					break
+				img = get_resource_icon(key)
+				screen.blit(img, (x, y))
+				x += 3 + img.get_width()
+				img = get_text(str(amount), (255, 255, 255), 14)
+				screen.blit(img, (x, y))
+				x += 8 + img.get_width()
+			limit = structure.get_structure_limit(structure_id)
+			if limit != 0:
+				img = get_text("Limit: " + str(limit), (255, 255, 255), 14)
+				screen.blit(img, (x, y))
+
 	def render_details_menu(self, item, screen):
 		target = item[2]
 		width = 150
@@ -1259,30 +1291,7 @@ class ToolBar:
 				screen.blit(img, (left + 5, y))
 				y += img.get_height() + 4
 			
-			resources = structure.get_structure_resources(structure_id)
-			counts = []
-			for key in resources.keys():
-				counts.append((key, resources[key]))
-			counts.sort(key=lambda x:x[1])
-			counts = counts[::-1]
-			
-			x = left + 5
-			y = bottom - 5 - 12
-			for count in counts:
-				key = count[0]
-				amount = count[1]
-				if amount == 0:
-					break
-				img = get_resource_icon(key)
-				screen.blit(img, (x, y))
-				x += 3 + img.get_width()
-				img = get_text(str(amount), (255, 255, 255), 14)
-				screen.blit(img, (x, y))
-				x += 8 + img.get_width()
-			limit = structure.get_structure_limit(structure_id)
-			if limit != 0:
-				img = get_text("Limit: " + str(limit), (255, 255, 255), 14)
-				screen.blit(img, (x, y))
+			self.render_cost(screen, structure_id, left, bottom)
 		else:
 			caption = None
 			if target.startswith('era_'):
