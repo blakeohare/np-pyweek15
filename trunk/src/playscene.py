@@ -510,7 +510,6 @@ class PlayScene:
 				dy *= .7071
 			
 			self.player.move(dx, dy)
-			# I'm moving the move logic into the sprite class so that I reuse it for aliens too. -Cosmo
 			
 			if self.battle:
 				for event in events:
@@ -841,7 +840,15 @@ class PlayScene:
 		sy = int(py // 60)
 		
 		borders = self.potato.get_borders_near_sector(sx, sy)
-		cursor = (cx, cy) if self.potato.borders_by_user[self.user_id].iswithin(self.player.x, self.player.y) else None
+		if self.potato.borders_by_user[self.user_id].iswithin(self.player.x, self.player.y):
+			if self.build_mode:
+#				s = self.build_mode.size  # TODO: a little help here? how to get the type from this string
+				s = 1
+				cursor = (cx, cy, s)
+			else:
+				cursor = (cx, cy, 0)
+		else:
+			cursor = None
 		worldmap.drawscene(screen, entities + effects.effects, cursor, borders)
 		
 		if self.curiosity != None:
@@ -948,7 +955,7 @@ class ToolBar:
 			'era_lowtech' : {
 				'b': (1, "Build Beacon (b)", 'build_beacon', 'build_beacon', None),
 				't': (2, "Build Basic Turret (t)", 'build_turret', 'build_turret', None),
-				'f': (3, "Build Fire Turret (f)", 'build_fireturret', 'build_fireturret', None),
+				'f': (3, "Build Tractor Turret (f)", 'build_fireturret', 'build_fireturret', None),
 				's': (4, "Build Tesla Turret (s)", 'build_teslaturret', 'build_teslaturret', None),
 				'a': (5, "Build Laz0r Turret (a)", 'build_lazorturret', 'build_lazorturret', None)
 			},
