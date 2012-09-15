@@ -55,12 +55,16 @@ class Sprite(object):
 		pygame.draw.line(surf, self.minicolor, (px-1,py), (px+1,py))
 		pygame.draw.line(surf, self.minicolor, (px,py-1), (px,py+1))
 
+	def die(self):
+		self.alive = False
+		if self.diesound:
+			jukebox.play_sound(self.diesound)
+		
+
 	def hurt(self, dhp):
 		self.hp = max(self.hp - dhp, 0)
 		if self.hp <= 0:
-			self.alive = False
-			if self.diesound:
-				jukebox.play_sound(self.diesound)
+			self.die()
 		else:
 			if self.hurtsound:
 				jukebox.play_sound(self.hurtsound)
@@ -103,6 +107,8 @@ class You(Sprite):
 	weaponchargetime = 20
 	weapont = 0
 	hp0 = 3
+	hurtsound = "ouch"
+	diesound = "ouch"
 
 	def __init__(self, x, y, z=None):
 		Sprite.__init__(self, x, y, z)
@@ -113,6 +119,7 @@ class You(Sprite):
 	def shoot(self):
 		if self.weapont < self.weaponchargetime:
 			return None
+		jukebox.play_sound("raygun")
 		shot = Ray(self.x, self.y, self.z + 3)
 		shot.x, shot.y = self.x, self.y   # it's 1am, i'm doing this the sloppy way
 		shot.move(*directions[self.last_direction])
@@ -299,7 +306,7 @@ class Attacker(Sprite):
 
 class Alien(Attacker):
 	shootable = True
-	hp0 = 10
+	hp0 = 1
 	runspeed = 0.3
 	strength = 2
 	frames = {}
@@ -328,6 +335,10 @@ class Alien(Attacker):
 		a = [0,1,0,2][int(self.fcounter * self.v * 3) % 4] if self.vx or self.vy else 0
 		frame = self.frames[(self.last_direction//2, a)]
 		screen.blit(frame, (px-10, py-15))
+
+	def die(self):
+		Attacker.die(self)
+		effects.add(effects.Splat(self.x, self.y, self.z))
 
 class Seeker(Attacker):
 	minicolor = 200, 200, 200
