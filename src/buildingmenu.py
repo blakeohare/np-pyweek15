@@ -4,6 +4,8 @@ from src.font import get_tiny_text
 import math
 import random
 
+advice_i = 0
+
 def abs(x):
 	if x < 0: return -x
 	return x
@@ -192,6 +194,7 @@ class BuildingMenu(UiScene):
 			str(x) + '^' + str(y))
 		
 	def init_medtent(self, left, top, right, bottom):
+		global advice_i
 		a = self.building.x * 3 + 13
 		b = self.building.y * 7 + 4
 		papercuts = a % 36
@@ -206,24 +209,29 @@ class BuildingMenu(UiScene):
 		y += self.add_label(left, y, "First Aid Advice of the Day:", 14) + 3
 		
 		
-		advice = random.choice([
+		advice = [
 			['Undercooked space goats can lead to',
 			 'discoloration of the stool. Do not',
 			 'panic for this is temporary and',
 			 '(relatively) harmless.'],
 			 
-			['lorem ipsum dolar sit amet consicutor',
-			 'lksdfjkldja jfklaj lkj lkf'],
+			['How about a nice game of Operation?'],
 			 
-			['lorem ipsum dolar sit amet consicutor',
-			 'lksdfjkldja jfklaj lkj lkf'],
+            ['The medical leeches are intended for',
+             'external use only. Please do not',
+             'take them orally or as a suppository.'],
 			 
-			['lorem ipsum dolar sit amet consicutor',
-			 'lksdfjkldja jfklaj lkj lkf'],
+			['Dammit, we are doctors, not miracle',
+             'workers!'],
 			
-			['lorem ipsum dolar sit amet consicutor',
-			 'lksdfjkldja jfklaj lkj lkf']
-		])
+			['If you experience dizzyness, nausea,',
+             'headaches, stomaches, liveraches,',
+             'chest pains, diarrhea, and trouble',
+             'breathing, please go somewhere else.']
+		]
+		
+		advice = advice[advice_i % len(advice)]
+		advice_i += 1
 		
 		for line in advice:
 			img = get_tiny_text(line)
