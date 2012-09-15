@@ -11,7 +11,7 @@ def produce_bot(user_id, type):
 		return { 'success': False, 'message': "Invalid args" }
 	
 	structures = sql.query("SELECT `type` FROM `structure` WHERE `user_id` = " + str(user_id))
-	desired_type = [None, 'machinerylab', 'foundry', 'sciencelab']
+	desired_type = [None, 'machinerylab', 'foundry', 'sciencelab'][s]
 	total = 0
 	for structure in structures:
 		if structure['type'] == desired_type:
@@ -24,8 +24,8 @@ def produce_bot(user_id, type):
 	else:
 		current = current[0]
 		current = [None,
-			current['type_a']
-			current['type_b']
+			current['type_a'],
+			current['type_b'],
 			current['type_c']]
 	
 	max = total * 5
@@ -33,6 +33,7 @@ def produce_bot(user_id, type):
 	if current[s] < max:
 		cost = [None, settings.BOT_COST_1, settings.BOT_COST_2, settings.BOT_COST_3][s]
 		if build.try_deplete_resources(
+			user_id,
 			cost['food'],
 			cost['water'],
 			cost['aluminum'],
@@ -43,12 +44,13 @@ def produce_bot(user_id, type):
 			letter = ' abc'[s]
 			sql.query("UPDATE `bots` SET `type_" + letter + "` = `type_" + letter + "` + 1 WHERE `user_id` = " + str(user_id) + " LIMIT 1")
 			
-			return { 'success': True, 'newtotal': current[s] + 1 }
+			current[s] += 1
+			return { 'success': True, 'a': current[1], 'b': current[2], 'c': current[3] }
 		else:
-			return { 'success': False, 'message': "You do not have enough resources" }
+			return { 'success': False, 'message': "You do not have enough resources", 'error': 'resources' }
 		
 	else:
-		return { 'success': False, 'message': "You cannot produce more bots of this type" }
+		return { 'success': False, 'message': "You cannot produce more bots of this type", 'err': 'capacity' }
 
 def get_count(user_id):
 	counts = sql.query("SELECT * FROM `bots` WHERE `user_id` = " + str(user_id) + " LIMIT 1")

@@ -507,7 +507,7 @@ class PlayScene:
 					if self.battle:
 						for building in self.battle.buildings:
 							if building.destroyed:
-								print "blowing up %s %s" % building.getModelXY()
+								util.verboseprint("blowing up %s %s" % building.getModelXY())
 								self.blow_stuff_up(*building.getModelXY())
 						if self.battle.is_computer_attacking():
 							 for building in self.battle.buildings:
