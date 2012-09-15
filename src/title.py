@@ -15,9 +15,10 @@ class TitleScene(UiScene):
 		self.add_element(self.username)
 		self.button = Button(20, 230, "Login", self.login_pressed, False)
 		self.add_element(self.button)
-		self.add_element(Button(300, 200, "Story", self.story_pressed, True))
-		self.add_element(Button(300, 230, "Tutorial Mode", self.tutorial_pressed, True))
-		self.add_element(Button(300, 260, "Credits", self.credits_pressed, True))
+		yo = 30
+		self.add_element(Button(300, 200 - yo, "Story", self.story_pressed, True))
+		self.add_element(Button(300, 230 - yo, "Tutorial Mode", self.tutorial_pressed, True))
+		self.add_element(Button(300, 260 - yo, "Credits", self.credits_pressed, True))
 		self.auth_request = None
 	
 	def story_pressed(self):
