@@ -210,24 +210,36 @@ class BuildingMenu(UiScene):
 		
 		
 		advice = [
+            ['The medical leeches are intended for',
+             'external use only. Please do not',
+             'take them orally or as a suppository.'],
+			 
+			['You know, this would go a lot easier',
+			 'for both of us if you stopped with',
+			 'all the screaming!'],
+			 
+			['If you experience dizzyness, nausea,',
+             'headaches, stomaches, liveraches,',
+             'chest pains, diarrhea, and trouble',
+             'breathing, please go somewhere else.'],
+			
 			['Undercooked space goats can lead to',
 			 'discoloration of the stool. Do not',
 			 'panic for this is temporary and',
 			 '(relatively) harmless.'],
 			 
-			['How about a nice game of Operation?'],
-			 
-            ['The medical leeches are intended for',
-             'external use only. Please do not',
-             'take them orally or as a suppository.'],
-			 
+			['Pills here!'],
+			
+			['Fever? Have you tried more cowbell?'],
+			
 			['Dammit, we are doctors, not miracle',
              'workers!'],
 			
-			['If you experience dizzyness, nausea,',
-             'headaches, stomaches, liveraches,',
-             'chest pains, diarrhea, and trouble',
-             'breathing, please go somewhere else.']
+			['My prescription: take two shots of',
+			 'whiskey, and feel free not to call',
+			 'me in the morning.'],
+			
+			['How about a nice game of Operation?']
 		]
 		
 		advice = advice[advice_i % len(advice)]

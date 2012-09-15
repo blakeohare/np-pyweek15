@@ -70,6 +70,23 @@ class MagicPotato:
 			'oil': 0
 		}
 	
+	def build_within_count_limit(self, user_id, building_id):
+		total = 0
+		
+		limit = structure.get_structure_limit(building_id)
+		
+		if limit == 0:
+			return True
+		
+		for building in self.get_all_buildings_of_player_SLOW(user_id):
+			if building.btype == building_id:
+				total += 1
+		
+		if total < limit:
+			return True
+		
+		return False
+	
 	def add_research(self, building_id):
 		self.buildings_available[building_id] = True
 	

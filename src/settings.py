@@ -104,25 +104,25 @@ RESOURCE_OIL = "Dark Chocolate"
 
 
 building_cost = {
-# food, water, aluminum, copper, silicon, oil
+# food, water, aluminum, copper, silicon, oil, limit
 
-'hq':           [50, 50, 100, 0, 0, 0],
-'drill':        [50, 50, 100, 0, 0, 0],
-'foundry':      [50, 50, 100, 0, 0, 0],
-'beacon':       [50, 50, 100, 0, 0, 0],
-'machinerylab': [50, 50, 100, 0, 0, 0],
-'sciencelab':   [50, 50, 100, 0, 0, 0],
-'launchsite':   [50, 50, 100, 0, 0, 0],
-'farm':         [50, 50, 100, 0, 0, 0],
-'greenhouse':   [50, 50, 100, 0, 0, 0],
-'medicaltent':  [50, 50, 100, 0, 0, 0],
-'quarry':       [50, 50, 100, 0, 0, 0],
-'radar':        [50, 50, 100, 0, 0, 0],
-'turret':       [50, 50, 100, 0, 0, 0],
-'fireturret':   [50, 50, 100, 0, 0, 0],
-'lazorturret':  [50, 50, 100, 0, 0, 0],
-'teslaturret':  [50, 50, 100, 0, 0, 0],
-'resevoir':     [50, 50, 100, 0, 0, 0]
+'hq':           [99999, 99999, 99999, 99999, 99999, 99999, 1],
+'greenhouse':   [0,     0,     0,     0,     0,     0,     2],
+'drill':        [0,     0,     0,     0,     0,     0,     0],
+'foundry':      [0,     0,     0,     0,     0,     0,     0],
+'beacon':       [0,     0,     0,     0,     0,     0,     0],
+'machinerylab': [0,     0,     0,     0,     0,     0,     0],
+'sciencelab':   [0,     0,     0,     0,     0,     0,     0],
+'launchsite':   [0,     0,     0,     0,     0,     0,     1],
+'farm':         [0,     0,     0,     0,     0,     0,     0],
+'medicaltent':  [200,   200,   10,    0,     0,     0,     0],
+'quarry':       [0,     0,     0,     0,     0,     0,     0],
+'radar':        [0,     0,     0,     0,     0,     0,     0],
+'turret':       [0,     0,     0,     0,     0,     0,     3],
+'fireturret':   [0,     0,     0,     0,     0,     0,     0],
+'lazorturret':  [0,     0,     0,     0,     0,     0,     0],
+'teslaturret':  [0,     0,     0,     0,     0,     0,     0],
+'resevoir':     [0,     0,     0,     0,     0,     0,     0],
 }
 
 building_size = {

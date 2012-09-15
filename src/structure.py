@@ -386,23 +386,27 @@ for i in range(len(_structure_info)):
 	
 	j = 0
 	while j < 6:
-		row[j + 4] = settings.building_cost[key][j]
-		row[2] = settings.building_size[key]
+		row[j + 5] = settings.building_cost[key][j]
 		j += 1
+		
+	row[2] = settings.building_size[key]
+	row[4] = settings.building_cost[key][6] # count limit
 
 def get_structure_name(id):
 	return _structure_by_id[id][-2]
 def get_structure_description(id):
 	return _structure_by_id[id][-1]
+def get_structure_limit(id):
+	return _structure_by_id[id][4]
 def get_structure_resources(id):
 	s = _structure_by_id[id]
 	return {
-		'food': s[4],
-		'water': s[5],
-		'aluminum': s[6],
-		'copper': s[7],
-		'silicon': s[8],
-		'oil': s[9]
+		'food': s[5],
+		'water': s[6],
+		'aluminum': s[7],
+		'copper': s[8],
+		'silicon': s[9],
+		'oil': s[10]
 	}
 _structure_by_era = {}
 _structure_by_id = {}
