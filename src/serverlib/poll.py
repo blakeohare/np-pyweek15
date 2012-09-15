@@ -49,10 +49,14 @@ def do_poll(user_id, sector_args):
 	for building in your_buildings:
 		if building['type'] == 'farm':
 			resources['food'] += 5
+		elif building['type'] == 'hq':
+			resources['food'] += 1
+			resources['water'] += 1
 		elif building['type'] == 'resevoir':
 			resources['water'] += 3
 		elif building['type'] == 'greenhouse':
-			resources['food'] += 1
+			resources['food'] += 2
+			resources['water'] += 2
 		elif building['type'] == 'drill':
 			resources['oil'] += 2
 		elif building['type'] == 'quarry':
