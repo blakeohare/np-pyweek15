@@ -254,7 +254,10 @@ class BuildingMenu(UiScene):
 		
 		y += 10
 		y += self.add_label(left, y, "First Aid Advice of the Day:", 14) + 3
-		
+
+
+		hp = 1 + sum(b.btype == "medicaltent" for b in self.playscene.potato.get_all_buildings_of_player_SLOW(self.playscene.user_id))
+		self.playscene.player.hp = self.playscene.player.hp0 = hp
 		
 		advice = [
             ['The medical leeches are intended for',

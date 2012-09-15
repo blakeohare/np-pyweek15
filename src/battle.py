@@ -43,11 +43,11 @@ class Battle:
 			elif nbytes <= 40:
 				q += [(t, sprite.CheapAlien) for t in range(10, 800, 18)]
 				q += [(t, sprite.QuickAlien) for t in range(200, 800, 40)]
-			elif nbytes <= 100:
+			elif nbytes <= 80:
 				q += [(t, sprite.CheapAlien) for t in range(10, 1200, 16)]
 				q += [(t, sprite.QuickAlien) for t in range(120, 1200, 32)]
 				q += [(t, sprite.StrongAlien) for t in range(800, 1200, 60)]
-			elif nbytes <= 400:
+			elif nbytes <= 120:
 				q += [(t, sprite.CheapAlien) for t in range(10, 1600, 10)]
 				q += [(t, sprite.QuickAlien) for t in range(10, 1600, 24)]
 				q += [(t, sprite.StrongAlien) for t in range(400, 1600, 50)]
