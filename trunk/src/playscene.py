@@ -619,10 +619,12 @@ class PlayScene:
 		
 		if self.potato.is_touching_other_building(self.user_id, sx, sy, x, y, type):
 			self.show_error('adjacency_error')
+			jukebox.play_voice("adjacent_structures")
 			return
 		
 		if not self.potato.is_within_borders(self.user_id, sx, sy, x, y):
 			self.show_error('outside_border')
+			jukebox.play_voice("outside_border")
 			return
 		
 		if not self.potato.try_spend_resources(
