@@ -46,6 +46,7 @@ class BuildingMenu(UiScene):
 			self.init_build_bot(3, playscene, left, top, right, bottom)
 		elif building.btype == 'drill':
 			top = self.add_title(left, top, "Drill")
+			self.add_element(Image(left, top, get_tiny_text("Produces Chocolate")))
 		elif building.btype == 'quarry':
 			top = self.add_title(left, top, "Quarry")
 			self.init_quarry(left, top, right, bottom)
@@ -196,17 +197,21 @@ class BuildingMenu(UiScene):
 			#"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 			
 			# Basic
-			["Shoots things. Good for some basic",
-			 "defense."],
+			["Your average machine of death.",
+			 "Minions not included."],
 			
 			# Fire
-			["Mmmm...Fire"],
+			["Has strong personal magnetism, if",
+			  "you know what I mean..."],
 			
 			# Tesla
-			["Bazat!"],
+			["Back at my old lab, I think I saw",
+			 "one of these babies fry an intern",
+			 "once."],
 			
 			# Lazor
-			["PEW PEW!"]
+			["Sort of like a magnifying glass to",
+			"an anthill..."]
 			][type]
 		
 		y = top
