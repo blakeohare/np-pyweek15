@@ -560,7 +560,7 @@ class PlayScene:
 	
 	def battle_victorious(self):
 		if self.current_research != None:
-			self.potato.add_research(self.current_research)
+			self.potato.add_research(self.current_research, self)
 			self.current_research = None
 		
 	def battle_failed(self):
@@ -607,7 +607,7 @@ class PlayScene:
 		
 		if self.battle != None:
 			self.battle.update(self)
-			if self.battle.is_complete():
+			if self.battle.is_complete(self):
 				self.pendingbattle = 17  # dummy number
 		
 		for s in self.sprites: s.update(self)

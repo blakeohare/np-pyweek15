@@ -146,13 +146,15 @@ class Battle:
 	def get_sprites(self):
 		return self.attackers
 	
-	def is_complete(self):
+	def is_complete(self, playscene):
 		# HQ disabled
 		if self.hq.hp <= 0:
+			playscene.battle_failure()
 			return True
 		if self.is_computer_attacking():
 			# All aliens defeated
 			if not self.alienq and not self.attackers:
+				playscene.battle_victorious()
 				return True
 		else:
 			if not sum(self.nbots) and not self.attackers:
