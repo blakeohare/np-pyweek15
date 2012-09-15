@@ -151,3 +151,30 @@ building_research = {
 	'sciencelab': 400,
 	'launchsite': 600
 }
+
+BOT_COST_1 = {
+	'food': 0,
+	'water': 0,
+	'aluminum': 50,
+	'copper': 25,
+	'silicon': 10,
+	'oil': 0
+}
+
+BOT_COST_2 = {
+	'food': 0,
+	'water': 0,
+	'aluminum': 200,
+	'copper': 100,
+	'silicon': 50,
+	'oil': 50
+}
+
+BOT_COST_3 = {
+	'food': 0,
+	'water': 0,
+	'aluminum': 500,
+	'copper': 300,
+	'silicon': 700,
+	'oil': 150
+}
