@@ -59,8 +59,8 @@ class StoryScene:
 			get_image('backgrounds/story1.png'),
 			None,
 			get_image('backgrounds/story2.png'),
-			get_image('backgrounds/story3.png'),
-			get_image('backgrounds/story4.png')]
+			get_image('backgrounds/story2.png'),
+			get_image('backgrounds/story3.png')]
 		
 		self.pos = [
 			(10, 10),
@@ -165,15 +165,93 @@ class CreditsScene:
 class EndingScene:
 	def __init__(self):
 		self.next = self
-	
+		self.pages = [
+			get_image('backgrounds/ending1.png'),
+			get_image('backgrounds/ending1.png'),
+			get_image('backgrounds/ending1.png'),
+			get_image('backgrounds/ending1.png'),
+			get_image('backgrounds/ending2.png'),
+			get_image('backgrounds/ending2.png')]
+		self.text = [
+		util.trim("""
+			Despite the fact that you can still see hordes of the
+			alien monsters on the horizon, you begin the launch
+			sequence for your homemade spaceship, hoping for the best.
+			Amazingly enough, the patchwork rocket engine ignites.
+			The hastily constructed frame groans as the fuel burns;
+			this is a one-way trip, so you better hope your""").split('\n'),
+			
+		util.trim("""
+			destination isn't too far. You've used the computer to
+			calculate where your home world is, hoping you'll be able
+			to hide among your family and friends, counting on the fact
+			that no one has escaped the prison planet before to mean
+			they won't be looking for you. It's a desperate gamble, but
+			it's better than being trapped for the rest of your life.
+		""").split('\n'),
+
+			util.trim("""
+				You're not sure how long you spend traveling through
+				the blackness of space, but finally you think you
+				have arrived at the location the computer indicated
+				your home would be. It's not a moment too soon; your
+				fuel supply is nearly depleted. You buckle in and
+				start the landing sequence; hoping to survive.""").split('\n'),
+				
+				util.trim("""
+
+			Your arrival was more on the "crash" side of landing,
+			but you're in one piece! You open the hatch to your rocket,
+			ready to make your way home.""").split('\n'),
+			
+			util.trim("""
+				Except something is wrong; where are the houses,
+				the architecture, the parks and fountains? Even
+				in the most uninhabited areas, it didn't look
+				like this: barren, almost lifeless. You cautiously
+				approach the small crowd gathered around your craft;
+				they're a motley bunch, looking shifty and suspicious. """).split('\n'),
+				
+				util.trim("""
+			"Where am I? Isn't this Earth?"
+			
+			They look at each other, and an older man with one eye
+			and a lot of tattoos answers, "Sure was, stranger, but
+			it ain't much of anythin' no more."
+			
+			"What do you mean? This is my home!"
+			
+			"Ain't no one's home; they moved the locals out of here
+			when they made this a prison planet. You must be crazy
+			to come here, cause everyone knows there ain't no way out!"
+		""").split('\n')
+		
+		]
+		self.current = 0
+		self.counter = 0
 	def process_input(self, events, pressed):
-		pass
+		for event in events:
+			if event.type == 'key':
+				if event.down:
+					if event.action in ('build', 'action', 'shoot', 'back'):
+						self.current += 1
+		
+		if self.current == len(self.text):
+			self.current -= 1
+			from src import title
+			self.next = CreditsScene(False)
 	
 	def update(self):
-		pass
+		self.counter += 1
 	
 	def render(self, screen):
-		screen.fill((0, 0, 0))
+		screen.blit(self.pages[self.current], (0, 0))
+		y = 20
+		x = 10
+		for line in self.text[self.current]:
+			img = get_text(util.trim(line), (0, 0, 0), 18)
+			screen.blit(img, (x, y))
+			y += img.get_height() + 4
 	
 scenefactory.add_builder('story', lambda:StoryScene())
 scenefactory.add_builder('credits', lambda x:CreditsScene(x))
