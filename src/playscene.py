@@ -1069,10 +1069,10 @@ class ToolBar:
 					img.blit(b, (img.get_width() // 2 - b.get_width() // 2 + e[0], e[1] + img.get_height() // 2 - b.get_height() // 2))
 					buttons['build_' + building[0]] = img
 		
-		buttons['era_landing'] = buttons['build_medicaltent']
-		buttons['era_lowtech'] = buttons['build_farm']
-		buttons['era_medtech'] = buttons['build_radar']
-		buttons['era_hightech']= buttons['build_lazorturret']
+		buttons['era_landing'] = get_image('toolbar/build_resource.png')
+		buttons['era_lowtech'] = get_image('toolbar/build_defensive.png')
+		buttons['era_medtech'] = get_image('toolbar/build_offensive.png')
+		buttons['era_hightech']= get_image('toolbar/build_misc.png')
 		buttons['era_space']   = buttons['build_launchsite']
 		buttons['locked'] = get_image('toolbar/locked.png')
 		self.details_bg = None

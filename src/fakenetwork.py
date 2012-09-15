@@ -22,7 +22,7 @@ class Tutorial:
 		
 		self.research_unlocked = {}
 		self.resources = {}
-		self.research = 50
+		self.research = 10
 		self.bots = [0, 0, 0]
 		self.last_poll = time.time()
 		self.first_poll = True
@@ -46,16 +46,23 @@ class Tutorial:
 				[
 					# Lines are this long:
 					#"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-					["Welcome to [planet name]. In order to",
-					 "ensure your survival, blah blah blah"],
-					
-					["Luckily you brough some equipment",
-					 "with you. This equipment is available",
-					 "in the build menu."],
-					
-					["Select the greenhouse in the resources",
-					 "pane in the build menu, and place it",
-					 "inside your base"]
+				   ["Welcome to planet Tantalus! I'm Mica,",
+                     "an AI attached to the computer in your",
+                     "headquarters, and I'm going to try to",
+                     "help you through these first few days",
+                     "on Tantalus."],
+                    
+                    ["Now, one of the things you organics",
+                     "need to survive is food, so I suggest",
+                     "you access my Build menu, then select",
+                     "resources."],
+                     
+                    
+                    ["Here you'll see a greenhouse! This",
+                     "will help provide you with nutrients",
+                     "and water humans require. Select the",
+                     "greenhouse, and then build within the",
+                     "boundaries by pressing the spacebar."]
 				],
 				['greenhouse'],
 				[],
@@ -66,12 +73,35 @@ class Tutorial:
 				# challenge 1 - turrets
 				"Set up a perimeter",
 				[
-					["Now it's time to get some defenses"],
-					
-					["Select the turret from the defenses",
-					 "menu in the build menu."],
-					 
-					["Three should be good."]
+                    ["Excellent! Now, you might have noticed",
+                    "those unusual looking creatures outside",
+                    "your base. I hope you haven't touched",
+                    "them, because they're really quite rude",
+                    "as aliens go. "],
+                    
+                    ["In fact, they'll attempt to damage",
+                     "your squishy human body, so I",
+                     "recommend not giving them the chance!"],
+                    
+                    ["You've been given a small ray gun for",
+                    "self-defense; use it by both accessing",
+                    "the Fire Ray Gun option in the menu,",
+                    "or by pressing the \"Z\" key."],
+                    
+                    ["Go and don't let those monsters show",
+                    "us exactly what you are made of!",
+                    "...It's meat, right? I'm pretty sure",
+                    "it's some sort of meat..."],
+                     
+                    ["Also, you can build turrets for base",
+                    "defense. Select the Turret from the",
+                    "Defensive unit menu. Build it the same",
+                    "way you built the greenhouse. They'll",
+                    "kill any aliens who invade your base!"],
+                    
+                    ["Luckily you brought 3 turrets with",
+                     "you amongst your landing equipment.",
+                     "Three turrets should do for now."]
 				],
 				['turret', 'turret', 'turret'],
 				[],
@@ -82,13 +112,20 @@ class Tutorial:
 				# challenge 2 - research
 				"Research",
 				[
-					["Excellent work. You're a natural at",
-					 "this"],
-					
-					["Now it's time to do some reseach"],
-					
-					["Blah blah blah something about shields.",
-					 "going down"]
+                     ["Here's something interesting: I found",
+                     "I have a Research function, but it's",
+                     "a little risky: your base will lose",
+                     "shields for a bit, but if we do I can",
+                     "learn some new things to let us build",
+                     "foundries."],
+                    
+                    ["With a foundry, we can build bots,",
+                    "which would increase our fighting power",
+                    "dramatically!"],
+                    
+                    ["We're going to have to try! Get ready",
+                     "for a fight! Approach headquarters",
+                     "and press enter!"]
 				],
 				[],
 				['foundry'],
@@ -99,13 +136,13 @@ class Tutorial:
 				# challenge 3 - build foundry
 				"To Arms",
 				[
-					["Phew, that was close. Now that",
-					 "you know how to build a foundry",
-					 "you should actually make one."],
-					 
-					["Select the foundry in the offensive",
-					 "submenu in build menu and place it",
-					 "in your base."]
+                    ["Phew, that was close. Now that",
+                     "I know how to build a foundry",
+                     "you should actually make one."],
+                     
+                    ["Select the foundry in the offensive",
+                     "submenu in build menu and place it",
+                     "in your base."]
 				],
 				['foundry'],
 				[],
