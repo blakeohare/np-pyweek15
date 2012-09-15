@@ -17,6 +17,10 @@ class Battle:
 		print("number of HQs: %s" % len(hqs))
 		self.hq = hqs[0]
 
+		if nbytes >= 10000:
+			hqs = [b for b in self.buildings if isinstance(b, structure.LaunchSite)]
+			self.hq = hqs[0]
+
 #		self.buildbasepath()
 		
 		self.data_stolen = 0 # add to this in real time as the sprites successfully get into the HQ

@@ -186,7 +186,7 @@ class You(Sprite):
 class Ray(Sprite):
 	v = 1.0
 	lifetime = 7
-	strength = 10
+	strength = 8
 	harmrange = 1.0
 	t = 0
 

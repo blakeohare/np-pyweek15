@@ -195,8 +195,8 @@ class LaunchSite(Structure):
 		else:
 			Structure.render(self, screen, looker)
 			px, py = looker.screenpos(self.x, self.y, self.z)
-			img = images.get_image("rocket")
-			screen.blit(img, (px-img.get_width()//2, py-self.rocket_y_offset))
+			img = images.get_image("rocket.png")
+			screen.blit(img, (px-img.get_width()//2, py-self.rocket_y_offset-img.get_height()))
 
 class Farm(Structure):
 	btype = "farm"
@@ -221,8 +221,8 @@ class Turret(Structure):
 	attackable = True
 	healthbarheight = 40
 	chargetime = 60
-	strength = 1
-	shootrange = 4
+	strength = 4
+	shootrange = 4.5
 	t = 0
 	nbytes = 2
 
@@ -245,7 +245,8 @@ class Turret(Structure):
 class FireTurret(Turret):
 	btype = "fireturret"
 	h = 24
-	targetlimit = 2
+	targetlimit = 4
+	shootrange = 6
 	nbytes = 2
 	def __init__(self, *args, **kw):
 		Turret.__init__(self, *args, **kw)
@@ -277,8 +278,8 @@ class FireTurret(Turret):
 
 class LazorTurret(Turret):
 	btype = "lazorturret"
-	strength = 1
-	chargetime = 30
+	strength = 2
+	chargetime = 20
 	nbytes = 3
 	def addeffect(self, target):
 		effects.add(effects.LaserBeam(self.x, self.y, self.z + 22, target.x, target.y, target.z + 2))
@@ -290,6 +291,7 @@ class LazorTurret(Turret):
 class TeslaTurret(Turret):
 	btype = "teslaturret"
 	splashrange = 3
+	strength = 10
 	nbytes = 3
 
 	def addeffect(self, target):
