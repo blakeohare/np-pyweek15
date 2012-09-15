@@ -111,9 +111,9 @@ class BuildingMenu(UiScene):
 				else:
 					err = r.get('error', None)
 					if err == 'capacity':
-						pass # TODO:SOUND "Arsenal Capacity Exceeded"
+						jukebox.play_voice("arsenal_exceeded")
 					elif err == 'resources':
-						pass # TODO:SOUND "Insufficient resources"
+						jukebox.play_voice("insufficient_resources")
 					else:
 						pass
 						

@@ -245,7 +245,7 @@ def drawscene(screen, entities, cursorpos = None, borders = None):
         cx, cy, s = cursorpos
         for a in range(s):
         	for b in range(s):
-		        highlighttile(screen, cx-a-b, cy-a+b)
+		        highlighttile(screen, cx-a+b, cy-a-b)
         drawfadinggrid(screen, cx, cy)
     esort = sorted(entities, key = lambda e: -e.y)
     for entity in esort:

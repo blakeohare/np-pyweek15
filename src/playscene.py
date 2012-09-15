@@ -216,9 +216,9 @@ class DeployBotsScene:
 			
 			if a > 0 or b > 0 or c > 0:
 				self.deploy(a, b, c)
+				jukebox.play_sound("bot")
 			else:
-				# TODO:SOUND "Arsenal is empty"
-				pass
+				jukebox.play_sound("wrong")
 				
 	
 	def close_menu(self):
@@ -597,13 +597,12 @@ class PlayScene:
 		error = errors[key]
 		util.verboseprint(error)
 		# TODO: show warning bubble
-		# TODO: play voice error
 		
 	
 	def build_thing(self, type):
-		# TODO: verify you can build this item
 		sx,sy = self.get_current_sector()
 		x,y = self.player.getModelXY()
+		s = structure.btypedict[type].size
 		client_token = self.get_new_client_token()
 		
 		cost = structure.get_structure_resources(type)
@@ -621,7 +620,7 @@ class PlayScene:
 			jukebox.play_voice("adjacent_structures")
 			return
 		
-		if not self.potato.is_within_borders(self.user_id, sx, sy, x, y):
+		if not self.potato.is_within_borders(self.user_id, sx, sy, x, y, s):
 			self.show_error('outside_border')
 			jukebox.play_voice("outside_border")
 			return
@@ -811,10 +810,10 @@ class PlayScene:
 		
 		if self.curiosity != None:
 			cur = self.curiosity
-			for structure in structures:
-				if structure.btype == 'hq' and structure.user_id == self.user_id:
-					cur.hq.x = structure.x
-					cur.hq.y = structure.y
+			for s in structures:
+				if s.btype == 'hq' and s.user_id == self.user_id:
+					cur.hq.x = s.x
+					cur.hq.y = s.y
 			entities = [cur.hq]
 			height = cur.get_hq_height()
 			if height != None:
@@ -822,16 +821,16 @@ class PlayScene:
 			else:
 				entities = []
 		else:
-			for structure in structures:
-				if structure.btype == 'hq':
-					owner_id = structure.user_id
+			for s in structures:
+				if s.btype == 'hq':
+					owner_id = s.user_id
 					name = self.potato.get_user_name(owner_id)
 					img = get_text(name, (255, 255, 255), 18)
-					px, py = camera.screenpos(structure.x, structure.y, structure.z - 20)
+					px, py = camera.screenpos(s.x, s.y, s.z - 20)
 					labels.append([img, px-img.get_width()//2, py])
 			# Don't show destroyed buildings outside battle
 			if self.battle is None:
-				structure = [s for s in structures if not s.destroyed]
+				structures = [s for s in structures if not s.destroyed]
 			entities = structures + self.shots
 			# HACK
 			entities += [s for s in self.sprites if (s.x - self.player.x) ** 2 + (s.y - self.player.y) ** 2 < 40 ** 2]
@@ -846,8 +845,8 @@ class PlayScene:
 		borders = self.potato.get_borders_near_sector(sx, sy)
 		if self.potato.borders_by_user[self.user_id].iswithin(self.player.x, self.player.y):
 			if self.build_mode:
-#				s = self.build_mode.size  # TODO: a little help here? how to get the type from this string
-				s = 1
+				# HAAAAACK!
+				s = structure.btypedict[self.build_mode].size if self.build_mode in structure.btypedict else 1
 				cursor = (cx, cy, s)
 			else:
 				cursor = (cx, cy, 0)
