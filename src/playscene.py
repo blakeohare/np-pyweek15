@@ -369,6 +369,8 @@ class PlayScene:
 
 		#FIXME: this is just for testing so I can attack Blake easily - undo
 #		self.cx, self.cy = terrain.toModel(-73, 0)
+		if settings.attackblake:
+			self.cx, self.cy = -73, 0
 
 		self.player = sprite.You(self.cx, self.cy + 1)
 		self.player.lookatme()

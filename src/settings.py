@@ -48,6 +48,9 @@ sz = wsz
 playmusic = "--nomusic" not in sys.argv
 playsfx = "--nosfx" not in sys.argv
 
+
+attackblake = "--attackblake" in sys.argv
+
 cursorgridsize = 4
 
 trackvalue = 0.2
@@ -161,6 +164,10 @@ building_research = {
 	'sciencelab': 400,
 	'launchsite': 600
 }
+
+
+botnames = "CheapBot", "QuickBot", "StrongBot"
+
 
 BOT_COST_1 = {
 	'food': 0,

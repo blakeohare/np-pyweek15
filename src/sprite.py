@@ -382,3 +382,30 @@ class Seeker(Attacker):
 		frame = self.frames[(0, a)]
 		screen.blit(frame, (px-12, py-15))
 
+class CheapBot(Seeker):
+	runspeed = 0.15
+	attackrange = 3.5
+	chargetime = 40
+	hp0 = 10
+	strength = 1
+	frames = {}
+	fname = "seekerbot.png"
+
+class QuickBot(Seeker):
+	runspeed = 0.4
+	attackrange = 3.5
+	chargetime = 20
+	hp0 = 5
+	strength = 1
+	frames = {}
+	fname = "seekerbot.png"
+
+class StrongBot(Seeker):
+	runspeed = 0.1
+	attackrange = 3.5
+	chargetime = 50
+	hp0 = 20
+	frames = {}
+	fname = "seekerbot.png"
+
+
