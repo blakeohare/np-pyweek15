@@ -101,7 +101,8 @@ class Battle:
 			return False
 		if not self.nbots[bottype]:
 			return False
-		self.deploy(scene, building, sprite.Seeker)
+		btype = [sprite.CheapBot, sprite.QuickBot, sprite.StrongBot][bottype]
+		self.deploy(scene, building, btype)
 		self.nbots[bottype] -= 1
 		return True
 

@@ -91,7 +91,7 @@ class BuildingMenu(UiScene):
 		for i in range(3):
 			ui = self.totals[i]
 			count = self.counts[i]
-			ui.img = get_text(self.botnames[i] + ": " + str(count), (255, 255, 255), 18)
+			ui.img = get_text(settings.botnames[i] + ": " + str(count), (255, 255, 255), 18)
 		self.playscene.potato.apply_bot_snapshot(self.counts[0], self.counts[1], self.counts[2])
 	
 	def render_bot_factory(self, screen):
@@ -125,16 +125,15 @@ class BuildingMenu(UiScene):
 					self.playscene.potato.apply_bot_snapshot(self.counts[0], self.counts[1], self.counts[2])
 					left = 105
 					top = 90
-					self.botnames = ["Type 1 Bot", "Type 2 Bot", "Type 3 Bot"]
 					self.totals = []
 					y = top
 					for i in range(3):
-						y += 5 + self.add_label(left, y, self.botnames[i] + ": " + str(self.counts[i]), 18)
+						y += 5 + self.add_label(left, y, settings.botnames[i] + ": " + str(self.counts[i]), 18)
 						self.totals.append(self.elements[-1])
 					
 					handler = [self.add_bot1, self.add_bot2, self.add_bot3][self.bot_type - 1]
 
-					self.add_element(Button(left, y + 10, "Build " + self.botnames[self.bot_type - 1], handler, True))
+					self.add_element(Button(left, y + 10, "Build " + settings.botnames[self.bot_type - 1], handler, True))
 
 			img = get_text("Cataloging the arsenal...", (255, 255, 255), 18)
 			screen.blit(img, (screen.get_width() // 2 - img.get_width() // 2, screen.get_height() // 2 - img.get_height() // 2))
