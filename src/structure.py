@@ -193,8 +193,10 @@ class LaunchSite(Structure):
 		if self.rocket_y_offset is None:
 			return Structure.render(self, screen, looker)
 		else:
-			# TODO Blake I think this is what you wanted!
-			return Structure.render(self, screen, looker)
+			Structure.render(self, screen, looker)
+			px, py = looker.screenpos(self.x, self.y, self.z)
+			img = images.get_image("rocket")
+			screen.blit(img, (px-img.get_width()//2, py-self.rocket_y_offset))
 
 class Farm(Structure):
 	btype = "farm"
