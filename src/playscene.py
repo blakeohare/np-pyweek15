@@ -59,7 +59,7 @@ class LoadingScene:
 		if self.poll.has_response():
 			response = self.poll.get_response()
 			if response.get('success', False):
-				self.potato.apply_poll_data(response)
+				self.potato.apply_poll_data(response, self.user_id)
 				
 				t = self.potato.resources
 				self.potato.resources = self.potato.escrow
@@ -662,8 +662,11 @@ class PlayScene:
 		if self.current_research != None:
 			self.potato.add_research(self.current_research, self)
 			self.current_research = None
+		if self.potato.queue_epic_battle:
+			self.potato.epic_battle_won = True
 		
 	def battle_failed(self):
+		self.potato.queue_epic_battle = False
 		self.current_research = None
 	
 	def update(self, bdsoverride=True):
@@ -690,10 +693,17 @@ class PlayScene:
 		while i < len(self.poll):
 			if self.poll[i].has_response():
 				if not self.poll[i].is_error():
-					self.potato.apply_poll_data(self.poll[i].get_response())
+					self.potato.apply_poll_data(self.poll[i].get_response(), self.user_id)
 				self.poll = self.poll[:i] + self.poll[i + 1:]
 			else:
 				i += 1
+		
+		if self.potato.queue_epic_battle and not self.potato.epic_battle_won and self.pendingbattle == None and self.battle == None:
+		
+			buildings = self.potato.get_all_buildings_of_player_SLOW(self.user_id)
+			bord = self.potato.borders_by_user[self.user_id]
+			self.pendingbattle = battle.Battle(self.user_id, buildings, bord, None, nbytes=10000)
+			
 		
 		if len(self.poll) == 0 and self.poll_countdown < 0:
 			self.poll_countdown = 10 * settings.fps
