@@ -239,7 +239,7 @@ class MagicPotato:
 		borders = []
 		for x in (-1, 0, 1):
 			for y in (-1, 0, 1):
-				user_id = self.user_by_sector.get((x, y), None)
+				user_id = self.user_by_sector.get((sx+x, sy+y), None)
 				if user_id != None:
 					border = self.borders_by_user.get(user_id, None)
 					if border != None:
