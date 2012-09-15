@@ -88,7 +88,6 @@ class Battle:
 		#print self.hq.x, self.hq.y, X0, Y0, X0 - Y0, -X0 - Y0
 		r = 3
 		while True:
-            # TODO: this better
 			theta = random.random() * 1000
 			X = int((X0 + r * math.sin(theta))//1)
 			Y = int((Y0 + r * math.cos(theta))//1)
@@ -127,7 +126,6 @@ class Battle:
 		self.t += 1
 		if self.alienq and self.t >= self.alienq[0][0]:
 			t, atype = self.alienq.pop(0)
-			# TODO: choose a starting position based on the base layout
 			if self.hq.attackable and random.random() < 0.25:
 				target = self.hq
 			else:
@@ -214,22 +212,3 @@ class Battle:
 		screen.blit(text, (x, y))
 			
 
-
-	
-	# This is used to send deletions to the server.
-	# If you return a building in this function, it should not be
-	# returned again (like pygame.event.get())
-	# actual values are coordinates of the building
-	
-	# TODO: this function should probably be invoked at some point, I imagine.
-#	def new_buildings_destroyed(self):
-#		dead = [b for b in self.buildings if b is not self.hq and b.hp <= 0]
-#		if dead:
-#			self.buildings = [b for b in self.buildings if b not in dead]
-#		return dead
-	
-	# return buildings that have been damaged when a player attacks another player
-	# this will be 
-	# @return a dictionary with coordinate keys. value is ignored 
-	def all_buildings_damaged(self):
-		return {}

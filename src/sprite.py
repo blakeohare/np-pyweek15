@@ -167,7 +167,7 @@ class You(Sprite):
 			i = (self.counter // 3) % 4
 		img = little_yous[(self.last_direction, (0,1,0,2)[i])]
 		
-		self.rendershadow(screen)
+#		self.rendershadow(screen)
 		px, py = self.screenpos()
 		#pygame.draw.circle(screen, (255, 0, 0), (px, py-21), 4)
 		screen.blit(img, (px - img.get_width() // 2, py - img.get_height()))
@@ -256,7 +256,8 @@ class Attacker(Sprite):
 		gx, gy = terrain.grad(self.x, self.y)
 		d = (self.vx * gx + self.vy * gy) / v
 		t = 0.5 if self.tractors else 1
-		return min(max(1 - 0.12 * d, 0.4), 1) * t
+		f = 2.0 if self.freerange else 1
+		return min(max(1 - 0.12 * d, 0.4), 1) * t * f
 
 	def approachtarget(self, scene):
 		self.v = self.runspeed
@@ -361,7 +362,7 @@ class Alien(Attacker):
 		px, py = self.screenpos(looker)
 		if not looker.isvisible(px, py, 100):
 			return
-		self.rendershadow(screen)
+#		self.rendershadow(screen)
 		if not self.frames:
 			self.frames.update(images.spritesheet(self.fname, 4, 3))
 		self.drawtractor(screen, looker)
@@ -391,7 +392,7 @@ class QuickAlien(Alien):
 	walkspeed = 0.08
 	strength = 1
 	frames = {}
-	fname = "purplealien.png"
+	fname = "greenalien.png"
 	awardnumber = 2
 
 class StrongAlien(Alien):

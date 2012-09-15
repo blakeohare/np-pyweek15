@@ -447,6 +447,7 @@ class PlayScene:
 		self.player.lookatme()
 		self.sprites = [self.player]
 		self.explored = set()   # sectors that have been populated by free-range aliens
+		self.exploret = 1000
 		self.shots = []
 		self.poll_countdown = 0
 		self.poll = []
@@ -473,7 +474,7 @@ class PlayScene:
 	def give_resources(self):
 		network.send_give_resources_debug(self.user_id, self.password)
 
-	# Used by free-range aliens to know what's outside a base
+	# Used by free-range aliens to know what's outside any base
 	def is_wild(self, x, y):
 		tx, ty = terrain.nearesttile(x, y)
 		sx, sy = terrain.toiModel(tx, ty)
@@ -509,6 +510,7 @@ class PlayScene:
 				dx *= .7071
 				dy *= .7071
 			
+			self.player.setrun(False)  # TODO: would be nice if we ran when you were holding down shift
 			self.player.move(dx, dy)
 			
 			if self.battle:
@@ -697,7 +699,8 @@ class PlayScene:
 
 		# TODO: this could just as easily be called once every 100 frames or so.
 		# Populate nearby sectors with aliens
-		if not self.battle:
+		self.exploret += 1
+		if not self.battle and self.exploret >= 10:
 			self.explore()
 		
 		if self.battle != None:
@@ -766,6 +769,7 @@ class PlayScene:
 
 	# populate nearby sectors and remove aliens that are too far afield
 	def explore(self):
+		self.exploret = 0
 		import time
 		t0 = time.time()
 		sx0, sy0 = self.get_current_sector()
@@ -774,7 +778,6 @@ class PlayScene:
 		# remove aliens that are way out there
 		self.sprites = [s for s in self.sprites if s is self.player or s.getsector() in nexplored]
 		# populate sectors that are newly explored
-		# TODO: seed RNG based on sector so you get aliens in the same place?
 		nnew = len(nexplored - self.explored)
 		for sx, sy in nexplored - self.explored:
 			d = math.sqrt((self.cx//60 - sx) ** 2 + (self.cy//60 - sy)**2)
