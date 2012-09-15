@@ -238,7 +238,7 @@ class Attacker(Sprite):
 				d0 = d0 if fdir == d1 else d1
 				d1 = dirs[2]
 				# second choice of direction with probability 5*a1/(a0+5*a1)
-				fdir = d0
+				fdir = d0 if random.random() * (a0 + 5 * a1) < 5 * a1 else d1
 				if self.cango(scene.empty_tile, self.x + fdir[0], self.y + fdir[1], self.target):
 					self.waypoint = self.x + fdir[0], self.y + fdir[1]
 				else:
