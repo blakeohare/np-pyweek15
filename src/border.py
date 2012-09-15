@@ -15,13 +15,15 @@ def ctiles(r):
 class Border(object):
 	# Pass in a color and a sequence of (building, radius) pairs
 	# Radii should be in model coordinates, but internally this class uses render coordinates
-	def __init__(self, color, bradii):
+	def __init__(self, color, bradii, sector):
 		self.color = color
 		self.tiles = set()
 		for building, radius in bradii:
 			x0, y0 = building.x, building.y + building.size - 1
 			self.tiles |= set((x0 + dx, y0 + dy) for dx, dy in ctiles(radius))
-		self.tiles = sorted(self.tiles)
+		def insector(sx, sy):
+			return (int(sx // 60), int(sy // 60)) == sector
+		self.tiles = sorted([tile for tile in self.tiles if insector(*terrain.toiModel(*tile))])
 		
 		self.segs = []
 		for x,y in self.tiles:

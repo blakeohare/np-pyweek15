@@ -68,9 +68,9 @@ class Structure(object):
 			pygame.draw.polygon(s, (70,70,70), [(x-x0,y-y0) for x,y in leftps])   # left panel
 			pygame.draw.polygon(s, (30,30,30), [(x-x0,y-y0) for x,y in rightps])    # right panel
 			pygame.draw.polygon(s, (50,50,50), [(x-x0,y-y0) for x,y in topps])      # top panel
-			self.platsurface = s, x0+looker.x0, y0+looker.y0
+			self.platsurface = s, x0+looker.x0//1, y0+looker.y0//1
 		s, x0, y0 = self.platsurface
-		screen.blit(s, (x0-looker.x0, y0-looker.y0))
+		screen.blit(s, (x0-looker.x0//1, y0-looker.y0//1))
 
 	def renderhealthbar(self, surf, looker=None):
 		looker = looker or camera
