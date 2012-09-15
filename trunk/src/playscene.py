@@ -900,11 +900,17 @@ class PlayScene:
 			
 			famount = []
 			while amount > 0:
-				famount.append(str(amount % 1000))
+				z = str(amount % 1000)
+				while len(z) < 3:
+					z = '0' + z
+				famount.append(z)
 				amount = amount // 1000
 			
-			amount = ','.join(famount[::-1])
 			
+			
+			amount = ','.join(famount[::-1])
+			while len(amount) > 1 and amount[0] == '0':
+				amount = amount[1:]
 			
 			screen.blit(get_text(str(amount), color, 14), (left + 14, y))
 			

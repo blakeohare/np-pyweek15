@@ -63,7 +63,18 @@ class BuildingMenu(UiScene):
 		elif building.btype == 'medicaltent':
 			top = self.add_title(left, top, "Medical Tent")
 			self.init_medtent(left, top, right, bottom)
+		elif building.btype == 'launchsite':
+			top = self.add_title(left, top, "Launch Site")
+			self.init_launchsite(playscene, left, top, right, bottom)
 		self.add_cancel_button(left, bottom)
+	
+	def init_launchsite(self, playscene, left, top, right, bottom):
+		y = top + 10
+		self.add_element(Button(left, y, "Initiate Launch", self.pressed_launch, True))
+	
+	def pressed_launch(self):
+		print("Launched")
+		self.dismiss()
 	
 	def init_beacon(self, left, top, right, bottom):
 		pass
