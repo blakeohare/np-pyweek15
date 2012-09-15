@@ -1,5 +1,5 @@
 import random, math
-from src import sprite, structure, terrain
+from src import sprite, structure, terrain, jukebox
 from src.font import get_text
 
 class Battle:
@@ -43,6 +43,9 @@ class Battle:
 		self.nbots = list(self.nbots0)
 
 		self.t = 0
+		
+		self.set_hq_attackable()
+		self.vulnerable = self.hq.attackable
 
 	# Obsolete function: pathfinding no longer needed
 	def buildbasepath(self):
@@ -111,21 +114,31 @@ class Battle:
 		self.nbots[bottype] -= 1
 		return True
 
-	def update(self, scene):
-		self.t += 1
-		if self.alienq and self.t >= self.alienq[0][0]:
-			t, atype = self.alienq.pop(0)
-			# TODO: choose a starting position based on the base layout
-			targets = [b for b in self.buildings if b.attackable and b.hp >= 0]
-			target = random.choice(targets)
-			self.deploy(scene, target, atype)
-
+	def set_hq_attackable(self):
 		self.hq.attackable = True
 
 		for b in self.buildings:
 			b.handleintruders(self.attackers)
 			if b.btype == "beacon" and b.hp > 0:
 				self.hq.attackable = False
+
+
+	def update(self, scene):
+		self.t += 1
+		if self.alienq and self.t >= self.alienq[0][0]:
+			t, atype = self.alienq.pop(0)
+			# TODO: choose a starting position based on the base layout
+			if self.hq.attackable and random.random() < 0.25:
+				target = self.hq
+			else:
+				targets = [b for b in self.buildings if b.attackable and b.hp >= 0]
+				target = random.choice(targets)
+			self.deploy(scene, target, atype)
+
+		self.set_hq_attackable()
+		if not self.vulnerable and self.hq.attackable:
+			self.vulnerable = True
+			jukebox.play_voice("all_shields_disabled")
 		
 		for a in self.attackers: a.update(scene)
 		for b in self.buildings: b.update(scene)
