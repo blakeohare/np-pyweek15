@@ -363,10 +363,66 @@ class ResearchOhNoScene:
 			y += 3 + line.get_height()
 		# TODO: confirm button
 		
+
+class TutorialDialogScene:
+	def __init__(self, playscene, pages, title):
+		self.playscene = playscene
+		self.next = self
+		self.title = title
+		self.counter = 0
+		bg = pygame.Surface((200, 100)).convert_alpha()
+		bg.fill((0, 0, 0, 180))
+		self.bg = bg
+		self.pages = pages
+	
+	def process_input(self, events, pressed):
+		for event in events:
+			if event.type == 'key':
+				if event.action == 'build' and event.down:
+					self.pages = self.pages[1:]
+					if len(self.pages) == 0:
+						self.next = self.playscene
+						self.playscene.next = self.playscene
+	
+	def update(self):
+		pass
+	
+	def render(self, screen):
+		self.playscene.render(screen)
+		left = 140
+		top = 100
 		
+		screen.blit(self.bg, (left, top))
+		left += 5
+		top += 5
+		y = top
+		
+		img = get_text(self.title, (255, 255, 255), 18)
+		
+		screen.blit(img, (left, y))
+		
+		y += img.get_height() + 5
+		
+		if len(self.pages) > 0:
+			for line in self.pages[0]:
+				img = get_tiny_text(line)
+				screen.blit(img, (left, y))
+				y += img.get_height() + 3
+		
+		self.counter += 1
+		
+		if (self.counter // 5) % 2 == 0:
+			img = get_text("<Press SPACE>", (0, 128, 255), 14)
+			screen.blit(img, (left, top + self.bg.get_height() - img.get_height() - 8))
+
 class PlayScene:
 	def __init__(self, user_id, password, potato, starting_sector, starting_xy, show_landing_sequence, tutorial):
 		self.tutorial = tutorial
+		if self.tutorial:
+			from src import fakenetwork
+			self.tutorial_instance = fakenetwork.active_tutorial()
+		else:
+			self.tutorial_instance = None
 		self.curiosity = None
 		if show_landing_sequence:
 			self.curiosity = Curiosity(user_id)
@@ -587,6 +643,12 @@ class PlayScene:
 		self.current_research = None
 	
 	def update(self, bdsoverride=True):
+		
+		if self.tutorial:
+			pages = self.tutorial_instance.get_active_dialog()
+			if pages != None:
+				title = self.tutorial_instance.active_step()[0]
+				self.next = TutorialDialogScene(self, pages, title)
 		
 		bot_deploy_success = self.potato.deploy_success(bdsoverride)
 		if bot_deploy_success != None:
