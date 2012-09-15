@@ -655,7 +655,6 @@ class PlayScene:
 				atypes = [sprite.CheapAlien] * 6 + [sprite.QuickAlien] * 6 + [sprite.StrongAlien] * 1
 			else:
 				atypes = [sprite.CheapAlien] * 10 + [sprite.QuickAlien] * 8 + [sprite.StrongAlien] * 6
-			print sx0, sy0, sx, sy, d, len(atypes)
 			for atype in atypes:
 				x, y = (sx + random.random()) * 60., (sy + random.random()) * 60.
 				rx, ry = terrain.toRender(x, y)
