@@ -5,6 +5,7 @@ from src import util
 from src import network
 from src import border
 from src import settings
+from src import terrain
 
 def max(a, b): return a if a > b else b
 def min(a, b): return a if a < b else b
@@ -72,9 +73,8 @@ class MagicPotato:
 	
 	# local_mx/y is model coordinates mod 60
 	def is_within_borders(self, user_id, sector_x, sector_y, local_mx, local_my):
-		
-		# TODO: verify within border
-		return True
+		border = self.borders_by_user[user_id]
+		return border.iswithin(*terrain.toRender(local_mx, local_my))
 	
 	def is_touching_other_building(self, user_id, sector_x, sector_y, target_x, target_y, building_id):
 		size = structure.get_structure_size(building_id)

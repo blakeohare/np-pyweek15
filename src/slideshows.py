@@ -95,7 +95,7 @@ class StoryScene:
 		text = pages[self.page]
 		y = self.pos[self.page][1]
 		for line in text:
-			t = get_text(line, (255, 255, 255), 18)
+			t = get_text(line, (255, 255, 255), 18, (0, 0, 0))
 			screen.blit(t, (self.pos[self.page][0], y))
 			y += t.get_height() + 6
 
