@@ -183,20 +183,19 @@ class ScienceLab(Structure):
 class LaunchSite(Structure):
 	btype = "launchsite"
 	size = 2
+	fnumber = 0
 	
-	def update(self, *args, **kw):
-		Structure.update(self, *args, **kw)
-		if self.rocket_y_offset is not None:
-			self.rocket_y_offset += 4   # Right speed?
 	def render(self, screen, looker=None):
 		looker = looker or camera
 		if self.rocket_y_offset is None:
 			return Structure.render(self, screen, looker)
 		else:
+			self.fnumber += 1
+			frame = "rocket.png" if self.rocket_y_offset == 0 else ["rocket1.png", "rocket2.png"][self.fnumber % 2]
 			Structure.render(self, screen, looker)
 			px, py = looker.screenpos(self.x, self.y, self.z)
 			img = images.get_image("rocket.png")
-			screen.blit(img, (px-img.get_width()//2, py-self.rocket_y_offset-img.get_height()))
+			screen.blit(img, (px-img.get_width()//2 + 8, py-self.rocket_y_offset-img.get_height()+20))
 
 class Farm(Structure):
 	btype = "farm"
