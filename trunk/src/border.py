@@ -74,8 +74,6 @@ class Border(object):
 		self.tiles = set(self.tiles)
 
 	def iswithin(self, x, y):
-		if 60 < x < 80 and 5 < y < 20:
-			print x, y, len(self.tiles), self.tiles
 		return (x,y) in self.tiles
 
 	def render(self, surf, looker = None):

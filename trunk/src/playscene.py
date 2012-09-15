@@ -358,8 +358,6 @@ class PlayScene:
 		tx, ty = terrain.nearesttile(x, y)
 		sx, sy = terrain.toiModel(tx, ty)
 		borders = self.potato.get_borders_near_sector(sx // 60, sy // 60)
-		if 60 < x < 80 and -10 < y < 20:
-			print x, y, sx, sy, tx, ty, len(borders), [b.iswithin(tx, ty) for b in borders]
 		return not any(border.iswithin(tx, ty) for border in borders)
 	
 	def process_input(self, events, pressed):
