@@ -574,6 +574,7 @@ class PlayScene:
 			if selected_building.user_id == self.user_id or selected_building.btype == 'radar':
 				self.next = buildingmenu.BuildingMenu(self, selected_building)
 		if demolish_building and selected_building != None:
+			jukebox.play_voice("demolishing_please_stand_back")
 			x, y = selected_building.getModelXY()
 			self.blow_stuff_up(x, y)
 		if attack_building is not False and selected_building is not None:
@@ -764,17 +765,24 @@ class PlayScene:
 					if self.battle:
 						for building in self.battle.buildings:
 							if building.destroyed:
-								util.verboseprint("blowing up %s %s" % building.getModelXY())
 								self.blow_stuff_up(*building.getModelXY())
 							if building.btype == "fireturret":
 								building.cleartargets()
 						if self.battle.is_computer_attacking():
-							 for building in self.battle.buildings:
-							 	if building.hp > 0:
-								 	building.healfull()
+							for building in self.battle.buildings:
+								if building.hp > 0:
+									building.healfull()
+							if self.battle.hq.hp > 0:
+								jukebox.play_voice("research_successful")
+							else:
+								jukebox.play_voice("research_failed")
 						else:
-							 for building in self.battle.buildings:
-							 	building.healfull()
+							for building in self.battle.buildings:
+								building.healfull()
+							if self.battle.hq.hp > 0:
+								jukebox.play_voice("infiltration_successful")
+							else:
+								jukebox.play_voice("infiltration_failed")
 						self.battle.hq.healfull()   # Repair the HQ after the battle
 						self.battle = None
 						self.pendingbattle = None
@@ -1010,7 +1018,7 @@ class ToolBar:
 			
 			# LowTech == Defense
 			'era_lowtech' : {
-				'b': (1, "Build Beacon (b)", 'build_beacon', 'build_beacon', None),
+				'b': (1, "Build Shield (b)", 'build_beacon', 'build_beacon', None),
 				't': (2, "Build Basic Turret (t)", 'build_turret', 'build_turret', None),
 				'f': (3, "Build Tractor Turret (f)", 'build_fireturret', 'build_fireturret', None),
 				's': (4, "Build Tesla Turret (s)", 'build_teslaturret', 'build_teslaturret', None),
@@ -1049,7 +1057,7 @@ class ToolBar:
 			'build_greenhouse': "Greenhouse",
 			'build_medicaltent': "Med. Tent",
 			'build_turret': "Turret",
-			'build_beacon': "Beacon",
+			'build_beacon': "Shield",
 			'build_farm': "Farm",
 			'build_resevoir': "Resevoir",
 			'build_fireturret': "Tract.Tur.",
