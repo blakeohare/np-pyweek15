@@ -116,7 +116,10 @@ class Tutorial:
 				"Build bots",
 				[
 					["To enter a building, approach",
-					 "it and press ENTER. Build bots"]
+					 "it and press ENTER. Build bots"],
+					
+					["Here, have some resources to",
+					 "get you started."],
 				],
 				[],
 				[],
