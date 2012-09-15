@@ -522,13 +522,15 @@ class PlayScene:
 			cost['silicon'],
 			cost['oil']):
 			
-			self.poll.append(
-				network.send_build(
-					self.user_id, self.password,
-					type,
-					util.floor(sx), util.floor(sy), util.floor(x % 60), util.floor(y % 60), (util.floor(sx), util.floor(sy)), self.potato.last_id_by_sector, client_token)
-				)
-			
+			if self.potato.build_within_count_limit(self.user_id, type):
+				
+				self.poll.append(
+					network.send_build(
+						self.user_id, self.password,
+						type,
+						util.floor(sx), util.floor(sy), util.floor(x % 60), util.floor(y % 60), (util.floor(sx), util.floor(sy)), self.potato.last_id_by_sector, client_token)
+					)
+				
 	
 	def get_current_sector(self):
 		x,y = self.player.getModelXY()
@@ -1020,6 +1022,7 @@ class ToolBar:
 			self.draw_button('back', 0, screen, "Back (ESC)")
 		else:
 			self.draw_button('main_exit', 100, screen, "Exit")
+
 	def render_details_menu(self, item, screen):
 		target = item[2]
 		width = 150
@@ -1071,6 +1074,10 @@ class ToolBar:
 				img = get_text(str(amount), (255, 255, 255), 14)
 				screen.blit(img, (x, y))
 				x += 8 + img.get_width()
+			limit = structure.get_structure_limit(structure_id)
+			if limit != 0:
+				img = get_text("Limit: " + str(limit), (255, 255, 255), 14)
+				screen.blit(img, (x, y))
 		else:
 			caption = None
 			if target.startswith('era_'):
