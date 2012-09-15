@@ -224,3 +224,7 @@ def send_give_resources_debug(user_id, password):
 
 def send_start_research(user_id, password, subject):
 	return _send_command('start_research', { 'subject': subject }, user_id, password)
+
+# alien_type = 1, 2, 3
+def send_alien_award(user_id, password, alien_type):
+	return _send_command('alien_kill', { 'alien_type': alien_type }, user_id, password)

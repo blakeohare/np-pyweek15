@@ -77,6 +77,10 @@ def do_things(action, args):
 			elif action == 'start_research':
 				from serverlib import research
 				return research.apply_research(user_id, args.get('subject', None))
+			elif action == 'alien_kill':
+				from serverlib import serverbattle
+				return serverbattle.award_resources(
+					user_id, args.get('alien_type', 'x'))
 			else:
 				return { 'success': False, 'message': "Unrecognized command" }
 		
