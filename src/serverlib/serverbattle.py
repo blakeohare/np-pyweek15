@@ -1,15 +1,16 @@
 from serverlib import sql
+from serverlib import settings
 
 def award_resources(user_id, alien_type):
 	if not alien_type in ('1', '2', '3'):
 		return { 'success': False, 'message': "Invalid args" }
 	
 	if alien_type == '1':
-		award = { 'food': 25, 'aluminum': 10, 'copper': 5, 'silicon': 15 }
+		award = settings.ALIEN_DROPS[0]
 	elif alien_type == '2':
-		award = { 'food': 50, 'water': 100, 'aluminum': 0, 'copper': 10, 'silicon': 50 }
+		award = settings.ALIEN_DROPS[1]
 	else: #elif alien_type == '3':
-		award = { 'oil': 150, 'silicon': 100 }
+		award = settings.ALIEN_DROPS[2]
 	
 	updates = []
 	for key in award.keys():
