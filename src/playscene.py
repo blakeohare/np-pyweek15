@@ -134,7 +134,8 @@ def get_resource_icon(key):
 			'food': 2,
 			'aluminum': 3,
 			'copper': 4,
-			'silicon': 5
+			'silicon': 5,
+			'research': 6
 		}
 		
 		img = pygame.Surface((12, 12))
@@ -875,13 +876,33 @@ class PlayScene:
 		if self.battle != None:
 			self.battle.renderstatus(screen)
 				
-		left = 360
+		left = 330
 		top = 40
 		y = top
 		x = left
-		for res in ('food', 'water', 'aluminum', 'copper', 'silicon', 'oil'):
+		for res in ('food', 'water', 'aluminum', 'copper', 'silicon', 'oil', 'research'):
 			screen.blit(get_resource_icon(res), (left, y))
-			screen.blit(get_text(str(self.potato.get_resource(res)), (255, 255, 255), 14), (left + 14, y))
+			
+			color = (255, 255, 255)
+			
+			if res == 'research':
+				amount = int(self.potato.bytes_stolen)
+				color = (0, 255, 255)
+			else:
+				amount = int(self.potato.get_resource(res))
+			
+			if amount < 0:
+				amount = 0
+			
+			famount = []
+			while amount > 0:
+				famount.append(str(amount % 1000))
+				amount = amount // 1000
+			
+			amount = ','.join(famount[::-1])
+			
+			
+			screen.blit(get_text(str(amount), color, 14), (left + 14, y))
 			
 			mx, my = self.mousex, self.mousey
 			
@@ -892,9 +913,10 @@ class PlayScene:
 					'oil': settings.RESOURCE_OIL,
 					'aluminum': settings.RESOURCE_ALUMINUM,
 					'copper': settings.RESOURCE_COPPER,
-					'silicon': settings.RESOURCE_SILICON
+					'silicon': settings.RESOURCE_SILICON,
+					'research': "Bytes of Research"
 				}
-				img = get_text(newname[res], (255, 255, 255), 14)
+				img = get_text(newname[res], color, 14)
 				screen.blit(img, (left - 5 - img.get_width(), y + 1))
 			
 			y += 20
