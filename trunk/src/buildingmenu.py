@@ -288,8 +288,15 @@ class BuildingMenu(UiScene):
 			x += icon.get_width() + 7
 			img = get_tiny_text(structure.get_structure_name(building[0]))
 			self.add_element(Image(x, y + 5, img))
+			img = get_text("Unlocked at: " + str(settings.building_research[building[0]]), (0, 128, 255), 14)
+			self.add_element(Image(right - img.get_width() - 4, y + 2, img))
+			
 			self.hover_regions.append((building[0], left, y, right, y + icon.get_height()))
+			
+			
+			
 			y += icon.get_height() + 3
+			
 		
 		self.add_element(Image(left, y + 5, get_tiny_text(
 			"Research will cause a mainframe reboot")))
