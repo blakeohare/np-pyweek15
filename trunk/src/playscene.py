@@ -352,6 +352,15 @@ class PlayScene:
 		p = terrain.toiModel(x, y)
 		b = self.potato.buildings_by_coord.get(p)
 		return b == None or b is exclude
+
+	# Used by free-range aliens to know what's outside a base
+	def is_wild(self, x, y):
+		tx, ty = terrain.nearesttile(x, y)
+		sx, sy = terrain.toiModel(tx, ty)
+		borders = self.potato.get_borders_near_sector(sx // 60, sy // 60)
+		if 60 < x < 80 and -10 < y < 20:
+			print x, y, sx, sy, tx, ty, len(borders), [b.iswithin(tx, ty) for b in borders]
+		return not any(border.iswithin(tx, ty) for border in borders)
 	
 	def process_input(self, events, pressed):
 		building_menu = False
@@ -574,9 +583,9 @@ class PlayScene:
 		for sx, sy in nexplored - self.explored:
 			for _ in range(20):  # TODO: more and bigger aliens depending on how far out you are.
 				x, y = (sx + random.random()) * 60., (sy + random.random()) * 60.
-				# TODO: don't spawn inside a base
-				if not terrain.isunderwater(*terrain.toRender(x, y)):
-					self.sprites.append(sprite.Alien(x, y))
+				rx, ry = terrain.toRender(x, y)
+				if self.is_wild(rx, ry) and not terrain.isunderwater(rx, ry):
+					self.sprites.append(sprite.Alien(x, y, True))
 		self.explored = nexplored
 		if nnew:
 			print("Explored %s new sectors in %.3fs" % (nnew, time.time() - t0))

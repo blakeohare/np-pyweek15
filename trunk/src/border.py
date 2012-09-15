@@ -71,7 +71,11 @@ class Border(object):
 		self.ymin = min(y for x,y,s in self.surfs) - 10
 		self.ymax = max(y+s.get_height() for x,y,s in self.surfs) + 10
 
+		self.tiles = set(self.tiles)
+
 	def iswithin(self, x, y):
+		if 60 < x < 80 and 5 < y < 20:
+			print x, y, len(self.tiles), self.tiles
 		return (x,y) in self.tiles
 
 	def render(self, surf, looker = None):

@@ -314,6 +314,10 @@ class Alien(Attacker):
 	fcounter = 0
 	diesound = "squish"
 
+	def __init__(self, x, y, freerange=False):
+		self.freerange = freerange
+		Attacker.__init__(self, x, y)
+
 	def update(self, scene):
 		if self.target:
 			self.approachtarget(scene)
