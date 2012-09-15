@@ -74,7 +74,7 @@ class Border(object):
 		self.tiles = set(self.tiles)
 
 	def iswithin(self, x, y):
-		return (x,y) in self.tiles
+		return terrain.nearesttile(x,y) in self.tiles
 
 	def render(self, surf, looker = None):
 		looker = looker or camera

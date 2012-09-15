@@ -77,7 +77,7 @@ tstepsize = 0.3
 tsteps = 16, 20
 
 # Size of a cached parcel
-parcelsize = 40
+parcelsize = 60
 
 # Size of a panel surface
 panelw, panelh = 400, 300
