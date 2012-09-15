@@ -12,7 +12,6 @@ class Structure(object):
 	platsurface = None
 	destroyed = False
 	nbytes = 0
-	# TODO: handle buildings with bigger footprints than 1x1
 	def __init__(self, user_id, x, y, z=None):
 		self.user_id = user_id
 		self.landing_hack = False
@@ -41,7 +40,6 @@ class Structure(object):
 	def renderplatform(self, screen, looker=None):
 		looker = looker or camera
 		if self.landing_hack: return
-		# TODO: this should probably be cached into an image
 		if not self.platsurface:
 			x, y, z = self.x, self.y, self.z
 			if self.size == 1:
@@ -211,7 +209,6 @@ class Turret(Structure):
 	nbytes = 2
 
 	def addeffect(self, target):
-		# TODO: also a small gunshot effect at the top of the turret
 		effects.add(effects.Gunshot(self.x, self.y, self.z + 22, target.x, target.y, target.z + 2))
 
 	def attack(self, target):
@@ -439,7 +436,7 @@ def get_structure_size(type):
 
 # HAAAAAAACK!
 btypedict = {}
-for v in locals().values():
+for v in list(locals().values()):
 	if hasattr(v, "btype"):
 		btypedict[v.btype] = v
 
