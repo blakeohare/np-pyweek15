@@ -24,7 +24,7 @@ class Battle:
 		self.alienq = []
 		
 		# Number of bots that can be deployed
-		self.nbots0 = 0
+		self.nbots0 = 0, 0, 0
 		
 		# TODO: make this harder depending on the era and/or your bases's strength
 		if self.is_computer_attacking():
@@ -33,9 +33,9 @@ class Battle:
 				for t in range(30, 400, 10)
 			]
 		else:
-			self.nbots0 = 40
+			self.nbots0 = list(bots)
 
-		self.nbots = self.nbots0
+		self.nbots = list(self.nbots0)
 
 		self.t = 0
 
@@ -92,17 +92,17 @@ class Battle:
 		alien.settarget(target)
 		self.attackers.append(alien)
 	
-	def attack_building(self, scene, building):
+	def attack_building(self, scene, building, bottype):
 		if building not in self.buildings:
 			return False
 		if not building.attackable:
 			return False
 		if building.hp <= 0:
 			return False
-		if not self.nbots:
+		if not self.nbots[bottype]:
 			return False
 		self.deploy(scene, building, sprite.Seeker)
-		self.nbots -= 1
+		self.nbots[bottype] -= 1
 		return True
 
 	def update(self, scene):
@@ -151,7 +151,7 @@ class Battle:
 			if not self.alienq and not self.attackers:
 				return True
 		else:
-			if not self.nbots and not self.attackers:
+			if not sum(self.nbots) and not self.attackers:
 				return True
 		return False
 	##
@@ -180,7 +180,7 @@ class Battle:
 		if self.is_computer_attacking():
 			text = "Attack in progress"
 		else:
-			text = "Bots available: %s/%s" % (self.nbots, self.nbots0)
+			text = "Bots available:   %s/%s   %s/%s   %s/%s" % (self.nbots[0], self.nbots0[0], self.nbots[1], self.nbots0[1], self.nbots[2], self.nbots0[2])
 
 		
 		text = get_text(text, color, 22)

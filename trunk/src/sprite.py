@@ -106,7 +106,7 @@ class You(Sprite):
 	minicolor = 255, 128, 0  # color on the minimap
 	weaponchargetime = 20
 	weapont = 0
-	hp0 = 3
+	hp0 = 8
 	hurtsound = "ouch"
 	diesound = "ouch"
 
@@ -307,8 +307,8 @@ class Attacker(Sprite):
 class Alien(Attacker):
 	shootable = True
 	hp0 = 1
-	runspeed = 0.3
-	strength = 2
+	runspeed = 0.2
+	strength = 1
 	frames = {}
 	fname = "purplealien.png"
 	fcounter = 0

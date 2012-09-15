@@ -366,7 +366,7 @@ class PlayScene:
 	def process_input(self, events, pressed):
 		building_menu = False
 		demolish_building = False
-		attack_building = False
+		attack_building = False  # set to 0, 1, or 2 to be an attack type
 		if self.curiosity != None:
 			pass
 		else:
@@ -395,9 +395,15 @@ class PlayScene:
 							shot = self.player.shoot()
 							if shot:
 								self.shots.append(shot)
-						elif event.down and event.action == 'build':
+						elif event.down and event.action == 'b1':
 							if not self.battle.is_computer_attacking():
-								attack_building = True
+								attack_building = 0
+						elif event.down and event.action == 'b2':
+							if not self.battle.is_computer_attacking():
+								attack_building = 1
+						elif event.down and event.action == 'b3':
+							if not self.battle.is_computer_attacking():
+								attack_building = 2
 			else:
 				for event in events:
 					if event.type == 'mouseleft':
@@ -435,8 +441,8 @@ class PlayScene:
 		if demolish_building and selected_building != None:
 			x, y = selected_building.getModelXY()
 			self.blow_stuff_up(x, y)
-		if attack_building and selected_building is not None:
-			self.battle.attack_building(self, selected_building)
+		if attack_building is not False and selected_building is not None:
+			self.battle.attack_building(self, selected_building, attack_building)
 	
 	def blow_stuff_up(self, x, y):
 		col = util.floor(x)
