@@ -287,7 +287,7 @@ class MagicPotato:
 			if sector != None: # should not be false, but crashes suck really bad
 				buildings = self.buildings_by_sector.get(sector, [])
 				color = user_colors[user_id % len(user_colors)]
-				self.borders_by_user[user_id] = border.Border(color, [(b, 4.5) for b in buildings])
+				self.borders_by_user[user_id] = border.Border(color, [(b, 4.5) for b in buildings], sector)
 	
 	def get_borders_near_sector(self, sx, sy):
 		borders = []
