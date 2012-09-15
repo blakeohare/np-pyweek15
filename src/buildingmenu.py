@@ -392,6 +392,7 @@ class BuildingMenu(UiScene):
 		else:
 			img = get_text("Scanning...", (255, 255, 255), 18)
 			screen.blit(img, (screen.get_width() // 2 - img.get_width() // 2, screen.get_height() // 2 - img.get_height() // 2))
+			jukebox.play_voice("scanning")
 
 	
 	def render_quarry(self, screen):

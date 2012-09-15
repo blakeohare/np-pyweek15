@@ -10,13 +10,23 @@ def get_font(size):
 		_fonts[size] = font
 	return font
 
-def get_text(text, color, size):
+def get_text(text, color, size, bcolor = None):
 	k = (text, color, size)
 	img = _text.get(k, None)
 	if img == None:
 		font = get_font(size)
 		img = font.render(text, True, color)
-		_text[k] = img
+		if bcolor is None:
+			_text[k] = img
+		else:
+			_text[k] = pygame.Surface((img.get_width()+2, img.get_height()+2)).convert_alpha()
+			_text[k].fill((0,0,0,0))
+			bimg = font.render(text, True, bcolor)
+			_text[k].blit(bimg, (0,1))
+			_text[k].blit(bimg, (1,0))
+			_text[k].blit(bimg, (2,1))
+			_text[k].blit(bimg, (1,2))
+			_text[k].blit(img, (1,1))
 	return img
 
 
