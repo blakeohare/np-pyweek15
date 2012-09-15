@@ -44,6 +44,11 @@ class LaserBeam(Gunshot):
 	lifetime = 4
 	width = 2
 
+class BotBeam(Gunshot):
+	color = 255,0,0
+	lifetime = 2
+	width = 1
+
 class LightningBolt(object):
 	color0 = 200,200,255
 	color1 = 100,100,255
