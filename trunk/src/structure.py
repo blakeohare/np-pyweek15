@@ -308,6 +308,9 @@ class Resevoir(Structure):
 	btype = "resevoir"
 	size = 2
 
+
+
+
 def create(user_id, type, x, y):
 	output = None
 	if type == 'farm': output = Farm(user_id, x, y)
@@ -431,3 +434,12 @@ def get_structure_by_id(id):
 
 def get_structure_size(type):
 	return _structure_by_id[type][2]
+	
+
+
+# HAAAAAAACK!
+btypedict = {}
+for v in locals().values():
+	if hasattr(v, "btype"):
+		btypedict[v.btype] = v
+

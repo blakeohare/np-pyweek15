@@ -72,9 +72,13 @@ class MagicPotato:
 		}
 	
 	# local_mx/y is model coordinates mod 60
-	def is_within_borders(self, user_id, sector_x, sector_y, local_mx, local_my):
+	def is_within_borders(self, user_id, sector_x, sector_y, local_mx, local_my, s=1):
 		border = self.borders_by_user[user_id]
-		return border.iswithin(*terrain.toRender(local_mx, local_my))
+		for dx in range(s):
+			for dy in range(s):
+				if not border.iswithin(*terrain.toRender(local_mx+dx, local_my+dy)):
+					return False
+		return True
 	
 	def is_touching_other_building(self, user_id, sector_x, sector_y, target_x, target_y, building_id):
 		size = structure.get_structure_size(building_id)
