@@ -11,7 +11,7 @@ def produce_bot(user_id, type):
 		return { 'success': False, 'message': "Invalid args" }
 	
 	structures = sql.query("SELECT `type` FROM `structure` WHERE `user_id` = " + str(user_id))
-	desired_type = [None, 'machinerylab', 'foundry', 'sciencelab'][s]
+	desired_type = [None, 'foundry', 'machinerylab', 'sciencelab'][s]
 	total = 0
 	for structure in structures:
 		if structure['type'] == desired_type:
