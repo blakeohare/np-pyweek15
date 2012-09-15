@@ -11,6 +11,7 @@ class Structure(object):
 	tframe = 0
 	platsurface = None
 	destroyed = False
+	nbytes = 0
 	# TODO: handle buildings with bigger footprints than 1x1
 	def __init__(self, user_id, x, y, z=None):
 		self.user_id = user_id
@@ -154,6 +155,7 @@ class Beacon(Structure):
 	attackable = True
 	hp0 = 3
 	sparkt = 0
+	nbytes = 3
 	def __init__(self, *args, **kw):
 		Structure.__init__(self, *args, **kw)
 		from src import data
@@ -188,6 +190,7 @@ class Greenhouse(Structure):
 class HQ(Structure):
 	btype = "hq"
 	hp0 = 10
+	nbytes = 5
 	attackable = True
 class MedicalTent(Structure):
 	btype = "medicaltent"
@@ -205,6 +208,7 @@ class Turret(Structure):
 	strength = 1
 	shootrange = 4
 	t = 0
+	nbytes = 2
 
 	def addeffect(self, target):
 		# TODO: also a small gunshot effect at the top of the turret
@@ -227,6 +231,7 @@ class FireTurret(Turret):
 	btype = "fireturret"
 	h = 24
 	targetlimit = 2
+	nbytes = 2
 	def __init__(self, *args, **kw):
 		Turret.__init__(self, *args, **kw)
 		self.targets = []
@@ -259,6 +264,7 @@ class LazorTurret(Turret):
 	btype = "lazorturret"
 	strength = 1
 	chargetime = 10
+	nbytes = 3
 	def addeffect(self, target):
 		effects.add(effects.LaserBeam(self.x, self.y, self.z + 22, target.x, target.y, target.z + 2))
 	def imagename(self):
@@ -269,6 +275,7 @@ class LazorTurret(Turret):
 class TeslaTurret(Turret):
 	btype = "teslaturret"
 	splashrange = 3
+	nbytes = 3
 
 	def addeffect(self, target):
 		effects.add(effects.LightningBolt(self.x, self.y, self.z + 22, target.x, target.y, target.z + 2, self.splashrange))
