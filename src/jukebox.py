@@ -8,7 +8,7 @@ _current = None
 
 playlist = [
 	'groovycolony',
-	'tutorial',
+	'latincolony',
 	'groovycolony']
 
 normalizer = {

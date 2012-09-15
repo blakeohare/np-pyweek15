@@ -82,7 +82,7 @@ class StoryScene:
 			self.next = scenefactory.build_scene('title', [])
 	
 	def update(self):
-		jukebox.ensure_playing('groovycolony')
+		jukebox.ensure_playing('intro')
 	
 	# TODO: fade transitions
 	
