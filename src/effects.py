@@ -115,7 +115,7 @@ class Spark(object):
 class Tractor(object):
 	color = 255,0,128
 	width = 4
-	sound = "tractor"
+	sound = "phaser"
 	def __init__(self, source, target):
 		self.source = source
 		self.target = target
@@ -151,5 +151,46 @@ class Splat(object):
 		img = pygame.transform.scale(images.get_image("effects/alienblood.png"), (2*s, s))
 		x, y = looker.screenpos(self.x, self.y, self.z + h)
 		screen.blit(img, (x-s, y-s//2))
+
+class Smoke(object):
+	sound = None
+	lifetime = 4
+	def __init__(self, x, y, z, vx, vy, vz):
+		self.x, self.y, self.z = x, y, z
+		self.vx, self.vy, self.vz = vx, vy, vz
+		self.t = 0
+		self.alive = True
+	def update(self):
+		self.t += 1
+		if self.t >= self.lifetime:
+			self.alive = False
+		self.x += self.vx
+		self.y += self.vy
+		self.z += self.vz
+	def render(self, screen, looker=None):
+		looker = looker or camera
+		f = 1. * self.t / self.lifetime
+		alpha = max(int(255 - 200 * f), 0)
+		img = images.get_image("effects/boom.png")
+		img.set_alpha(alpha)
+		x, y = looker.screenpos(self.x, self.y, self.z)
+		screen.blit(img, (x-5, y-5))
+
+class SmokeCloud(object):
+	sound = None
+	lifetime = 7
+	def __init__(self, x, y, z):
+		self.x, self.y, self.z = x, y, z
+		self.t = 0
+		self.alive = True
+	def update(self):
+		self.t += 1
+		if self.t >= self.lifetime:
+			self.alive = False
+		for _ in range(4):
+			vx, vy, vz = random.random() * 2 - 1, random.random() * 2 - 1, random.random() * 0.4
+			add(Smoke(self.x, self.y, self.z, vx, vy, vz))
+	def render(self, screen, looker=None):
+		pass
 
 
