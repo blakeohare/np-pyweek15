@@ -346,6 +346,11 @@ class BuildingMenu(UiScene):
 				for datum in data:
 					
 					user = datum[0]
+					user_id = datum[4]
+					
+					if self.building.user_id == user_id:
+						continue
+					
 					dx = datum[1] - self.rx
 					dy = datum[2] - self.ry
 					distance = (dx * dx + dy * dy) ** .5
@@ -378,8 +383,8 @@ class BuildingMenu(UiScene):
 					direction = directions.get(angle, "")
 					rows.append(get_text(str(user) + " " + str(distance) + " km " + direction, (255, 255, 255), 14)) 
 				
-				y = 105
-				x = 100
+				y = 60
+				x = 105
 				for row in rows:
 					screen.blit(row, (x, y))
 					y += row.get_height() + 5
