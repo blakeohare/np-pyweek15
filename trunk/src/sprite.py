@@ -223,6 +223,7 @@ class Attacker(Sprite):
 		if dx**2 + dy**2 < self.attackrange ** 2:
 			self.vx, self.vy = 0, 0
 			self.attack(self.target)
+			return
 		# choose the next place to walk to
 		if not self.waypoint:
 			dirs = [(-1,-1),(-1,1),(1,-1),(1,1)]
@@ -323,13 +324,23 @@ class Alien(Attacker):
 class Seeker(Attacker):
 	minicolor = 200, 200, 200
 	runspeed = 0.3
-	strength = 2
+	strength = 1
+	attackrange = 3.5
+	chargetime = 25
+	t = 0
 	hp0 = 10
 	frames = {}
 	fname = "seekerbot.png"
 	fcounter = 0
 
+	def attack(self, target):
+		if self.t >= self.chargetime:
+			self.t = 0
+			effects.add(effects.BotBeam(self.x, self.y, self.z, target.x, target.y, self.z))
+			target.hurt(self.strength)
+
 	def update(self, scene):
+		self.t += 1
 		self.approachtarget(scene)
 		self.walk(scene.empty_tile, self.speedfactor())
 		self.setheight(3)

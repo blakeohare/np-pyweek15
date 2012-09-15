@@ -125,6 +125,13 @@ class Battle:
 		for b in self.buildings: b.update(scene)
 		
 		self.attackers = [a for a in self.attackers if a.alive]
+		# re-choose target if mine is already gone
+		for a in self.attackers:
+			if a.target and a.target.hp <= 0:
+				targets = [b for b in self.buildings if b.attackable and b.hp > 0]
+				if targets:
+					target = min(targets, key=lambda t: (a.x-t.x)**2 + (a.y-t.y)**2)
+					a.settarget(target)
 		
 		if self.is_computer_attacking():
 			for b in self.buildings:
