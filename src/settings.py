@@ -155,14 +155,14 @@ building_research = {
 	'farm': 40,
 	'quarry': 40,
 	'resevoir': 50,
+	'fireturret': 50,
 	'beacon': 50,
 	'drill': 60,
-	'machinerylab': 100,
-	'fireturret': 50,
-	'teslaturret': 200,
-	'lazorturret': 200,
-	'sciencelab': 400,
-	'launchsite': 1200
+	'machinerylab': 80,
+	'teslaturret': 100,
+	'lazorturret': 100,
+	'sciencelab': 100,
+	'launchsite': 200
 }
 
 

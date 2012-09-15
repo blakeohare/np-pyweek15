@@ -757,16 +757,17 @@ class PlayScene:
 			self.blinkt += 1
 			if self.blinkt >= 10:
 				if self.pendingbattle == 17:   # ending a battle
-					# TODO: do logic to apply results
 					if self.battle:
 						for building in self.battle.buildings:
 							if building.destroyed:
 								util.verboseprint("blowing up %s %s" % building.getModelXY())
 								self.blow_stuff_up(*building.getModelXY())
+							if building.btype == "fireturret":
+								building.cleartargets()
 						if self.battle.is_computer_attacking():
 							 for building in self.battle.buildings:
 							 	if building.hp > 0:
-								 	building.healfull()   # TODO: charge for this valuable service
+								 	building.healfull()
 						else:
 							 for building in self.battle.buildings:
 							 	building.healfull()
@@ -776,8 +777,9 @@ class PlayScene:
 					self.explored = set()
 				else:   # starting a battle
 					jukebox.play_sound("klaxon")
-					jukebox.play_voice("incoming_attack")
 					self.battle = self.pendingbattle
+					if self.battle.is_computer_attacking():
+						jukebox.play_voice("incoming_attack")
 					self.sprites = [self.player]  # get rid of all the free range aliens
 					self.pendingbattle = None
 		elif self.blinkt:
