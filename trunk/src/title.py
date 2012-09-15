@@ -24,7 +24,8 @@ class TitleScene(UiScene):
 		self.next = slideshows.StoryScene()
 	
 	def tutorial_pressed(self):
-		self.next = tutorial.TutorialScene()
+		self.next = playscene.LoadingScene(
+			1, "11111111111111111111111111111111", '0^0', '30^30', False, 50, [], False, [0, 0, 0], True)
 	
 	def credits_pressed(self):
 		self.next = slideshows.CreditsScene()
@@ -51,7 +52,7 @@ class TitleScene(UiScene):
 				buildings = response.get('buildings', [])
 				unlock = self.username.text.endswith('!')
 				bots = response.get('bots', [0, 0, 0])
-				self.next = playscene.LoadingScene(user_id, self.password, sector, loc, is_new, research, buildings, unlock, bots)
+				self.next = playscene.LoadingScene(user_id, self.password, sector, loc, is_new, research, buildings, unlock, bots, False)
 			self.auth_request = None
 	
 	def login_pressed(self):
