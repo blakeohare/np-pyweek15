@@ -573,7 +573,6 @@ class PlayScene:
 			b = bot_deploy_success
 			self.next = DeployBotsScene(self, b[0], b[1], b[2])
 		
-		jukebox.ensure_playing('general')
 		if self.curiosity != None:
 			self.curiosity.update()
 			if self.curiosity.is_done():
@@ -656,6 +655,7 @@ class PlayScene:
 					self.pendingbattle = None
 		elif self.blinkt:
 			self.blinkt -= 1
+		
 
 	# populate nearby sectors and remove aliens that are too far afield
 	def explore(self):
@@ -783,6 +783,8 @@ class PlayScene:
 			sh = min(h * self.blinkt // 10, h // 2 + 1)
 			pygame.draw.rect(screen, (0,0,0), (0,0,w,sh), 0)
 			pygame.draw.rect(screen, (0,0,0), (0,h-sh,w,sh), 0)
+		
+		jukebox.ensure_playing('general')
 
 class ToolBar:
 	def __init__(self, playscene):
