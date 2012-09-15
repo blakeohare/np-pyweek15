@@ -437,10 +437,8 @@ class PlayScene:
 					elif event.type == 'mousemove':
 						pass
 					elif event.type == 'key':
-						if event.down and event.action == 'shoot':
-							shot = self.player.shoot()
-							if shot:
-								self.shots.append(shot)
+						if event.down and event.action in ('shoot', 'build'):
+							self.shoot()
 						elif event.down and event.action == 'b1':
 							if not self.battle.is_computer_attacking():
 								attack_building = 0
@@ -466,6 +464,8 @@ class PlayScene:
 						elif event.down and event.action == 'build':
 							if self.build_mode != None:
 								self.build_thing(self.build_mode)
+							elif self.toolbar.mode == 'fight':
+								self.shoot()
 							elif self.toolbar.mode == 'demolish':
 								demolish_building = True
 						elif event.down and event.action == 'action':
@@ -473,9 +473,7 @@ class PlayScene:
 						elif event.down and event.action == 'back':
 							self.toolbar.press_back()
 						elif event.down and event.action == 'shoot':
-							shot = self.player.shoot()
-							if shot:
-								self.shots.append(shot)
+							self.shoot()
 					elif event.type == 'type':
 						self.toolbar.accept_key(event.action, self)
 						
@@ -489,6 +487,11 @@ class PlayScene:
 			self.blow_stuff_up(x, y)
 		if attack_building is not False and selected_building is not None:
 			self.battle.attack_building(self, selected_building, attack_building)
+	
+	def shoot(self):
+		shot = self.player.shoot()
+		if shot:
+			self.shots.append(shot)
 	
 	def blow_stuff_up(self, x, y):
 		col = util.floor(x)
@@ -784,6 +787,7 @@ class ToolBar:
 		buttons['main_build'] = get_image('toolbar/main_build.png')
 		buttons['main_demolish'] = get_image('toolbar/main_demolish.png')
 		buttons['main_bots'] = get_image('toolbar/main_bots.png')
+		buttons['main_fight'] = get_image('toolbar/main_fight.png')
 		buttons['main_exit'] = get_image('toolbar/main_exit.png')
 		buttons['back'] = get_image('toolbar/back.png')
 		
@@ -793,7 +797,8 @@ class ToolBar:
 			'main' : {
 				'b': (1, "Build (b)", 'main_build', 'build', None),
 				'd': (2, "Demolish (d)", 'main_demolish', 'demolish', None),
-				'e': (3, "Deploy Bots (e)", 'main_bots', 'main', self.summon_bots)
+				'e': (3, "Deploy Bots (e)", 'main_bots', 'main', self.summon_bots),
+				'z': (4, "Shoot Things (s)", 'main_fight', 'fight', None)
 			},
 			
 			'build' : {
@@ -849,6 +854,7 @@ class ToolBar:
 			'main_build': "Build",
 			'main_demolish': "Demolish",
 			'main_bots': "Deploy Bots",
+			'main_fight': "Zap Things",
 			'build_greenhouse': "Greenhouse",
 			'build_medicaltent': "Med. Tent",
 			'build_turret': "Turret",
@@ -932,7 +938,7 @@ class ToolBar:
 	def press_back(self):
 		if self.mode == 'main':
 			pass # how did you get here?
-		elif self.mode in ('build', 'demolish'):
+		elif self.mode in ('build', 'demolish', 'fight'):
 			self.mode = 'main'
 		elif self.mode.startswith('era_'):
 			self.mode = 'build'
@@ -997,6 +1003,8 @@ class ToolBar:
 		elif menu == None:
 			if self.mode == 'demolish':
 				self.render_action_menu(screen, "Demolish Building", 'main_demolish')
+			elif self.mode == 'fight':
+				self.render_action_menu(screen, "Zap Aliens!", 'main_fight')
 		else:
 			for key in menu.keys():
 				item = menu[key]
