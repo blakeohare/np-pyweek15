@@ -368,9 +368,8 @@ class PlayScene:
 		self.cy = starting_sector[1] * 60 + starting_xy[1]
 
 		#FIXME: this is just for testing so I can attack Blake easily - undo
-#		self.cx, self.cy = terrain.toModel(-73, 0)
 		if settings.attackblake:
-			self.cx, self.cy = -73, 0
+			self.cx, self.cy = terrain.toModel(-73, 0)
 
 		self.player = sprite.You(self.cx, self.cy + 1)
 		self.player.lookatme()
@@ -647,7 +646,7 @@ class PlayScene:
 		# TODO: seed RNG based on sector so you get aliens in the same place?
 		nnew = len(nexplored - self.explored)
 		for sx, sy in nexplored - self.explored:
-			d = math.sqrt((sx0 - sx) ** 2 + (sy0 - sy)**2)
+			d = math.sqrt((self.cx//60 - sx) ** 2 + (self.cy//60 - sy)**2)
 			if d < 2:
 				atypes = [sprite.CheapAlien] * 10
 			elif d < 3:
@@ -656,6 +655,7 @@ class PlayScene:
 				atypes = [sprite.CheapAlien] * 6 + [sprite.QuickAlien] * 6 + [sprite.StrongAlien] * 1
 			else:
 				atypes = [sprite.CheapAlien] * 10 + [sprite.QuickAlien] * 8 + [sprite.StrongAlien] * 6
+			print sx0, sy0, sx, sy, d, len(atypes)
 			for atype in atypes:
 				x, y = (sx + random.random()) * 60., (sy + random.random()) * 60.
 				rx, ry = terrain.toRender(x, y)
