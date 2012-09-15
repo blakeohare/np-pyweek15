@@ -122,7 +122,9 @@ class Structure(object):
 		self.flashdamage = 5 
 	
 	def destroy(self):
+		if self.destroyed: return
 		jukebox.play_sound("destroyed")
+		effects.add(effects.SmokeCloud(self.x, self.y, self.z))
 		self.destroyed = True
 
 	def heal(self, dhp):
