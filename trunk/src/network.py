@@ -215,3 +215,6 @@ def send_getbots(user_id, password):
 
 def send_buildbots(user_id, password, type):
 	return _send_command('buildbot', { 'type': type }, user_id, password)
+
+def send_deploy(user_id, password):
+	return _send_command('dispatchbots', { }, user_id, password)

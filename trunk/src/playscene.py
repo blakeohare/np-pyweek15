@@ -138,13 +138,19 @@ def get_dark_bg(width, height):
 	return img
 
 class DeployBotsScene:
-	def __init__(self, playscene):
+	def __init__(self, playscene, a, b, c):
+		self.bot_a = a
+		self.bot_b = b
+		self.bot_c = c
+		
 		self.next = self
 		self.playscene = playscene
 		player = self.playscene.player
 		tx, ty = terrain.nearesttile(player.x, player.y)
 		self.target_user = 0
 		self.mx, self.my = playscene.mousex, playscene.mousey
+		
+		self.deploy_request = None
 		
 		for user_id in playscene.potato.borders_by_user.keys():
 			
@@ -172,19 +178,34 @@ class DeployBotsScene:
 								hit = button
 					
 					if hit == self.ok_button:
-						self.deploy()
+						if self.deploy_request == None:
+							self.playscene.potato.deploy_bots(self.playscene, True)
 					elif hit == self.cancel_button:
 						self.close_menu()
 	
-	def deploy(self):
+	def deploy(self, a, b, c):
 		if self.target_user > 0:
 			buildings = self.playscene.potato.get_all_buildings_of_player_SLOW(self.target_user)
 			bord = self.playscene.potato.borders_by_user[self.target_user]
-			self.playscene.pendingbattle = battle.Battle(self.playscene.user_id, buildings, bord, self.target_user)
-		self.close_menu()
+			self.playscene.pendingbattle = battle.Battle(self.playscene.user_id, buildings, bord, self.target_user, [a, b, c])
 		
+		self.close_menu()
+	
 	def update(self):
-		self.playscene.update()
+		self.playscene.update(False)
+		deploying = self.playscene.potato.deploy_success(True)
+		
+		if deploying != None and deploying != 'deploying':
+			a = deploying[0]
+			b = deploying[1]
+			c = deploying[2]
+			
+			if a > 0 or b > 0 or c > 0:
+				self.deploy(a, b, c)
+			else:
+				# TODO:SOUND "Arsenal is empty"
+				pass
+				
 	
 	def close_menu(self):
 		self.next = self.playscene
@@ -210,36 +231,41 @@ class DeployBotsScene:
 		
 		show_ok = False
 		
-		if self.target_user == 0:
-			text = get_text("You must be in another user's base to do this.", (255, 0, 0), 14)
-			screen.blit(text, (left, y))
-		elif self.target_user == self.playscene.user_id:
-			text = [
-				get_text("You can't deploy your own bots against yourself.", (255, 255, 255), 14),
-				get_text("That's just silly.", (255, 0, 255), 14)]
-			for t in text:
-				screen.blit(t, (left, y))
-				y += t.get_height() + line_height
-		else:
-			show_ok = True
-			text = get_text("Send bots to attack: " + self.playscene.potato.get_user_name(self.target_user), (255, 255, 255), 14)
-			screen.blit(text, (left, y))
-			y += line_height + text.get_height()
-			
-			num_bytes = 298378
-			x = left
-			text = [
-				get_text("If successful, you will gain ", (255, 255, 255), 14),
-				get_text(str(num_bytes), (0, 128, 255), 16),
-				get_text(" bytes of data.", (255, 255, 255), 14)]
-			for t in text:
-				screen.blit(t, (x, y))
-				x += t.get_width()
-			
-			y += line_height + text[0].get_height()
-			
-			text = get_text("Shall we proceed?", (255, 255, 255), 18)
-			screen.blit(text, (left, y))
+		deploy_status = None #self.playscene.potato.deploy_success(False)
+		if deploy_status == 'deploying':
+			img = get_text("Deploying...", (255, 255, 255), 24)
+			screen.blit(img, (screen.get_width() // 2 - img.get_width() // 2, screen.get_height() // 2 - img.get_height() // 2))
+		elif deploy_status == None:
+			if self.target_user == 0:
+				text = get_text("You must be in another user's base to do this.", (255, 0, 0), 14)
+				screen.blit(text, (left, y))
+			elif self.target_user == self.playscene.user_id:
+				text = [
+					get_text("You can't deploy your own bots against yourself.", (255, 255, 255), 14),
+					get_text("That's just silly.", (255, 0, 255), 14)]
+				for t in text:
+					screen.blit(t, (left, y))
+					y += t.get_height() + line_height
+			else:
+				show_ok = True
+				text = get_text("Send bots to attack: " + self.playscene.potato.get_user_name(self.target_user), (255, 255, 255), 14)
+				screen.blit(text, (left, y))
+				y += line_height + text.get_height()
+				
+				num_bytes = 298378
+				x = left
+				text = [
+					get_text("If successful, you will gain ", (255, 255, 255), 14),
+					get_text(str(num_bytes), (0, 128, 255), 16),
+					get_text(" bytes of data.", (255, 255, 255), 14)]
+				for t in text:
+					screen.blit(t, (x, y))
+					x += t.get_width()
+				
+				y += line_height + text[0].get_height()
+				
+				text = get_text("Shall we proceed?", (255, 255, 255), 18)
+				screen.blit(text, (left, y))
 		
 		right = margin + bg.get_width()
 		bottom = 35 + margin + bg.get_height()
@@ -444,7 +470,13 @@ class PlayScene:
 		x,y = self.player.getModelXY()
 		return (util.floor(x // 60), util.floor(y // 60))
 	
-	def update(self):
+	def update(self, bdsoverride=True):
+		
+		bot_deploy_success = self.potato.deploy_success(bdsoverride)
+		if bot_deploy_success != None:
+			b = bot_deploy_success
+			self.next = DeployBotsScene(self, b[0], b[1], b[2])
+		
 		jukebox.ensure_playing('general')
 		if self.curiosity != None:
 			self.curiosity.update()
@@ -550,7 +582,8 @@ class PlayScene:
 			print("Explored %s new sectors in %.3fs" % (nnew, time.time() - t0))
 	
 	def summon_bots(self):
-		self.next = DeployBotsScene(self)
+		self.potato.deploy_bots(self)
+		
 	
 	def render(self, screen):
 		self.last_width = screen.get_width()

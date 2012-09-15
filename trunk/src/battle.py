@@ -3,7 +3,7 @@ from src import sprite, structure, terrain
 from src.font import get_text
 
 class Battle:
-	def __init__(self, user_id, buildings, border, other_user_id=None):
+	def __init__(self, user_id, buildings, border, other_user_id=None, bots=[0, 0, 0]):
 		# if other_user_id is, then this is an alien vs player session
 		self.user_id = user_id
 		self.other_id = other_user_id

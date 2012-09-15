@@ -59,19 +59,9 @@ def get_count(user_id):
 	c = counts[0]
 	return { 'success': True, 'a': c['type_a'], 'b': c['type_b'], 'c': c['type_c'] }
 
-def dispatch(user_id, a, b, c):
+def dispatch(user_id):
 	counts = get_count(user_id)
-	a = int(a)
-	b = int(b)
-	c = int(c)
 	
-	a = counts['a'] - a
-	b = counts['b'] - b
-	c = counts['c'] - c
+	sql.query("UPDATE `bots` SET `type_a` = 0, `type_b` = 0, `type_c` = 0 WHERE `user_id` = " + str(user_id) + " LIMIT 1")
 	
-	if a < 0 or b < 0 or c < 0:
-		return { 'success': False, 'message': "These are not the droids you are looking for." }
-	
-	sql.query("UPDATE `bots` SET `type_a` = " + str(a) + ", `type_b` = " + str(b) + ", `type_c` = " + str(c) + " WHERE `user_id` = " + str(user_id) + " LIMIT 1")
-	
-	return { 'success': True, 'a': a, 'b': b, 'c': c }
+	return counts
