@@ -36,7 +36,9 @@ class Battle:
 		# TODO: make this harder depending on the era and/or your bases's strength
 		if self.is_computer_attacking():
 			q = []
-			if nbytes <= 20:
+			if nbytes <= 5:
+				q += [(t, sprite.CheapAlien) for t in range(10, 400, 40)]
+			elif nbytes <= 20:
 				q += [(t, sprite.CheapAlien) for t in range(10, 600, 20)]
 			elif nbytes <= 40:
 				q += [(t, sprite.CheapAlien) for t in range(10, 800, 18)]
@@ -225,7 +227,7 @@ class Battle:
 		if self.is_computer_attacking():
 			text = "Attack in progress"
 		else:
-			text = "Bots available:   %s/%s   %s/%s   %s/%s" % (self.nbots[0], self.nbots0[0], self.nbots[1], self.nbots0[1], self.nbots[2], self.nbots0[2])
+			text = "Bots available:  [1]: %s/%s   [2]: %s/%s   [3]: %s/%s" % (self.nbots[0], self.nbots0[0], self.nbots[1], self.nbots0[1], self.nbots[2], self.nbots0[2])
 
 		
 		text = get_text(text, color, 22)

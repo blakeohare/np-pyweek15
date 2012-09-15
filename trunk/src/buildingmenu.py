@@ -446,7 +446,9 @@ class BuildingMenu(UiScene):
 					# turns out coordinates is more useful
 					X, Y = datum[1], datum[2]
 					x, y = X - Y, -X - Y
-					rows.append(get_text("%s (%.0f, %.0f) [%s]" % (user, x, y, direction), (255, 255, 255), 14)) 
+					nbytes = self.playscene.potato.get_value_of_attack(self.playscene.user_id, user_id)
+					if nbytes <= 0: nbytes = "?"
+					rows.append(get_text("%s (%.0f, %.0f) [%s] %sB" % (user, x, y, direction, nbytes), (255, 255, 255), 14)) 
 				
 				y = 60
 				x = 105

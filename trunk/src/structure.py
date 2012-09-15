@@ -255,6 +255,10 @@ class FireTurret(Turret):
 		self.targets.append(target)
 		target.addtractor(self)
 		effects.add(effects.Tractor(self, target))
+	def cleartargets(self):
+		for target in list(self.targets):
+			target.removetractor(self)
+			self.targets.remove(target)
 	def update(self, scene):
 		for target in list(self.targets):
 			dx, dy = target.x - self.x, target.y - self.y
