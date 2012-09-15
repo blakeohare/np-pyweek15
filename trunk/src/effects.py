@@ -57,7 +57,7 @@ class LightningBolt(object):
 	color0 = 200,200,255
 	color1 = 100,100,255
 	lifetime = 6
-	sound = "zot"
+	sound = "zap"
 	def __init__(self, x0, y0, z0, x1, y1, z1, r):
 		self.x0, self.y0, self.z0 = x0, y0, z0
 		self.x1, self.y1, self.z1 = x1, y1, z1

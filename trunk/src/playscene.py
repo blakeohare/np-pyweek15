@@ -634,6 +634,8 @@ class PlayScene:
 			cost['silicon'],
 			cost['oil']):
 			self.show_error('insufficient_resources')
+			jukebox.play_voice("insufficient_resources")
+			return
 
 		self.poll.append(
 			network.send_build(
@@ -641,6 +643,7 @@ class PlayScene:
 				type,
 				util.floor(sx), util.floor(sy), util.floor(x % 60), util.floor(y % 60), (util.floor(sx), util.floor(sy)), self.potato.last_id_by_sector, client_token)
 			)
+		jukebox.play_voice("constructing")
 			
 	
 	def get_current_sector(self):
@@ -933,7 +936,7 @@ class ToolBar:
 				'b': (1, "Build (b)", 'main_build', 'build', None),
 				'd': (2, "Demolish (d)", 'main_demolish', 'demolish', None),
 				'e': (3, "Deploy Bots (e)", 'main_bots', 'main', self.summon_bots),
-				'f': (4, "Fire Lazor (f)", 'main_fight', 'fight', None)
+				'f': (4, "Fire Ray Gun (f)", 'main_fight', 'fight', None)
 			},
 			
 			'build' : {
@@ -987,8 +990,8 @@ class ToolBar:
 			'era_space': "Launch Site",
 			'main_build': "Build",
 			'main_demolish': "Demolish",
-			'main_bots': "Deploy Bots",
-			'main_fight': "Fire Lazor",
+			'main_bots': "Infiltrate",
+			'main_fight': "Fire Ray Gun",
 			'main_exit': "Main Menu",
 			'build_greenhouse': "Greenhouse",
 			'build_medicaltent': "Med. Tent",
@@ -996,7 +999,7 @@ class ToolBar:
 			'build_beacon': "Beacon",
 			'build_farm': "Farm",
 			'build_resevoir': "Resevoir",
-			'build_fireturret': "Fire Tur.",
+			'build_fireturret': "Tract.Tur.",
 			'build_drill': "Drill",
 			'build_quarry': "Quarry",
 			'build_foundry': "Foundry",
