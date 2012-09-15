@@ -2,7 +2,7 @@
 
 try:
 	from src import settings
-except:
+except ImportError:
 	from serverlib import settings
 
 # Offset of the center of the screen, in pixels

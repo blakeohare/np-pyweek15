@@ -1,5 +1,5 @@
 import pygame, math, random
-from src import worldmap, camera, settings, terrain, effects, images
+from src import worldmap, camera, settings, terrain, effects, images, jukebox
 from src.images import get_image
 
 
@@ -11,6 +11,8 @@ class Sprite(object):
 	vx, vy = 0, 0
 	shootable = False
 	target = None
+	diesound = None
+	hurtsound = None
 	def __init__(self, x, y, z=None):
 		self.vx, self.vy = 0, 0
 		self.x, self.y = terrain.toCenterRender(x, y)
@@ -57,6 +59,11 @@ class Sprite(object):
 		self.hp = max(self.hp - dhp, 0)
 		if self.hp <= 0:
 			self.alive = False
+			if self.diesound:
+				jukebox.play_sound(self.diesound)
+		else:
+			if self.hurtsound:
+				jukebox.play_sound(self.hurtsound)
 
 	def heal(self, dhp):
 		self.hp = min(self.hp + dhp, self.hp0)
@@ -298,6 +305,7 @@ class Alien(Attacker):
 	frames = {}
 	fname = "purplealien.png"
 	fcounter = 0
+	diesound = "squish"
 
 	def update(self, scene):
 		if self.target:

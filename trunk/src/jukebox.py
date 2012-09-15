@@ -1,6 +1,7 @@
 import pygame
 import random
 import os
+from src import settings
 
 _current = None
 
@@ -18,11 +19,16 @@ initialized = False
 audible = True
 
 def play_this(name, loop):
+	if not settings.playmusic:
+		return
 	pygame.mixer.music.load(os.path.join('media', 'music', name + '.ogg'))
 	pygame.mixer.music.play(-1 if loop else 0)
 
 def ensure_playing(song):
 	global initialized, _current, audible
+	
+	if not settings.playmusic:
+		return
 	
 	naudible = song != None
 	
@@ -56,5 +62,20 @@ def shuffle_playlist():
 def song_ended():
 	global _current
 	_current = None
-		
-	
+
+sounds = {}
+def play_sound(name):
+	if not settings.playsfx:
+		return
+	if name not in sounds:
+		try:
+			sounds[name] = pygame.mixer.Sound(os.path.join("media", "SFX", name + ".ogg"))
+		except:
+			print("Unable to load sound %s" % name)
+			sounds[name] = None
+	if sounds[name]:
+		sounds[name].play()
+
+
+
+

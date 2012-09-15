@@ -7,7 +7,7 @@
 # Effects are not rendered on the minimap
 
 import pygame, random, math
-from src import camera
+from src import camera, jukebox
 
 effects = []
 
@@ -24,12 +24,15 @@ class Gunshot(object):
 	color = 24,24,24
 	lifetime = 2
 	width = 2
+	sound = None
 	def __init__(self, x0, y0, z0, x1, y1, z1):
 		self.x0, self.y0, self.z0 = x0, y0, z0
 		self.x1, self.y1, self.z1 = x1, y1, z1
 		self.y = (self.y0 + self.y1) / 2.
 		self.t = 0
 		self.alive = True
+		if self.sound:
+			jukebox.play_sound(self.sound)
 	def update(self):
 		self.t += 1
 		self.alive = self.t <= self.lifetime
@@ -43,6 +46,7 @@ class LaserBeam(Gunshot):
 	color = 255,255,128
 	lifetime = 4
 	width = 2
+	sound = "beamish"
 
 class BotBeam(Gunshot):
 	color = 255,0,0
