@@ -385,24 +385,28 @@ class BuildingMenu(UiScene):
 					angle = int(angle * 2 * 7.9999999)
 					# my head hurts
 					directions = {
-						0 : "Southeast",
-						1 : "South",
-						2 : "South",
-						3 : "Southwest",
-						4 : "Southwest",
-						5 : "West",
-						6 : "West",
-						7 : "Northwest",
-						-1 : "East",
-						-2 : "East",
-						-3 : "Northeast",
-						-4 : "Northeast",
-						-5 : "North",
-						-6 : "North",
-						-7 : "Northwest"
+						0 : "SE",
+						1 : "S",
+						2 : "S",
+						3 : "SW",
+						4 : "SW",
+						5 : "W",
+						6 : "W",
+						7 : "NW",
+						-1 : "E",
+						-2 : "E",
+						-3 : "NE",
+						-4 : "NE",
+						-5 : "N",
+						-6 : "N",
+						-7 : "NW"
 					}
 					direction = directions.get(angle, "")
-					rows.append(get_text(str(user) + " " + str(distance) + " km " + direction, (255, 255, 255), 14)) 
+#					rows.append(get_text(str(user) + " " + str(distance) + " km " + direction, (255, 255, 255), 14)) 
+					# turns out coordinates is more useful
+					X, Y = datum[1], datum[2]
+					x, y = X - Y, -X - Y
+					rows.append(get_text("%s (%.0f, %.0f) [%s]" % (user, x, y, direction), (255, 255, 255), 14)) 
 				
 				y = 60
 				x = 105

@@ -335,7 +335,8 @@ class ResearchOhNoScene:
 			user_id = self.playscene.user_id
 			buildings = self.playscene.potato.get_all_buildings_of_player_SLOW(user_id)
 			bord = self.playscene.potato.borders_by_user[user_id]
-			self.playscene.pendingbattle = battle.Battle(user_id, buildings, bord, None)
+			nbytes = settings.building_research[self.playscene.current_research]
+			self.playscene.pendingbattle = battle.Battle(user_id, buildings, bord, nbytes=nbytes)
 		
 		
 	def update(self):
@@ -882,7 +883,8 @@ class PlayScene:
 		    worldmap.drawminimap(screen, entities)
 		mx, my = self.player.getModelXY()
 		lx, ly = int(mx // 1), int(my // 1)
-		coords = get_text("R: (%0.1f, %0.1f) M: (%0.1f, %0.1f) L: (%i, %i)" % (cx, cy, mx, my, lx, ly), (255, 255, 0), 16)
+#		coords = get_text("R: (%0.1f, %0.1f) M: (%0.1f, %0.1f) L: (%i, %i)" % (cx, cy, mx, my, lx, ly), (255, 255, 0), 16)
+		coords = get_text("location: (%.0f, %.0f)" % (cx, cy), (255, 255, 0), 16)
 		screen.blit(coords, (5, screen.get_height() - 25 - coords.get_height()))
 		self.toolbar.render(screen)
 		self.player.drawhealth(screen)

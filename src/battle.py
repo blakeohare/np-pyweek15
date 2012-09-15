@@ -54,8 +54,10 @@ class Battle:
 				q += [(t, sprite.QuickAlien) for t in range(10, 1600, 20)]
 				q += [(t, sprite.StrongAlien) for t in range(10, 1600, 40)]
 
+
+
 			self.alienq = sorted(q, key = lambda ta: ta[0])
-			print 
+			print("bytes", nbytes, len(self.alienq))
 
 		else:
 			self.nbots0 = list(bots)
