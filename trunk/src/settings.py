@@ -9,6 +9,11 @@ full_screen_mode = False
 # resolution in windowed mode
 # resolution here is the resolution of the virtual window - will be scaled up for display
 wsx, wsy, wsz = 400, 300, 2
+if "--small" in sys.argv:
+	wsz = 1
+if "--large" in sys.argv:
+	wsz = 3
+
 # minimum horizontal resolution in fullscreen mode
 fsmin = 400
 
