@@ -503,8 +503,19 @@ class PlayScene:
 			self.user_id, self.password,
 			sx, sy, x, y, self.get_new_client_token())
 	
-	def show_error(self, string):
-		pass
+	def show_error(self, key):
+		errors = {
+			'count_limit': "You cannot build more buildings of that type.",
+			'outside_sector': "You cannot build that far from your headquarters.",
+			'outside_border': "You must build within your borders.",
+			'insufficient_resources': "Insufficient resources."
+		}
+		
+		error = errors[key]
+		util.verboseprint(error)
+		# TODO: show warning bubble
+		# TODO: play voice error
+		
 	
 	def build_thing(self, type):
 		# TODO: verify you can build this item
@@ -514,23 +525,34 @@ class PlayScene:
 		
 		cost = structure.get_structure_resources(type)
 		
-		if self.potato.try_spend_resources(
+		if not self.potato.build_within_count_limit(self.user_id, type):
+			self.show_error('count_limit')
+			return
+		
+		if not self.potato.is_within_sector(self.user_id, sx, sy, x, y, type):
+			self.show_error('outside_sector')
+			return
+		
+		if not self.potato.is_within_borders(self.user_id, sx, sy, x, y):
+			self.show_error('outside_border')
+			return
+		
+		if not self.potato.try_spend_resources(
 			cost['food'],
 			cost['water'],
 			cost['aluminum'],
 			cost['copper'],
 			cost['silicon'],
 			cost['oil']):
+			self.show_error('insufficient_resources')
+
+		self.poll.append(
+			network.send_build(
+				self.user_id, self.password,
+				type,
+				util.floor(sx), util.floor(sy), util.floor(x % 60), util.floor(y % 60), (util.floor(sx), util.floor(sy)), self.potato.last_id_by_sector, client_token)
+			)
 			
-			if self.potato.build_within_count_limit(self.user_id, type):
-				
-				self.poll.append(
-					network.send_build(
-						self.user_id, self.password,
-						type,
-						util.floor(sx), util.floor(sy), util.floor(x % 60), util.floor(y % 60), (util.floor(sx), util.floor(sy)), self.potato.last_id_by_sector, client_token)
-					)
-				
 	
 	def get_current_sector(self):
 		x,y = self.player.getModelXY()

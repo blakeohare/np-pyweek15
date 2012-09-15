@@ -70,6 +70,22 @@ class MagicPotato:
 			'oil': 0
 		}
 	
+	# local_mx/y is model coordinates mod 60
+	def is_within_borders(self, user_id, sector_x, sector_y, local_mx, local_my):
+		
+		# TODO: verify within border
+		return True
+	
+	def is_within_sector(self, user_id, sector_x, sector_y, target_x, target_y, building_id):
+		size = structure.get_structure_size(building_id)
+		tx, ty = int(target_x // 1), int(target_y // 1)
+		if tx == 59 or ty == 59:
+			return False
+		
+		your_sector = self.sector_by_user[user_id]
+		
+		return sector_x == your_sector[0] and sector_y == your_sector[1]
+	
 	def build_within_count_limit(self, user_id, building_id):
 		total = 0
 		
