@@ -303,6 +303,19 @@ class MagicPotato:
 					if border != None:
 						borders.append(border)
 		return borders
+
+	def get_value_of_base_by_player_id(self, user_id):
+		# This is how many bytes you get for attacking this base (assuming you haven't attacked it before)
+		return sum(b.nbytes for b in self.get_all_buildings_of_player_SLOW(user_id))
+	
+	def get_value_of_attack(self, attacker_id, defender_id):
+		b0 = self.get_value_of_base_by_player_id(defender_id)
+		b = self.get_bytes_taken_already(attacker_id, defender_id)
+		return max(b0 - b, 0)
+
+	def get_bytes_taken_already(self, attaker_id, defender_id):
+		# TODO: determine hwo many bytes we've already taken
+		return 0
 	
 	def get_all_buildings_of_player_SLOW(self, user_id):
 		# not really indexed ideally, so just iterate through all buildinsg

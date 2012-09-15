@@ -266,11 +266,11 @@ class DeployBotsScene:
 				screen.blit(text, (left, y))
 				y += line_height + text.get_height()
 				
-				num_bytes = 298378
+				self.num_bytes = self.playscene.potato.get_value_of_attack(self.playscene.user_id, self.target_user)
 				x = left
 				text = [
 					get_text("If successful, you will gain ", (255, 255, 255), 14),
-					get_text(str(num_bytes), (0, 128, 255), 16),
+					get_text(str(self.num_bytes), (0, 128, 255), 16),
 					get_text(" bytes of data.", (255, 255, 255), 14)]
 				for t in text:
 					screen.blit(t, (x, y))
