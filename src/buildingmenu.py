@@ -277,7 +277,12 @@ class BuildingMenu(UiScene):
 			"which lowers your shields during time.")))
 	
 	def press_hover_region(self, arg):
-		print (arg)
+		if self.building.btype == 'hq':
+			from src import playscene
+			self.dismiss()
+			ps = self.playscene
+			ps.current_research = arg
+			ps.next = playscene.ResearchOhNoScene(ps)
 	
 	def dismiss(self):
 		self.next = self.playscene

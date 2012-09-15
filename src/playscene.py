@@ -306,6 +306,49 @@ class DeployBotsScene:
 		
 			
 	
+class ResearchOhNoScene:
+	def __init__(self, playscene):
+		self.next = self
+		self.playscene = playscene
+		self.bg = get_dark_bg(200, 100)
+		
+	def process_input(self, events, pressed):
+		if pressed['build'] or pressed['back'] or pressed['action']:
+			self.next = self.playscene
+			self.playscene.next = self.playscene
+			user_id = self.playscene.user_id
+			buildings = self.playscene.potato.get_all_buildings_of_player_SLOW(user_id)
+			bord = self.playscene.potato.borders_by_user[user_id]
+			self.playscene.pendingbattle = battle.Battle(user_id, buildings, bord, None)
+		
+		
+	def update(self):
+		pass
+	
+	def render(self, screen):
+		self.playscene.render(screen)
+		left = screen.get_width() // 2 - self.bg.get_width() // 2
+		top = screen.get_height() // 2 - self.bg.get_height() // 2
+		y = top
+		
+		screen.blit(self.bg, (left, top))
+		
+		left += 5
+		y += 5
+		title = get_text("OH NOES!", (255, 0, 0), (24))
+		lines = [
+			get_tiny_text("Detecting the lowering of the sheilds"),
+			get_tiny_text("a swarm of natives decide to use the"),
+			get_tiny_text("opportunity to attack!")
+		]
+		
+		screen.blit(title, (left, y))
+		y += title.get_height() + 5
+		for line in lines:
+			screen.blit(line, (left, y))
+			y += 3 + line.get_height()
+		# TODO: confirm button
+		
 		
 class PlayScene:
 	def __init__(self, user_id, password, potato, starting_sector, starting_xy, show_landing_sequence):
@@ -317,6 +360,7 @@ class PlayScene:
 		self.password = password
 		self.next = self
 		self.hq = None
+		self.current_research = None
 		self.mousex, self.mousey = 0, 0
 		self.potato.get_user_name(user_id)
 		self.show_landing_sequence = show_landing_sequence
@@ -485,6 +529,14 @@ class PlayScene:
 	def get_current_sector(self):
 		x,y = self.player.getModelXY()
 		return (util.floor(x // 60), util.floor(y // 60))
+	
+	def battle_victorious(self):
+		if self.current_research != None:
+			self.potato.add_research(self.current_research)
+			self.current_research = None
+		
+	def battle_failed(self):
+		self.current_research = None
 	
 	def update(self, bdsoverride=True):
 		

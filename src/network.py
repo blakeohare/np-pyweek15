@@ -221,3 +221,6 @@ def send_deploy(user_id, password):
 
 def send_give_resources_debug(user_id, password):
 	return _send_command('debug_resources', { }, user_id, password)
+
+def send_start_research(user_id, password, subject):
+	return _send_command('start_research', { 'subject': subject }, user_id, password)
