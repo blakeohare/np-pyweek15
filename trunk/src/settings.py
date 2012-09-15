@@ -195,3 +195,9 @@ BOT_COST_3 = {
 	'silicon': 700,
 	'oil': 150
 }
+
+ALIEN_DROPS = [
+	{ 'food': 25, 'aluminum': 10, 'copper': 5, 'silicon': 15 },
+	{ 'food': 50, 'water': 100, 'aluminum': 0, 'copper': 10, 'silicon': 50 },
+	{ 'oil': 150, 'silicon': 100 }
+]
