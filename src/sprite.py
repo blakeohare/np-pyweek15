@@ -13,6 +13,7 @@ class Sprite(object):
 	target = None
 	diesound = None
 	hurtsound = None
+	reelstep = None
 	def __init__(self, x, y, z=None):
 		self.vx, self.vy = 0, 0
 		self.x, self.y = terrain.toCenterRender(x, y)
@@ -60,8 +61,15 @@ class Sprite(object):
 		if self.diesound:
 			jukebox.play_sound(self.diesound)
 		
+	def reel(self, x, y):
+		dx, dy = x - self.x, y - self.y
+		d = math.sqrt(dx**2 + dy**2)
+		if not d: return
+		self.reelstep = -0.3 * dx / d, -0.3 * dy / d, 3
 
-	def hurt(self, dhp):
+	def hurt(self, dhp, hurter=None):
+		if hurter:
+			self.reel(hurter.x, hurter.y)
 		self.hp = max(self.hp - dhp, 0)
 		if self.hp <= 0:
 			self.die()
@@ -92,8 +100,13 @@ class Sprite(object):
 
 	# pass it a function that returns whether a given tile is empty.
 	def walk(self, isempty, speedfactor = 1):
-		nx = self.x + self.vx * speedfactor
-		ny = self.y + self.vy * speedfactor
+		if self.reelstep:
+			rx, ry, n = self.reelstep
+			self.reelstep = (rx, ry, n-1) if n else None
+		else:
+			rx, ry = 0, 0
+		nx = self.x + self.vx * speedfactor + rx
+		ny = self.y + self.vy * speedfactor + ry
 		if not self.cango(isempty, nx, ny, self.target):
 			return False
 		self.x, self.y = nx, ny
@@ -183,7 +196,7 @@ class Ray(Sprite):
 		pygame.draw.line(screen, (255,128,0), p0, p1)
 
 	def attack(self, target):
-		target.hurt(self.strength)
+		target.hurt(self.strength, self)
 		self.alive = False
 
 	def handlealiens(self, aliens):
@@ -295,7 +308,7 @@ class Attacker(Sprite):
 		self.setheight()
 
 	def attack(self, target):
-		self.target.hurt(self.strength)
+		self.target.hurt(self.strength,self)
 		self.alive = False
 
 	def drawmini(self, surf, x0, y0):
@@ -396,7 +409,7 @@ class Seeker(Attacker):
 		if self.t >= self.chargetime:
 			self.t = 0
 			effects.add(effects.BotBeam(self.x, self.y, self.z, target.x, target.y, self.z))
-			target.hurt(self.strength)
+			target.hurt(self.strength, self)
 
 	def update(self, scene):
 		self.t += 1

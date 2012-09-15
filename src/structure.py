@@ -118,7 +118,7 @@ class Structure(object):
 	def update(self, scene):
 		pass
 
-	def hurt(self, dhp):
+	def hurt(self, dhp, hurter=None):
 		self.hp = max(self.hp - dhp, 0)
 		self.flashdamage = 5 
 	
@@ -249,7 +249,7 @@ class FireTurret(Turret):
 		if len(self.targets) >= self.targetlimit:
 			return
 		Turret.handleintruders(self, intruders)
-	def hurt(self, dhp):
+	def hurt(self, dhp, hurter=None):
 		Turret.hurt(self, dhp)
 		if self.hp <= 0:
 			for target in self.targets:
