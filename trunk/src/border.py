@@ -86,7 +86,7 @@ class Border(object):
 		
 		if looker is camera:
 			for x, y, s in self.surfs:
-				surf.blit(s, (x - camera.x0, y - camera.y0))
+				surf.blit(s, (x - camera.x0//1, y - camera.y0//1))
 			return
 		
 		for line in self.lines:
