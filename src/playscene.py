@@ -1135,6 +1135,7 @@ class ToolBar:
 					for item in self.menu[key].values():
 						if item[2] == self.mode:
 							self.mode = key
+							self.playscene.build_mode = None
 							break
 			
 			#self.mode = 'era_' + s[1]
