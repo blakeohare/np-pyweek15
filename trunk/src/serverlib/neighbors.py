@@ -4,6 +4,10 @@ def find_neighbors(user_id, rx, ry):
 	failure = { 'success': False, 'message': "The radar seems to be broken." }
 	if rx == None or ry == None:
 		return failure
+	
+	rx = int(rx)
+	ry = int(ry)
+	
 	players = sql.query("SELECT `user_id`, `name`, `hq_sector`, `hq_loc` FROM `user`")
 	data = []
 	
@@ -16,20 +20,13 @@ def find_neighbors(user_id, rx, ry):
 		x = sx * 60 + px
 		y = sy * 60 + py
 		
-		if player['user_id'] == user_id: 
-			youx, youy = x, y
-		else:
-			data.append(
-				[player['name'], x, y, 99999])
-	
-	if youx == None or youy == None:
-		return failure
-	
+		data.append(
+			[player['name'], x, y, 99999, player['user_id']])
 	i = 0
 	while i < len(data):
 		datum = data[i]
-		dx = youx - datum[1]
-		dy = youy - datum[2]
+		dx = rx - datum[1]
+		dy = ry - datum[2]
 		
 		d = (dx * dx + dy * dy) ** .5
 		datum[3] = d
@@ -40,7 +37,7 @@ def find_neighbors(user_id, rx, ry):
 	
 	output = []
 	
-	data = data[:10]
+	data = data[:11]
 	
 	
 	
