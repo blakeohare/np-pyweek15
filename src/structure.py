@@ -12,6 +12,7 @@ class Structure(object):
 	platsurface = None
 	destroyed = False
 	nbytes = 0
+	rocket_y_offset = None
 	def __init__(self, user_id, x, y, z=None):
 		self.user_id = user_id
 		self.landing_hack = False
@@ -180,6 +181,19 @@ class ScienceLab(Structure):
 class LaunchSite(Structure):
 	btype = "launchsite"
 	size = 2
+	
+	def update(self, *args, **kw):
+		Structure.update(self, *args, **kw)
+		if self.rocket_y_offset is not None:
+			self.rocket_y_offset += 4   # Right speed?
+	def render(self, screen, looker=None):
+		looker = looker or camera
+		if self.rocket_y_offset is None:
+			return Structure.render(self, screen, looker)
+		else:
+			# TODO Blake I think this is what you wanted!
+			return Structure.render(self, screen, looker)
+
 class Farm(Structure):
 	btype = "farm"
 	size = 2

@@ -335,7 +335,8 @@ class ResearchOhNoScene:
 			user_id = self.playscene.user_id
 			buildings = self.playscene.potato.get_all_buildings_of_player_SLOW(user_id)
 			bord = self.playscene.potato.borders_by_user[user_id]
-			self.playscene.pendingbattle = battle.Battle(user_id, buildings, bord, None)
+			nbytes = settings.building_research[self.playscene.current_research]
+			self.playscene.pendingbattle = battle.Battle(user_id, buildings, bord, None, nbytes=nbytes)
 		
 		
 	def update(self):

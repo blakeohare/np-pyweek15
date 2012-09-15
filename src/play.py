@@ -162,7 +162,7 @@ def main():
 					events.append(MyEvent('mouseleft' if left else 'mouseright', None, down, x, y))
 			elif event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
 				down = event.type == pygame.KEYDOWN
-				if event.key == pygame.K_ESCAPE:
+				if event.key in (pygame.K_ESCAPE, pygame.K_BACKSPACE):
 					events.append(MyEvent('key', 'back', down, 0, 0))
 				elif event.key == pygame.K_F4 and alt:
 					scene = None
