@@ -103,8 +103,9 @@ class MagicPotato:
 		
 		return False
 	
-	def add_research(self, building_id):
+	def add_research(self, building_id, playscene):
 		self.buildings_available[building_id] = True
+		network.send_start_research(playscene.user_id, playscene.password, building_id)
 	
 	def starting_buildings(self, buildings):
 		for building in buildings:
@@ -155,7 +156,7 @@ class MagicPotato:
 		output = []
 		for key in settings.building_research.keys():
 			if key == 'hq': continue
-			if key in self.buildings_available.keys():
+			if self.is_building_available(key):
 				continue
 			if settings.building_research[key] <= b:
 				output.append(
