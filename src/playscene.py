@@ -777,12 +777,12 @@ class PlayScene:
 							else:
 								jukebox.play_voice("research_failed")
 						else:
-							for building in self.battle.buildings:
-								building.healfull()
 							if self.battle.hq.hp > 0:
 								jukebox.play_voice("infiltration_failed")
 							else:
 								jukebox.play_voice("infiltration_successful")
+							for building in self.battle.buildings:
+								building.healfull()
 						self.battle.hq.healfull()   # Repair the HQ after the battle
 						self.battle = None
 						self.pendingbattle = None
