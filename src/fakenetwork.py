@@ -1,4 +1,5 @@
 import time
+from src import settings
 
 
 class FakeResponse:
@@ -316,6 +317,12 @@ def send_username_fetch(user_ids):
 			[1, "You"],
 			[2, "Evil Doer"]]
 	})
+
+def send_alien_award(user_id, password, alientype):
+	tut = active_tutorial()
+	for k,v in settings.ALIEN_DROPS[alientype-1].items():
+		tut.resources[k] += v
+
 def send_start_research(user_id, password, subject):
 	# TODO: disable research from HQ before this tutorial step
 	
