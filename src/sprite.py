@@ -103,6 +103,8 @@ little_yous = {}
 
 class You(Sprite):
 	v = 0.3   # tiles per frame
+	runspeed = 0.35
+	walkspeed = 0.15
 	minicolor = 255, 128, 0  # color on the minimap
 	weaponchargetime = 20
 	weapont = 0
@@ -115,6 +117,9 @@ class You(Sprite):
 		self.moving = False
 		self.last_direction = 0
 		self.counter = 0
+
+	def setrun(self, running):
+		self.v = self.runspeed if running else self.walkspeed
 
 	def shoot(self):
 		if self.weapont < self.weaponchargetime:
@@ -344,6 +349,34 @@ class Alien(Attacker):
 		Attacker.die(self)
 		effects.add(effects.Splat(self.x, self.y, self.z))
 
+class CheapAlien(Alien):
+	minicolor = 200, 0, 200
+	hp0 = 2
+	runspeed = 0.15
+	walkspeed = 0.08
+	strength = 1
+	frames = {}
+	fname = "bluealien.png"
+
+class QuickAlien(Alien):
+	minicolor = 200, 0, 200
+	hp0 = 1
+	runspeed = 0.35
+	walkspeed = 0.15
+	strength = 1
+	frames = {}
+	fname = "purplealien.png"
+
+class StrongAlien(Alien):
+	minicolor = 200, 0, 200
+	hp0 = 10
+	runspeed = 0.1
+	walkspeed = 0.05
+	strength = 2
+	frames = {}
+	fname = "purplealien.png"
+
+
 class Seeker(Attacker):
 	minicolor = 200, 200, 200
 	runspeed = 0.3
@@ -389,7 +422,7 @@ class CheapBot(Seeker):
 	hp0 = 10
 	strength = 1
 	frames = {}
-	fname = "seekerbot.png"
+	fname = "seekerbot_blue.png"
 
 class QuickBot(Seeker):
 	runspeed = 0.4
@@ -398,7 +431,7 @@ class QuickBot(Seeker):
 	hp0 = 5
 	strength = 1
 	frames = {}
-	fname = "seekerbot.png"
+	fname = "seekerbot_green.png"
 
 class StrongBot(Seeker):
 	runspeed = 0.1
@@ -406,6 +439,6 @@ class StrongBot(Seeker):
 	chargetime = 50
 	hp0 = 20
 	frames = {}
-	fname = "seekerbot.png"
+	fname = "seekerbot._purple.png"
 
 

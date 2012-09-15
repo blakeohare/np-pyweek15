@@ -64,18 +64,22 @@ def song_ended():
 	_current = None
 
 sounds = {}
-def play_sound(name):
+def play_sound(name, subdir="SFX"):
 	if not settings.playsfx:
 		return
-	if name not in sounds:
-		try:
-			sounds[name] = pygame.mixer.Sound(os.path.join("media", "SFX", name + ".ogg"))
-		except:
-			print("Unable to load sound %s" % name)
-			sounds[name] = None
-	if sounds[name]:
-		sounds[name].play()
+	key = name, subdir
+	if key not in sounds:
+		fname = os.path.join("media", subdir, name + ".ogg")
+		if os.path.exists(fname):
+			sounds[key] = pygame.mixer.Sound(fname)
+		else:
+			print("Unable to load sound %s" % fname)
+			sounds[key] = None
+	if sounds[key]:
+		sounds[key].play()
 
+def play_voice(name):
+	play_sound(name, "voice")
 
 
 

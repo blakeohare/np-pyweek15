@@ -1,5 +1,5 @@
 import pygame
-import time, random
+import time, random, math
 
 from src import camera
 from src import data
@@ -624,7 +624,9 @@ class PlayScene:
 						self.pendingbattle = None
 				else:   # starting a battle
 					jukebox.play_sound("klaxon")
+					jukebox.play_voice("incoming_attack")
 					self.battle = self.pendingbattle
+					self.sprites = [self.player]  # get rid of all the free range aliens
 					self.pendingbattle = None
 		elif self.blinkt:
 			self.blinkt -= 1
@@ -642,11 +644,20 @@ class PlayScene:
 		# TODO: seed RNG based on sector so you get aliens in the same place?
 		nnew = len(nexplored - self.explored)
 		for sx, sy in nexplored - self.explored:
-			for _ in range(20):  # TODO: more and bigger aliens depending on how far out you are.
+			d = math.sqrt((sx0 - sx) ** 2 + (sy0 - sy)**2)
+			if d < 2:
+				atypes = [sprite.CheapAlien] * 10
+			elif d < 3:
+				atypes = [sprite.CheapAlien] * 8 + [sprite.QuickAlien] * 4
+			elif d < 4:
+				atypes = [sprite.CheapAlien] * 6 + [sprite.QuickAlien] * 6 + [sprite.StrongAlien] * 1
+			else:
+				atypes = [sprite.CheapAlien] * 10 + [sprite.QuickAlien] * 8 + [sprite.StrongAlien] * 6
+			for atype in atypes:
 				x, y = (sx + random.random()) * 60., (sy + random.random()) * 60.
 				rx, ry = terrain.toRender(x, y)
 				if self.is_wild(rx, ry) and not terrain.isunderwater(rx, ry):
-					self.sprites.append(sprite.Alien(x, y, True))
+					self.sprites.append(atype(x, y, True))
 		self.explored = nexplored
 		if nnew:
 			print("Explored %s new sectors in %.3fs" % (nnew, time.time() - t0))
