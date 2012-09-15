@@ -43,14 +43,18 @@ class Tutorial:
 				# challenge 0 - greenhouse
 				"Get some grub",
 				[
-					["Welcome to [planet name]. In order to ensure",
-					 "your survival, blah blah blah"],
+					# Lines are this long:
+					#"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+					["Welcome to [planet name]. In order to",
+					 "ensure your survival, blah blah blah"],
 					
-					["Luckily you brough some equipment with you.",
-					 "This equipment is available in the build menu."],
+					["Luckily you brough some equipment",
+					 "with you. This equipment is available",
+					 "in the build menu."],
 					
-					["Select the greenhouse in the resources pane",
-					 "in the build menu, and place it inside your base"]
+					["Select the greenhouse in the resources",
+					 "pane in the build menu, and place it",
+					 "inside your base"]
 				],
 				['greenhouse'],
 				[],
@@ -160,8 +164,17 @@ class Tutorial:
 				0
 			]
 		]
+		self.last_dialog_shown = -1
 	
-	def add_building(type, sx, sy, x, y):
+	def get_active_dialog(self):
+		if self.last_dialog_shown == self.current_step:
+			return None
+		else:
+			self.last_dialog_shown = self.current_step
+			step = self.active_step()
+			return step[1]
+	
+	def add_building(self, type, sx, sy, x, y):
 		self.buildings.append(
 			(type, True, (sx * 60 + x, sy * 60 + y), len(self.buildings) + 1))
 	
@@ -222,7 +235,6 @@ def send_poll(user_id, password, sector, last_id_by_sector):
 		i = 0
 		while i < len(tut.buildings):
 			
-			#('hq', False, (90, 30), 1),
 			building = tut.buildings[i]
 			xy = building[2]
 			id = i + 1
@@ -276,6 +288,9 @@ def send_build(user_id, password, type, sector_x, sector_y, loc_x, loc_y, sector
 	if len(allowed) > 0 and allowed[0] == type:
 		# do it
 		tut.add_building(type, int(sector_x), int(sector_y), int(loc_x // 1), int(loc_y // 1))
+		step[2] = step[2][1:]
+		if len(step[2]) == 0:
+			tut.current_step += 1
 	
 	return send_poll(user_id, password, sector_you_care_about, last_ids_by_sector)
 	
