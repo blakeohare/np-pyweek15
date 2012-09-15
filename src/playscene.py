@@ -702,7 +702,13 @@ class PlayScene:
 			if self.battle.is_complete(self):
 				self.pendingbattle = 17  # dummy number
 		
-		for s in self.sprites: s.update(self)
+		px, py = self.player.getModelXY()
+		bords = self.potato.get_borders_near_sector(int(px // 60), int(py // 60))
+		for s in self.sprites:
+			s.update(self)
+			if s.freerange:
+				if any(border.iswithin(s.x, s.y) for border in bords):
+					s.die()
 		self.player.update(self)
 		for s in self.shots:
 			s.update(self)
@@ -764,13 +770,13 @@ class PlayScene:
 		for sx, sy in nexplored - self.explored:
 			d = math.sqrt((self.cx//60 - sx) ** 2 + (self.cy//60 - sy)**2)
 			if d < 2:
-				atypes = [sprite.CheapAlien] * 10
+				atypes = [sprite.CheapAlien] * 20
 			elif d < 3:
-				atypes = [sprite.CheapAlien] * 8 + [sprite.QuickAlien] * 4
+				atypes = [sprite.CheapAlien] * 16 + [sprite.QuickAlien] * 8
 			elif d < 4:
-				atypes = [sprite.CheapAlien] * 6 + [sprite.QuickAlien] * 6 + [sprite.StrongAlien] * 1
+				atypes = [sprite.CheapAlien] * 12 + [sprite.QuickAlien] * 12 + [sprite.StrongAlien] * 2
 			else:
-				atypes = [sprite.CheapAlien] * 10 + [sprite.QuickAlien] * 8 + [sprite.StrongAlien] * 6
+				atypes = [sprite.CheapAlien] * 20 + [sprite.QuickAlien] * 18 + [sprite.StrongAlien] * 12
 			for atype in atypes:
 				x, y = (sx + random.random()) * 60., (sy + random.random()) * 60.
 				rx, ry = terrain.toRender(x, y)
@@ -826,7 +832,8 @@ class PlayScene:
 		sy = int(py // 60)
 		
 		borders = self.potato.get_borders_near_sector(sx, sy)
-		worldmap.drawscene(screen, entities + effects.effects, (cx, cy), borders)
+		cursor = (cx, cy) if self.potato.borders_by_user[self.user_id].iswithin(self.player.x, self.player.y) else None
+		worldmap.drawscene(screen, entities + effects.effects, cursor, borders)
 		
 		if self.curiosity != None:
 			self.curiosity.render_skycrane(screen)

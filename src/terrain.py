@@ -137,9 +137,7 @@ class Parcel(object):
         self.ready = True
 
     def getheight(self, x, y):
-        if self.compiter:
-            for _ in self.compiter:
-                pass
+        self.complete()
         if (x,y) in self.h: return self.h[(x, y)]
         X, Y = (x + y) / 2, (-x + y) / 2
         iX, iY = int((X+0.5)//1), int((Y+0.5)//1)
@@ -150,9 +148,11 @@ class Parcel(object):
 
     def complete(self):
         if self.compiter:
+            t0 = time.time()
             for _ in self.compiter:
                 pass
             self.compiter = None
+            print("Completing incomplete parcel (%s, %s) in %.3fs [%s queued]" % (self.x0, self.y0, time.time() - t0, len(parcelq)))
 
     # x and y must be integers
     def getiheight(self, x, y):

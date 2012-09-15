@@ -14,6 +14,7 @@ class Sprite(object):
 	diesound = None
 	hurtsound = None
 	reelstep = None
+	freerange = False  # can only exist outside borders
 	def __init__(self, x, y, z=None):
 		self.vx, self.vy = 0, 0
 		self.x, self.y = terrain.toCenterRender(x, y)
