@@ -448,6 +448,10 @@ class PlayScene:
 
 		self.player = sprite.You(self.cx, self.cy + 1)
 		self.player.lookatme()
+		
+		hp = 1 + sum(b.btype == "medicaltent" for b in self.potato.get_all_buildings_of_player_SLOW(self.user_id))
+		self.player.hp = self.player.hp0 = hp
+		
 		self.sprites = [self.player]
 		self.explored = set()   # sectors that have been populated by free-range aliens
 		self.exploret = 1000

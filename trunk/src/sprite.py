@@ -131,7 +131,7 @@ class You(Sprite):
 	minicolor = 255, 128, 0  # color on the minimap
 	weaponchargetime = 20
 	weapont = 0
-	hp0 = 8
+	hp0 = 1
 	hurtsound = "ouch"
 	diesound = "ouch"
 
