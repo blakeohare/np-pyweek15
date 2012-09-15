@@ -73,8 +73,11 @@ class BuildingMenu(UiScene):
 		self.add_element(Button(left, y, "Initiate Launch", self.pressed_launch, True))
 	
 	def pressed_launch(self):
-		print("Launched")
+		from src import playscene
+		self.playscene.next = self.playscene
 		self.dismiss()
+		
+		self.next = playscene.RocketLaunchScene(self.playscene)
 	
 	def init_beacon(self, left, top, right, bottom):
 		pass
