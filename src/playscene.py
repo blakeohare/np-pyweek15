@@ -1087,7 +1087,15 @@ class ToolBar:
 		elif self.mode.startswith('build_'):
 			id = self.mode.split('_')[1]
 			s = structure.get_structure_by_id(id)
-			self.mode = 'era_' + s[1]
+			
+			for key in self.menu.keys():
+				if key.startswith('era_'):
+					for item in self.menu[key].values():
+						if item[2] == self.mode:
+							self.mode = key
+							break
+			
+			#self.mode = 'era_' + s[1]
 		
 	
 	def is_available(self, id, playscene):
