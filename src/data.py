@@ -85,19 +85,22 @@ class MagicPotato:
 		buildings = self.get_all_buildings_of_player_SLOW(user_id)
 		tx = int(target_x // 1)
 		ty = int(target_y // 1)
+		
 		occupied = {}
 		for building in buildings:
 			x, y = building.getModelXY()
 			x = int(x // 1)
 			y = int(y // 1)
-			for px in range(x - 1, x + size + 1):
-				for py in range(y - 1, y + size + 1):
-					occupied[(px, py)] = True
+			bsize = structure.get_structure_size(building.btype)
+			for px in range(x - 1, x + bsize + 1):
+				for py in range(y - 1, y + bsize + 1):
+					occupied[(px, py)] = building.btype
 		
 		for px in range(tx, tx + size):
 			for py in range(ty, ty + size):
 				if occupied.get((px, py)) != None:
 					return True
+					
 		return False
 	
 	def is_within_sector(self, user_id, sector_x, sector_y, target_x, target_y, building_id):
