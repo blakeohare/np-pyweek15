@@ -70,6 +70,9 @@ class MagicPotato:
 			'oil': 0
 		}
 	
+	def add_research(self, building_id):
+		self.buildings_available[buildin_id] = True
+	
 	def starting_buildings(self, buildings):
 		for building in buildings:
 			self.buildings_available[building] = True

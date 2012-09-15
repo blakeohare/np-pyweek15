@@ -74,6 +74,9 @@ def do_things(action, args):
 			elif action == 'debug_resources':
 				from serverlib import producebot
 				return producebot.DEBUG_resources(user_id)
+			elif action == 'start_research':
+				from serverlib import research
+				return research.apply_research(user_id, args.get('subject', None))
 			else:
 				return { 'success': False, 'message': "Unrecognized command" }
 		

@@ -6,7 +6,7 @@ def apply_research(user_id, type):
 	bytes_known = bytes_known[0]['research']
 	cost = settings.building_research.get(type, None)
 	if cost == None:
-		return { 'success': False, 'message': "Invalid buildin type" }
+		return { 'success': False, 'message': "Invalid building type" }
 	if bytes_known < cost:
 		return { 'success': False, 'message': "Insufficient Data" }
 	
