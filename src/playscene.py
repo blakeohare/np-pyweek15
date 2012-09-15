@@ -848,6 +848,7 @@ class ToolBar:
 			'main_demolish': "Demolish",
 			'main_bots': "Deploy Bots",
 			'main_fight': "Fire Lazor",
+			'main_exit': "Main Menu",
 			'build_greenhouse': "Greenhouse",
 			'build_medicaltent': "Med. Tent",
 			'build_turret': "Turret",
@@ -923,7 +924,8 @@ class ToolBar:
 			self.press_button(id, playscene)
 	
 	def press_exit(self, playscene):
-		playscene.next = None
+		from src import title
+		playscene.next = title.TitleScene()
 		
 	def hover(self, x, y, screen_width):
 		self.hovering = self.find_button(x, y, screen_width)
@@ -1017,7 +1019,8 @@ class ToolBar:
 		
 		if self.mode != 'main':
 			self.draw_button('back', 0, screen, "Back (ESC)")
-	
+		else:
+			self.draw_button('main_exit', 100, screen, "Exit")
 	def render_details_menu(self, item, screen):
 		target = item[2]
 		width = 150
@@ -1090,6 +1093,8 @@ class ToolBar:
 				caption = "Deploy Bots"
 			elif target == 'main_fight':
 				caption = "Fire Lazor"
+			elif target == 'main_exit':
+				caption = "Main Menu"
 			elif target == 'locked':
 				caption = "Research to Unlock"
 			
@@ -1123,8 +1128,9 @@ class ToolBar:
 				pygame.Rect(x, y, 40, 24),
 				1)
 		
-		if hotkey != None:
-			screen.blit(get_text(hotkey.upper(), (255, 255, 255), 12), (x + 40, y + 15))
+		if hotkey != None or id == 'main_exit':
+			if hotkey != None:
+				screen.blit(get_text(hotkey.upper(), (255, 255, 255), 12), (x + 40, y + 15))
 			tc = self.tiny_captions.get(id, None)
 			if tc != None:
 				screen.blit(get_tiny_text(tc), (x, y + 23))
