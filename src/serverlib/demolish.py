@@ -23,6 +23,8 @@ def do_demolish(user_id, last_id, sector, loc, client_token):
 		type = building['type']
 		id = building['structure_id']
 		
+		if type == 'hq': continue
+		
 		size = util.get_structure_size(type)
 		
 		for px in range(bx, bx + size):
