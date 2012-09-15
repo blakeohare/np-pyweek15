@@ -595,9 +595,6 @@ class PlayScene:
 			s.handlealiens(self.sprites)
 			if self.battle:
 				s.handlealiens(self.battle.attackers)
-		for s in self.sprites:
-			if not s.alive and hasattr(s, "awardtype"):
-				network.send_alien_award(self.user_id, self.password, s.awardtype)
 		self.sprites = [s for s in self.sprites if s.alive]
 		self.shots = [s for s in self.shots if s.alive]
 		
@@ -616,13 +613,10 @@ class PlayScene:
 					if self.battle:
 						for building in self.battle.buildings:
 							if building.destroyed:
+								util.verboseprint("blowing up %s %s" % building.getModelXY())
 								self.blow_stuff_up(*building.getModelXY())
 						if self.battle.is_computer_attacking():
-							if self.battle.hq.hp > 0:
-								self.battle_victorious()
-							else:
-								self.battle_failed()
-							for building in self.battle.buildings:
+							 for building in self.battle.buildings:
 							 	if building.hp > 0:
 								 	building.healfull()   # TODO: charge for this valuable service
 						else:
@@ -798,7 +792,7 @@ class ToolBar:
 				'b': (1, "Build (b)", 'main_build', 'build', None),
 				'd': (2, "Demolish (d)", 'main_demolish', 'demolish', None),
 				'e': (3, "Deploy Bots (e)", 'main_bots', 'main', self.summon_bots),
-				'z': (4, "Shoot Things (s)", 'main_fight', 'fight', None)
+				'f': (4, "Fire Lazor (f)", 'main_fight', 'fight', None)
 			},
 			
 			'build' : {
@@ -806,7 +800,6 @@ class ToolBar:
 				'd': (2, "Defensive Structures (d)", 'era_lowtech', 'era_lowtech', None),
 				'f': (3, "Offensive Structures (f)", 'era_medtech', 'era_medtech', None),
 				's': (4, "Miscellaneous (s)", 'era_hightech', 'era_hightech', None)
-				#'s': (5, "Launch", 'era_space', 'era_space', None)
 			},
 			
 			# Landing == Resources
@@ -824,7 +817,7 @@ class ToolBar:
 				't': (2, "Build Basic Turret (t)", 'build_turret', 'build_turret', None),
 				'f': (3, "Build Fire Turret (f)", 'build_fireturret', 'build_fireturret', None),
 				's': (4, "Build Tesla Turret (s)", 'build_teslaturret', 'build_teslaturret', None),
-				'z': (5, "Build Laz0r Turret (z)", 'build_lazorturret', 'build_lazorturret', None)
+				'a': (5, "Build Laz0r Turret (a)", 'build_lazorturret', 'build_lazorturret', None)
 			},
 			
 			# Med Tech == Offense
@@ -854,7 +847,7 @@ class ToolBar:
 			'main_build': "Build",
 			'main_demolish': "Demolish",
 			'main_bots': "Deploy Bots",
-			'main_fight': "Zap Things",
+			'main_fight': "Fire Lazor",
 			'build_greenhouse': "Greenhouse",
 			'build_medicaltent': "Med. Tent",
 			'build_turret': "Turret",
@@ -1095,6 +1088,8 @@ class ToolBar:
 				caption = "Build Structure"
 			elif target == 'main_bots':
 				caption = "Deploy Bots"
+			elif target == 'main_fight':
+				caption = "Fire Lazor"
 			elif target == 'locked':
 				caption = "Research to Unlock"
 			
