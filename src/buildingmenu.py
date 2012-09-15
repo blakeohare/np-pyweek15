@@ -52,7 +52,7 @@ class BuildingMenu(UiScene):
 			top = self.add_title(left, top, "Basic Turret")
 			self.init_turret(1, left, top, right, bottom)
 		elif building.btype == 'fireturret':
-			top = self.add_title(left, top, "Fire Turret")
+			top = self.add_title(left, top, "Tractor Turret")
 			self.init_turret(2, left, top, right, bottom)
 		elif building.btype == 'teslaturret':
 			top = self.add_title(left, top, "Tesla Turret")
