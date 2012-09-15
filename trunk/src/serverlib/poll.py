@@ -48,17 +48,16 @@ def do_poll(user_id, sector_args):
 	resources = { 'water': 0.1, 'food': 0.1, 'oil': 0.0, 'aluminum': 0.0, 'copper': 0.0, 'silicon': 0 }
 	for building in your_buildings:
 		if building['type'] == 'farm':
-			resources['food'] += 5
+			resources['food'] += 10
 		elif building['type'] == 'hq':
-			resources['food'] += 1
-			resources['water'] += 1
+			pass   # No need since you can kill aliens for these
 		elif building['type'] == 'resevoir':
-			resources['water'] += 3
+			resources['water'] += 10
 		elif building['type'] == 'greenhouse':
-			resources['food'] += 2
-			resources['water'] += 2
+			resources['food'] += 3
+			resources['water'] += 3
 		elif building['type'] == 'drill':
-			resources['oil'] += 2
+			resources['oil'] += 5
 		elif building['type'] == 'quarry':
 			data = building['data']
 			# horrible hack

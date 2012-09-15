@@ -107,22 +107,22 @@ building_cost = {
 # food, water, aluminum, copper, silicon, oil, limit
 
 'hq':           [99999, 99999, 99999, 99999, 99999, 99999, 1],
-'greenhouse':   [0,     0,     0,     0,     0,     0,     2],
-'drill':        [0,     0,     0,     0,     0,     0,     0],
-'foundry':      [0,     0,     0,     0,     0,     0,     0],
-'beacon':       [0,     0,     0,     0,     0,     0,     0],
-'machinerylab': [0,     0,     0,     0,     0,     0,     0],
-'sciencelab':   [0,     0,     0,     0,     0,     0,     0],
+'greenhouse':   [10,    10,    0,     0,     0,     0,     5],
+'medicaltent':  [20,    10,    2,     0,     0,     0,     5],
+'drill':        [200,   200,   200,   200,   200,   0,     5],
+'foundry':      [20,    20,    20,    0,     0,     0,     5],
+'beacon':       [300,   300,   200,   50,    0,     0,     5],
+'machinerylab': [100,   100,   50,    50,    50,    30,    5],
+'sciencelab':   [500,   500,   500,   200,   200,   100,   5],
 'launchsite':   [0,     0,     0,     0,     0,     0,     1],
-'farm':         [0,     100,   0,     0,     0,     0,     0],
-'medicaltent':  [200,   200,   10,    0,     0,     0,     0],
-'quarry':       [50,    50,    0,     0,     0,     0,     0],
-'radar':        [0,     0,     0,     0,     0,     0,     1],
-'turret':       [0,     0,     0,     0,     0,     0,     3],
-'fireturret':   [0,     0,     0,     0,     0,     0,     0],
-'lazorturret':  [0,     0,     0,     0,     0,     0,     0],
-'teslaturret':  [0,     0,     0,     0,     0,     0,     0],
-'resevoir':     [0,     0,     0,     0,     0,     0,     0],
+'farm':         [500,   500,   50,    50,    0,     0,     5],
+'quarry':       [100,   100,   100,   0,     0,     0,     5],
+'radar':        [200,   200,   50,    0,     0,     0,     1],
+'turret':       [40,    40,    2,     0,     0,     0,    20],
+'fireturret':   [100,   100,   150,   0,     0,     0,    20],
+'lazorturret':  [500,   500,   500,   200,   200,   100,  20],
+'teslaturret':  [500,   500,   500,   200,   200,   100,  20],
+'resevoir':     [500,   500,   50,    50,    0,     0,     5],
 }
 
 building_size = {
@@ -150,19 +150,19 @@ building_research = {
 	'greenhouse': 0,
 	'medicaltent': 0,
 	'turret': 0,
-	'foundry': 25,
-	'farm': 75,
-	'quarry': 75,
-	'radar': 100,
-	'resevoir': 100,
-	'beacon': 150,
-	'drill': 200,
-	'machinerylab': 225,
-	'fireturret': 225,
-	'teslaturret': 325,
-	'lazorturret': 350,
+	'foundry': 5,
+	'radar': 25,
+	'farm': 40,
+	'quarry': 40,
+	'resevoir': 50,
+	'beacon': 50,
+	'drill': 60,
+	'machinerylab': 100,
+	'fireturret': 50,
+	'teslaturret': 200,
+	'lazorturret': 200,
 	'sciencelab': 400,
-	'launchsite': 600
+	'launchsite': 1200
 }
 
 
@@ -172,32 +172,32 @@ botnames = "CheapBot", "QuickBot", "StrongBot"
 BOT_COST_1 = {
 	'food': 0,
 	'water': 0,
-	'aluminum': 50,
-	'copper': 25,
-	'silicon': 10,
+	'aluminum': 10,
+	'copper': 0,
+	'silicon': 0,
 	'oil': 0
 }
 
 BOT_COST_2 = {
 	'food': 0,
 	'water': 0,
-	'aluminum': 200,
-	'copper': 100,
-	'silicon': 50,
-	'oil': 50
+	'aluminum': 50,
+	'copper': 50,
+	'silicon': 10,
+	'oil': 0
 }
 
 BOT_COST_3 = {
 	'food': 0,
 	'water': 0,
-	'aluminum': 500,
-	'copper': 300,
-	'silicon': 700,
-	'oil': 150
+	'aluminum': 100,
+	'copper': 100,
+	'silicon': 100,
+	'oil': 40
 }
 
 ALIEN_DROPS = [
-	{ 'food': 25, 'aluminum': 10, 'copper': 5, 'silicon': 15 },
-	{ 'food': 50, 'water': 100, 'aluminum': 0, 'copper': 10, 'silicon': 50 },
-	{ 'oil': 150, 'silicon': 100 }
+	{ 'food': 2, 'water': 2, 'aluminum': 2, 'copper': 1, 'silicon': 1 },
+	{ 'food': 6, 'water': 6, 'aluminum': 3, 'copper': 3, 'silicon': 3, 'oil': 1 },
+	{ 'food': 20, 'water': 20, 'aluminum': 10, 'copper': 10, 'silicon': 10, 'oil': 3 },
 ]
