@@ -65,6 +65,13 @@ def heavy_authenticate(user, password, register_if_new=False, is_new=False):
 	for building in buildings_db:
 		buildings.append(building['type'])
 	
+	bots_db = sql.query("SELECT * FROM `bots` WHERE `user_id` = " + str(user_id) + " LIMIT 1")
+	if len(bots_db) == 0:
+		bots = [0, 0, 0]
+	else:
+		row = bots_db[0]
+		bots = [row['type_a'], row['type_b'], row['type_c']]
+	
 	if data['password'] == password:
 		return {
 			'success': True,
@@ -72,7 +79,8 @@ def heavy_authenticate(user, password, register_if_new=False, is_new=False):
 			'hq': (data['hq_sector'], data['hq_loc']),
 			'is_new': is_new,
 			'research': data['research'],
-			'buildings': buildings
+			'buildings': buildings,
+			'bots': bots
 		}
 	else:
 		return failure_message

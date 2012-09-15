@@ -22,7 +22,7 @@ from src.images import get_image
 
 
 class LoadingScene:
-	def __init__(self, user_id, password, sector, loc, new, research, buildings, unlock):
+	def __init__(self, user_id, password, sector, loc, new, research, buildings, unlock, bots):
 		self.next = self
 		self.user_id = user_id
 		self.password = password
@@ -36,6 +36,7 @@ class LoadingScene:
 		self.potato.bytes_stolen = research
 		self.potato.starting_buildings(buildings)
 		self.potato.unlock = unlock
+		self.potato.apply_bot_snapshot(bots[0], bots[1], bots[2])
 	def process_input(self, events, pressed):
 		pass
 	

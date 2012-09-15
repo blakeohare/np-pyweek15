@@ -92,6 +92,7 @@ class BuildingMenu(UiScene):
 			ui = self.totals[i]
 			count = self.counts[i]
 			ui.img = get_text(self.botnames[i] + ": " + str(count), (255, 255, 255), 18)
+		self.playscene.potato.apply_bot_snapshot(self.counts[0], self.counts[1], self.counts[2])
 	
 	def render_bot_factory(self, screen):
 		self.bot_data = None
@@ -121,6 +122,7 @@ class BuildingMenu(UiScene):
 				results = self.bot_query.get_response()
 				if results != None:
 					self.counts = [results.get('a', 0), results.get('b', 0), results.get('c', 0)]
+					self.playscene.potato.apply_bot_snapshot(self.counts[0], self.counts[1], self.counts[2])
 					left = 105
 					top = 90
 					self.botnames = ["Type 1 Bot", "Type 2 Bot", "Type 3 Bot"]

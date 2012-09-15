@@ -33,6 +33,7 @@ class MagicPotato:
 		self.buildings_available = {}
 		self.bytes_stolen = 0
 		self.unlock = False
+		self.bots_owned = None
 		
 		# Hack time. Since the potato instance is a singleton, might as well make it a global :P
 		global hotpotato
@@ -72,6 +73,9 @@ class MagicPotato:
 		for building in buildings:
 			self.buildings_available[building] = True
 		
+	
+	def apply_bot_snapshot(self, a, b, c):
+		self.bots_owned = [a, b, c]
 	
 	def is_building_available(self, type):
 		if self.unlock: return True
