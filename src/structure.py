@@ -1,5 +1,5 @@
 import pygame
-from src import camera, images, terrain, util, effects, settings
+from src import camera, images, terrain, util, effects, settings, jukebox
 
 class Structure(object):
 	minicolor = 192, 192, 192
@@ -122,6 +122,7 @@ class Structure(object):
 		self.flashdamage = 5 
 	
 	def destroy(self):
+		jukebox.play_sound("destroyed")
 		self.destroyed = True
 
 	def heal(self, dhp):

@@ -1,6 +1,8 @@
 # Module-level globals to keep constants in one handy place
 # Attention players: don't mess with these settings!
 
+import sys
+
 fps = 30   # maximum actual framerate
 
 full_screen_mode = False
@@ -37,6 +39,9 @@ sx, sy = wsx, wsy
 # zoom factor
 sz = wsz
 
+
+playmusic = "--nomusic" not in sys.argv
+playsfx = "--nosfx" not in sys.argv
 
 cursorgridsize = 4
 
