@@ -521,6 +521,7 @@ class PlayScene:
 						self.battle = None
 						self.pendingbattle = None
 				else:   # starting a battle
+					jukebox.play_sound("klaxon")
 					self.battle = self.pendingbattle
 					self.pendingbattle = None
 		elif self.blinkt:
@@ -539,7 +540,7 @@ class PlayScene:
 		# TODO: seed RNG based on sector so you get aliens in the same place?
 		nnew = len(nexplored - self.explored)
 		for sx, sy in nexplored - self.explored:
-			for _ in range(4):  # TODO: more and bigger aliens depending on how far out you are.
+			for _ in range(20):  # TODO: more and bigger aliens depending on how far out you are.
 				x, y = (sx + random.random()) * 60., (sy + random.random()) * 60.
 				# TODO: don't spawn inside a base
 				if not terrain.isunderwater(*terrain.toRender(x, y)):

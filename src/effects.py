@@ -7,7 +7,7 @@
 # Effects are not rendered on the minimap
 
 import pygame, random, math
-from src import camera, jukebox
+from src import camera, jukebox, images
 
 effects = []
 
@@ -18,21 +18,20 @@ def update():
 	effects = [e for e in effects if e.alive]
 
 def add(e):
+	if e.sound: jukebox.play_sound(e.sound)
 	effects.append(e)
 
 class Gunshot(object):
 	color = 24,24,24
 	lifetime = 2
 	width = 2
-	sound = None
+	sound = "gunshot"
 	def __init__(self, x0, y0, z0, x1, y1, z1):
 		self.x0, self.y0, self.z0 = x0, y0, z0
 		self.x1, self.y1, self.z1 = x1, y1, z1
 		self.y = (self.y0 + self.y1) / 2.
 		self.t = 0
 		self.alive = True
-		if self.sound:
-			jukebox.play_sound(self.sound)
 	def update(self):
 		self.t += 1
 		self.alive = self.t <= self.lifetime
@@ -52,11 +51,13 @@ class BotBeam(Gunshot):
 	color = 255,0,0
 	lifetime = 2
 	width = 1
+	sound = "beamish"
 
 class LightningBolt(object):
 	color0 = 200,200,255
 	color1 = 100,100,255
 	lifetime = 6
+	sound = "zot"
 	def __init__(self, x0, y0, z0, x1, y1, z1, r):
 		self.x0, self.y0, self.z0 = x0, y0, z0
 		self.x1, self.y1, self.z1 = x1, y1, z1
@@ -89,6 +90,7 @@ class LightningBolt(object):
 class Spark(object):
 	color = 255,128,255
 	v = 1.0
+	sound = None
 	def __init__(self, x0, y0, z0, x1, y1, z1):
 		self.x0, self.y0, self.z0 = x0, y0, z0
 #		self.x1, self.y1, self.z1 = x1, y1, z1
@@ -113,6 +115,7 @@ class Spark(object):
 class Tractor(object):
 	color = 255,0,128
 	width = 4
+	sound = "tractor"
 	def __init__(self, source, target):
 		self.source = source
 		self.target = target
@@ -127,5 +130,26 @@ class Tractor(object):
 		p0 = looker.screenpos(self.source.x, self.source.y, self.source.z + self.source.h)
 		p1 = looker.screenpos(self.target.x, self.target.y, self.target.z + 2)
 		pygame.draw.line(screen, self.color, p0, p1, self.width)
+
+
+class Splat(object):
+	sound = None
+	lifetime = 9
+	def __init__(self, x, y, z):
+		self.x, self.y, self.z = x, y, z
+		self.t = 0
+		self.alive = True
+	def update(self):
+		self.t += 1
+		if self.t >= self.lifetime:
+			self.alive = False
+	def render(self, screen, looker=None):
+		looker = looker or camera
+		f = self.t * 1. / self.lifetime
+		h = f * (1-f) * 40
+		s = int(4 + 10 * f)
+		img = pygame.transform.scale(images.get_image("effects/alienblood.png"), (2*s, s))
+		x, y = looker.screenpos(self.x, self.y, self.z + h)
+		screen.blit(img, (x-s, y-s//2))
 
 
