@@ -71,6 +71,9 @@ def do_things(action, args):
 			elif action == 'dispatchbots':
 				from serverlib import producebot
 				return producebot.dispatch(user_id)
+			elif action == 'debug_resources':
+				from serverlib import producebot
+				return producebot.DEBUG_resources(user_id)
 			else:
 				return { 'success': False, 'message': "Unrecognized command" }
 		

@@ -353,6 +353,9 @@ class PlayScene:
 		b = self.potato.buildings_by_coord.get(p)
 		return b == None or b is exclude
 
+	def give_resources(self):
+		network.send_give_resources_debug(self.user_id, self.password)
+
 	# Used by free-range aliens to know what's outside a base
 	def is_wild(self, x, y):
 		tx, ty = terrain.nearesttile(x, y)

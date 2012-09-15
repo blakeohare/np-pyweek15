@@ -141,6 +141,9 @@ def main():
 				scene = None
 			elif event.type == pygame.USEREVENT:
 				jukebox.song_ended()
+			elif event.type == pygame.KEYDOWN and event.key == pygame.K_F7:
+				if 'PlayScene' in str(scene):
+					scene.give_resources()
 			elif event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP, pygame.MOUSEMOTION):
 				x = vscreen.get_width() * event.pos[0] // rscreen.get_width()
 				y = vscreen.get_height() * event.pos[1] // rscreen.get_height()
