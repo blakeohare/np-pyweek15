@@ -77,6 +77,14 @@ class Sprite(object):
 			if self.hurtsound:
 				jukebox.play_sound(self.hurtsound)
 
+	def sethp0(self, hp0):
+		if hp0 == self.hp0: return
+		if hp0 > self.hp:
+			self.hp = self.hp0 = hp0
+		else:
+			self.hp0 = hp0
+			self.hp = min(self.hp, hp0)
+
 	def heal(self, dhp):
 		self.hp = min(self.hp + dhp, self.hp0)
 

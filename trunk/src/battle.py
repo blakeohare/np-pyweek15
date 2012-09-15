@@ -32,7 +32,8 @@ class Battle:
 			self.alienq = sorted(
 				[(t, sprite.CheapAlien) for t in range(10, nbytes*2, 10)] +
 				[(t, sprite.QuickAlien) for t in range(100, nbytes*2, 20)] +
-				[(t, sprite.StrongAlien) for t in range(200, nbytes*2, 40)]
+				[(t, sprite.StrongAlien) for t in range(200, nbytes*2, 40)],
+				key = lambda ta: ta[0]
 			)
 		else:
 			self.nbots0 = list(bots)
