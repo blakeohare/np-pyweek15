@@ -17,6 +17,8 @@ class Structure(object):
 		self.user_id = user_id
 		self.landing_hack = False
 		self.selected = False
+		if self.btype == 'launchsite':
+			self.rocket_y_offset = 0
 		self.last_render_y = None
 		self.x, self.y = terrain.toCenterRender(x, y)
 		if self.size == 2: self.y -= 1

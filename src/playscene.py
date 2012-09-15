@@ -335,8 +335,7 @@ class ResearchOhNoScene:
 			user_id = self.playscene.user_id
 			buildings = self.playscene.potato.get_all_buildings_of_player_SLOW(user_id)
 			bord = self.playscene.potato.borders_by_user[user_id]
-			nbytes = settings.building_research[self.playscene.current_research]
-			self.playscene.pendingbattle = battle.Battle(user_id, buildings, bord, None, nbytes=nbytes)
+			self.playscene.pendingbattle = battle.Battle(user_id, buildings, bord, None)
 		
 		
 	def update(self):
@@ -1327,3 +1326,39 @@ class ToolBar:
 			tc = self.tiny_captions.get(id, None)
 			if tc != None:
 				screen.blit(get_tiny_text(tc), (x, y + 23))
+
+class RocketLaunchScene:
+	def __init__(self, playscene):
+		self.bg = playscene
+		self.potato = playscene.potato
+		self.counter = 0
+		self.launchpad = None
+		
+		for building in self.potato.get_all_buildings_of_player_SLOW(playscene.user_id):
+			if building.btype == 'launchsite':
+				self.launchpad = building
+				break
+		
+		if self.launchpad == None:
+			self.next = self.bg
+		
+		else:
+			self.next = self
+			
+		
+	
+	def process_input(self, events, pressed):
+		pass
+	
+	def update(self):
+		self.counter += 1
+		if self.counter == 100:
+			from src import slideshows
+			self.next = slideshows.EndingScene()
+		
+		self.launchpad.rocket_y_offset = self.counter
+	
+	def render(self, screen):
+		self.bg.render(screen)
+	
+		

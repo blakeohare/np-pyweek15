@@ -161,6 +161,19 @@ class CreditsScene:
 		if y < 0:
 			self.next = scenefactory.build_scene('title', [])
 	
+
+class EndingScene:
+	def __init__(self):
+		pass
+	
+	def process_input(self, events, pressed):
+		pass
+	
+	def update(self):
+		pass
+	
+	def render(self, screen):
+		screen.fill((0, 0, 0))
 	
 scenefactory.add_builder('story', lambda:StoryScene())
 scenefactory.add_builder('credits', lambda x:CreditsScene(x))
