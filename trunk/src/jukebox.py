@@ -43,6 +43,7 @@ def ensure_playing(song):
 	if not initialized:
 		initialized = True
 		pygame.mixer.music.set_endevent(pygame.USEREVENT)
+		pygame.mixer.music.set_volume(.5)
 	
 	
 	if song != None and song != _current:
@@ -54,7 +55,7 @@ def ensure_playing(song):
 			play_this(song, True)
 
 	if toggle_audibility and audible:
-		pygame.mixer.music.set_volume(normalizer.get(song, 1.0))
+		pygame.mixer.music.set_volume(.5)#normalizer.get(song, 1.0))
 	
 def shuffle_playlist():
 	playlist.append(playlist.pop(0))
