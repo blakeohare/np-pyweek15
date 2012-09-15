@@ -449,17 +449,17 @@ class CheapBot(Seeker):
 	runspeed = 0.08
 	attackrange = 3.5
 	chargetime = 40
-	hp0 = 10
-	strength = 1
+	hp0 = 30
+	strength = 2
 	frames = {}
 	fname = "seekerbot_blue.png"
 
 class QuickBot(Seeker):
-	runspeed = 0.15
+	runspeed = 0.2
 	attackrange = 3.5
 	chargetime = 20
-	hp0 = 5
-	strength = 1
+	hp0 = 15
+	strength = 2
 	frames = {}
 	fname = "seekerbot_green.png"
 
@@ -467,7 +467,8 @@ class StrongBot(Seeker):
 	runspeed = 0.05
 	attackrange = 3.5
 	chargetime = 50
-	hp0 = 20
+	strength = 6
+	hp0 = 50
 	frames = {}
 	fname = "seekerbot_purple.png"
 
