@@ -70,10 +70,7 @@ def do_things(action, args):
 				return producebot.get_count(user_id)
 			elif action == 'dispatchbots':
 				from serverlib import producebot
-				return producebot.dispatch(user_id,
-					args.get('a', 0),
-					args.get('b', 0),
-					args.get('c', 0))
+				return producebot.dispatch(user_id)
 			else:
 				return { 'success': False, 'message': "Unrecognized command" }
 		

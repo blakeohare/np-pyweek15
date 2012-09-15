@@ -34,6 +34,7 @@ class MagicPotato:
 		self.bytes_stolen = 0
 		self.unlock = False
 		self.bots_owned = None
+		self.deploy_request = None
 		
 		# Hack time. Since the potato instance is a singleton, might as well make it a global :P
 		global hotpotato
@@ -72,7 +73,34 @@ class MagicPotato:
 	def starting_buildings(self, buildings):
 		for building in buildings:
 			self.buildings_available[building] = True
-		
+	
+	def deploy_bots(self, playscene, flush=False):
+		if self.deploy_request == None:
+			if flush:
+				self.deploy_request = network.send_deploy(playscene.user_id, playscene.password)
+			else:
+				self.deploy_request = network.send_getbots(playscene.user_id, playscene.password)
+	
+	def deploy_success(self, clear_status=True):
+		if self.deploy_request != None:
+			if self.deploy_request.has_response():
+				r = self.deploy_request.get_response()
+				
+				if clear_status:
+					self.deploy_request = None
+				
+				if r != None:
+				
+					if r.get('success', False):
+						return [
+							r.get('a', 0),
+							r.get('b', 0),
+							r.get('c', 0)
+						]
+				return [0, 0, 0]
+			else:
+				return "deploying"
+		return None
 	
 	def apply_bot_snapshot(self, a, b, c):
 		self.bots_owned = [a, b, c]
