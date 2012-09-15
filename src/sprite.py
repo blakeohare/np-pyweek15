@@ -1,5 +1,5 @@
 import pygame, math, random
-from src import worldmap, camera, settings, terrain, effects, images, jukebox
+from src import worldmap, camera, settings, terrain, effects, images, jukebox, network
 from src.images import get_image
 
 
@@ -357,6 +357,7 @@ class CheapAlien(Alien):
 	strength = 1
 	frames = {}
 	fname = "bluealien.png"
+	awardnumber = 1
 
 class QuickAlien(Alien):
 	minicolor = 200, 0, 200
@@ -366,6 +367,7 @@ class QuickAlien(Alien):
 	strength = 1
 	frames = {}
 	fname = "purplealien.png"
+	awardnumber = 2
 
 class StrongAlien(Alien):
 	minicolor = 200, 0, 200
@@ -375,6 +377,7 @@ class StrongAlien(Alien):
 	strength = 2
 	frames = {}
 	fname = "purplealien.png"
+	awardnumber = 3
 
 
 class Seeker(Attacker):

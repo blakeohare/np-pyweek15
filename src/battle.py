@@ -26,12 +26,14 @@ class Battle:
 		# Number of bots that can be deployed
 		self.nbots0 = 0, 0, 0
 		
+		nbytes = 100
 		# TODO: make this harder depending on the era and/or your bases's strength
 		if self.is_computer_attacking():
-			self.alienq = [
-				(t, sprite.Alien)
-				for t in range(30, 400, 10)
-			]
+			self.alienq = sorted(
+				[(t, sprite.CheapAlien) for t in range(10, nbytes*2, 10)] +
+				[(t, sprite.QuickAlien) for t in range(100, nbytes*2, 20)] +
+				[(t, sprite.StrongAlien) for t in range(200, nbytes*2, 40)]
+			)
 		else:
 			self.nbots0 = list(bots)
 

@@ -592,6 +592,9 @@ class PlayScene:
 			s.handlealiens(self.sprites)
 			if self.battle:
 				s.handlealiens(self.battle.attackers)
+		for s in self.sprites:
+			if not s.alive and hasattr(s, "awardtype"):
+				network.send_alien_award(self.user_id, self.password, s.awardtype)
 		self.sprites = [s for s in self.sprites if s.alive]
 		self.shots = [s for s in self.shots if s.alive]
 		
@@ -610,10 +613,13 @@ class PlayScene:
 					if self.battle:
 						for building in self.battle.buildings:
 							if building.destroyed:
-								util.verboseprint("blowing up %s %s" % building.getModelXY())
 								self.blow_stuff_up(*building.getModelXY())
 						if self.battle.is_computer_attacking():
-							 for building in self.battle.buildings:
+							if self.battle.hq.hp > 0:
+								self.battle_victorious()
+							else:
+								self.battle_failed()
+							for building in self.battle.buildings:
 							 	if building.hp > 0:
 								 	building.healfull()   # TODO: charge for this valuable service
 						else:

@@ -71,7 +71,7 @@ class MagicPotato:
 		}
 	
 	def add_research(self, building_id):
-		self.buildings_available[buildin_id] = True
+		self.buildings_available[building_id] = True
 	
 	def starting_buildings(self, buildings):
 		for building in buildings:
