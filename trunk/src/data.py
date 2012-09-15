@@ -199,6 +199,8 @@ class MagicPotato:
 	
 	def modify_bytes(self, newbytes):
 		self.bytes_stolen = newbytes
+		print (newbytes)
+		a = 1 / 0
 		self.building_availability_cache = None
 	
 	def get_resource(self, key):

@@ -328,6 +328,13 @@ class BuildingMenu(UiScene):
 		self.add_element(Image(left, y, text))
 		y += 5 + text.get_height()
 		buildings = playscene.potato.buildings_to_research()[:4]
+		
+		if playscene.tutorial:
+			if playscene.tutorial_instance.current_step == 2:
+				buildings = [('foundry', settings.building_research['foundry'])]
+			else:
+				buildings = []
+		
 		for building in buildings:
 			x = left
 			icon = playscene.toolbar.buttons['build_' + building[0]]
