@@ -60,6 +60,20 @@ def do_things(action, args):
 					user_id,
 					args.get('sector', None),
 					args.get('xy', None))
+			elif action == 'buildbot':
+				from serverlib import producebot
+				return producebot.produce_bot(
+					user_id,
+					args.get('type', 0))
+			elif action == 'getbots':
+				from serverlib import producebot
+				return producebot.get_count(user_id)
+			elif action == 'dispatchbots':
+				from serverlib import producebot
+				return producebot.dispatch(user_id,
+					args.get('a', 0),
+					args.get('b', 0),
+					args.get('c', 0))
 			else:
 				return { 'success': False, 'message': "Unrecognized command" }
 		
