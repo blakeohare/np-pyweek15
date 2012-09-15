@@ -40,7 +40,7 @@ def do_build(user_id, client_token, last_id, sector, loc, type, poll_afterwards=
 				error = verify_placement(type, sector, loc)
 				if error == None:
 					
-					if try_deplete_resources(
+					if type == 'hq' or try_deplete_resources(
 						user_id,
 						settings.building_cost[type][0],
 						settings.building_cost[type][1],
