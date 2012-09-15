@@ -186,7 +186,7 @@ class You(Sprite):
 class Ray(Sprite):
 	v = 1.0
 	lifetime = 7
-	strength = 3
+	strength = 10
 	harmrange = 1.0
 	t = 0
 
@@ -378,7 +378,7 @@ class Alien(Attacker):
 
 class CheapAlien(Alien):
 	minicolor = 200, 0, 200
-	hp0 = 2
+	hp0 = 10
 	runspeed = 0.08
 	walkspeed = 0.04
 	strength = 1
@@ -388,7 +388,7 @@ class CheapAlien(Alien):
 
 class QuickAlien(Alien):
 	minicolor = 200, 0, 200
-	hp0 = 1
+	hp0 = 10
 	runspeed = 0.15
 	walkspeed = 0.08
 	strength = 1
@@ -398,10 +398,10 @@ class QuickAlien(Alien):
 
 class StrongAlien(Alien):
 	minicolor = 200, 0, 200
-	hp0 = 10
+	hp0 = 30
 	runspeed = 0.05
 	walkspeed = 0.025
-	strength = 2
+	strength = 3
 	frames = {}
 	fname = "purplealien.png"
 	awardnumber = 3

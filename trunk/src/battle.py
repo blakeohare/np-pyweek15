@@ -31,12 +31,28 @@ class Battle:
 		self.nbytes = nbytes
 		# TODO: make this harder depending on the era and/or your bases's strength
 		if self.is_computer_attacking():
-			self.alienq = sorted(
-				[(t, sprite.CheapAlien) for t in range(10, nbytes*2, 10)] +
-				[(t, sprite.QuickAlien) for t in range(100, nbytes*2, 20)] +
-				[(t, sprite.StrongAlien) for t in range(200, nbytes*2, 40)],
-				key = lambda ta: ta[0]
-			)
+			q = []
+			if nbytes <= 20:
+				q += [(t, sprite.CheapAlien) for t in range(10, 600, 20)]
+			elif nbytes <= 40:
+				q += [(t, sprite.CheapAlien) for t in range(10, 800, 18)]
+				q += [(t, sprite.QuickAlien) for t in range(200, 800, 40)]
+			elif nbytes <= 100:
+				q += [(t, sprite.CheapAlien) for t in range(10, 1200, 16)]
+				q += [(t, sprite.QuickAlien) for t in range(120, 1200, 32)]
+				q += [(t, sprite.StrongAlien) for t in range(800, 1200, 60)]
+			elif nbytes <= 400:
+				q += [(t, sprite.CheapAlien) for t in range(10, 1600, 10)]
+				q += [(t, sprite.QuickAlien) for t in range(10, 1600, 24)]
+				q += [(t, sprite.StrongAlien) for t in range(400, 1600, 50)]
+			else:
+				q += [(t, sprite.CheapAlien) for t in range(10, 1600, 10)]
+				q += [(t, sprite.QuickAlien) for t in range(10, 1600, 20)]
+				q += [(t, sprite.StrongAlien) for t in range(10, 1600, 40)]
+
+			self.alienq = sorted(q, key = lambda ta: ta[0])
+			print 
+
 		else:
 			self.nbots0 = list(bots)
 
