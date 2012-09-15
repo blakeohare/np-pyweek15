@@ -728,6 +728,9 @@ class PlayScene:
 			s.handlealiens(self.sprites)
 			if self.battle:
 				s.handlealiens(self.battle.attackers)
+		for s in self.sprites:
+			if not s.alive and s.awardnumber is not None:
+				network.send_alien_award(self.user_id, self.password, s.awardnumber)
 		self.sprites = [s for s in self.sprites if s.alive]
 		self.shots = [s for s in self.shots if s.alive]
 		
