@@ -20,10 +20,24 @@ from src.font import get_text
 from src.font import get_tiny_text
 from src.images import get_image
 
+def get_network(tutorial):
+	if tutorial:
+		from src import fakenetwork
+		return fakenetwork
+	else:
+		return network
+
 
 class LoadingScene:
-	def __init__(self, user_id, password, sector, loc, new, research, buildings, unlock, bots):
+	def __init__(self, user_id, password, sector, loc, new, research, buildings, unlock, bots, tutorial):
 		self.next = self
+		self.tutorial = tutorial
+		
+		network.toggle_tutorial(tutorial)
+		if tutorial:
+			from src import fakenetwork
+			fakenetwork.set_active_tutorial(fakenetwork.Tutorial())
+		
 		self.user_id = user_id
 		self.password = password
 		self.counter = 0
@@ -52,7 +66,7 @@ class LoadingScene:
 				self.potato.escrow = t
 				
 				self.poll = None
-				self.next = PlayScene(self.user_id, self.password, self.potato, util.totuple(self.sector), util.totuple(self.loc), self.new)
+				self.next = PlayScene(self.user_id, self.password, self.potato, util.totuple(self.sector), util.totuple(self.loc), self.new, self.tutorial)
 			else:
 				print("Something terrible has happened.")
 				self.next = None
@@ -351,7 +365,8 @@ class ResearchOhNoScene:
 		
 		
 class PlayScene:
-	def __init__(self, user_id, password, potato, starting_sector, starting_xy, show_landing_sequence):
+	def __init__(self, user_id, password, potato, starting_sector, starting_xy, show_landing_sequence, tutorial):
+		self.tutorial = tutorial
 		self.curiosity = None
 		if show_landing_sequence:
 			self.curiosity = Curiosity(user_id)
@@ -360,6 +375,7 @@ class PlayScene:
 		self.password = password
 		self.next = self
 		self.hq = None
+		self.dialog_up = False
 		self.current_research = None
 		self.mousex, self.mousey = 0, 0
 		self.potato.get_user_name(user_id)

@@ -158,9 +158,19 @@ def send_echo(stuff):
 	return _send_command("echo", { 'data': stuff })
 
 def send_authenticate(username, password):
+
+	if _is_tutorial:
+
+		fake().send_authenticate(username, password)
 	return _send_command('authenticate', { 'user': username, 'password': password })
 
+def fake():
+	from src import fakenetwork
+	return fakenetwork
+
 def send_poll(user_id, password, sector_you_care_about, last_ids_by_sector):
+	if _is_tutorial:
+		return fake().send_poll(user_id, password, sector_you_care_about, last_ids_by_sector)
 	sectors = _get_poll_args(sector_you_care_about, last_ids_by_sector)
 	return _send_command('poll', { 'sectors': sectors }, user_id, password)
 
@@ -181,9 +191,14 @@ def _get_poll_args(sector, last_ids_by_sector):
 	return ','.join(s_r)
 
 def send_username_fetch(user_ids):
+	if _is_tutorial:
+		return fake().send_username_fetch(user_ids)
 	return _send_command('getuser', { 'user_id_list': ','.join(map(str, user_ids)) })
 
 def send_build(user_id, password, type, sector_x, sector_y, loc_x, loc_y, sector_you_care_about, last_ids_by_sector, client_token):
+	if _is_tutorial:
+		return fake().send_build(user_id, password, type, sector_x, sector_y, loc_x, loc_y, sector_you_care_about, last_ids_by_sector, client_token)
+	
 	poll_sectors = _get_poll_args(sector_you_care_about, last_ids_by_sector)
 	return _send_command('build', {
 		'type': type,
@@ -194,6 +209,8 @@ def send_build(user_id, password, type, sector_x, sector_y, loc_x, loc_y, sector
 		}, user_id, password)
 	
 def send_demolish(user_id, password, sector_x, sector_y, x, y, client_token):
+	if _is_tutorial:
+		return fake().send_demolish(user_id, password, sector_x, sector_y, x, y, client_token)
 	return _send_command('demolish', {
 		'sector': util.fromtuple((sector_x, sector_y)),
 		'loc': util.fromtuple((x, y)),
@@ -201,33 +218,58 @@ def send_demolish(user_id, password, sector_x, sector_y, x, y, client_token):
 	}, user_id, password)
 
 def send_radar(user_id, password, rx, ry):
+	if _is_tutorial:
+		return fake().send_radar(user_id, password, rx, ry)
 	return _send_command('radar', {
 		'rx': rx,
 		'ry': ry }, user_id, password)
 
 def send_quarry(user_id, password, sector, xy):
+	if _is_tutorial:
+		return fake().send_quarry(user_id, password, sector, xy)
 	return _send_command('quarrydata', {
 		'sector': sector,
 		'xy': xy }, user_id, password)
 
 def send_getbots(user_id, password):
+	if _is_tutorial:
+		return fake().send_getbots(user_id, password)
 	return _send_command('getbots', {}, user_id, password)
 
 def send_buildbots(user_id, password, type):
+	if _is_tutorial:
+		return fake().send_buildbots(user_id, password, type)
 	return _send_command('buildbot', { 'type': type }, user_id, password)
 
 def send_deploy(user_id, password):
+	if _is_tutorial:
+		return fake().send_deploy(user_id, password)
 	return _send_command('dispatchbots', { }, user_id, password)
 
 def send_give_resources_debug(user_id, password):
+	if _is_tutorial:
+		return fake().send_give_resources_debug(user_id, password)
 	return _send_command('debug_resources', { }, user_id, password)
 
 def send_start_research(user_id, password, subject):
+	if _is_tutorial:
+		return fake().send_start_research(user_id, password, subject)
 	return _send_command('start_research', { 'subject': subject }, user_id, password)
 
 # alien_type = 1, 2, 3
 def send_alien_award(user_id, password, alien_type):
+	if _is_tutorial:
+		return fake().send_alien_award(user_id, password, alien_type)
 	return _send_command('alienkill', { 'alientype': alien_type }, user_id, password)
 
 def send_battle_success(user_id, password, attacked_id, bytes):
+	if _is_tutorial:
+		return fake().send_battle_success(user_id, password, attacked_id, bytes)
 	return _send_command('attacksuccess', { 'numbytes': bytes, 'attacked': attacked_id }, user_id, password)
+
+_is_tutorial = False
+def toggle_tutorial(is_tutorial):
+	global _is_tutorial
+	_is_tutorial = is_tutorial
+
+
