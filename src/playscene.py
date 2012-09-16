@@ -68,7 +68,7 @@ class LoadingScene:
 				self.poll = None
 				self.next = PlayScene(self.user_id, self.password, self.potato, util.totuple(self.sector), util.totuple(self.loc), self.new, self.tutorial)
 			else:
-				print("Something terrible has happened.")
+				pass #print("Something terrible has happened.")
 				self.next = None
 	
 	def render(self, screen):
@@ -837,7 +837,7 @@ class PlayScene:
 					self.sprites.append(atype(x, y, True))
 		self.explored = nexplored
 		if nnew:
-			print("Explored %s new sectors in %.3fs" % (nnew, time.time() - t0))
+			pass #print("Explored %s new sectors in %.3fs" % (nnew, time.time() - t0))
 	
 	def summon_bots(self):
 		self.potato.deploy_bots(self)

@@ -70,5 +70,5 @@ def profile(name):
 
 def verboseprint(thing):
 	if settings.show_verbose_output:
-		print(str(thing))
+		pass #print(str(thing))
 	

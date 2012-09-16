@@ -152,7 +152,7 @@ class Parcel(object):
             for _ in self.compiter:
                 pass
             self.compiter = None
-            print("Completing incomplete parcel (%s, %s) in %.3fs [%s queued]" % (self.x0, self.y0, time.time() - t0, len(parcelq)))
+            util.verboseprint("Completing incomplete parcel (%s, %s) in %.3fs [%s queued]" % (self.x0, self.y0, time.time() - t0, len(parcelq)))
 
     # x and y must be integers
     def getiheight(self, x, y):

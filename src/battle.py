@@ -12,9 +12,9 @@ class Battle:
 		
 		self.end_notification_sent = False
 		
-		print("base size: %s" % len(self.buildings))
+		#print("base size: %s" % len(self.buildings))
 		hqs = [b for b in self.buildings if isinstance(b, structure.HQ)]
-		print("number of HQs: %s" % len(hqs))
+		#print("number of HQs: %s" % len(hqs))
 		self.hq = hqs[0]
 
 		if nbytes >= 10000:
@@ -59,7 +59,7 @@ class Battle:
 
 
 			self.alienq = sorted(q, key = lambda ta: ta[0])
-			print("bytes", nbytes, len(self.alienq))
+			#print("bytes", nbytes, len(self.alienq))
 
 		else:
 			self.nbots0 = list(bots)
