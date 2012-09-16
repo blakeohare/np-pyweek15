@@ -84,8 +84,8 @@ def do_poll(user_id, sector_args):
 	for key in resources.keys():
 		resources[key] *= diff / 10.0
 		resources[key] += current[key]
-		if resources[key] > 1000:
-			resources[key] = 1000
+		if resources[key] > 10000:
+			resources[key] = 10000
 		setters.append("`" + key + "` = " + str(resources[key]))
 	
 	setters.append("`last_poll` = " + str(now))
