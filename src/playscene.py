@@ -451,10 +451,6 @@ class PlayScene:
 		self.cx = starting_sector[0] * 60 + starting_xy[0]
 		self.cy = starting_sector[1] * 60 + starting_xy[1]
 
-		#FIXME: this is just for testing so I can attack Blake easily - undo
-		if settings.attackblake:
-			self.cx, self.cy = terrain.toModel(-73, 0)
-
 		self.player = sprite.You(self.cx, self.cy + 1)
 		self.player.lookatme()
 		
