@@ -121,8 +121,8 @@ class BuildingMenu(UiScene):
 		if self.build_bot_command != None and self.build_bot_command.has_response():
 			r = self.build_bot_command.get_response()
 			if r != None:
+				self.build_bot_command = None
 				if r.get('success', False):
-					self.build_bot_command = None
 					self.counts[0] = r.get('a', 0)
 					self.counts[1] = r.get('b', 0)
 					self.counts[2] = r.get('c', 0)
