@@ -74,7 +74,7 @@ def play_sound(name, subdir="SFX"):
 		if os.path.exists(fname):
 			sounds[key] = pygame.mixer.Sound(fname)
 		else:
-			print("Unable to load sound %s" % fname)
+			#print("Unable to load sound %s" % fname)
 			sounds[key] = None
 	if sounds[key]:
 		sounds[key].play()
