@@ -16,6 +16,20 @@ have to type it the next time you log in.
 
 It is recommended you start with the tutorial. 
 
+Controls reference:
+
+Outside of battles, select options from the menu using the mouse or hotkeys.
+Esc or Backspace: back in the menu
+Arrow keys: walk
+Space: Place or demolish structures, or fire ray gun if it's selected.
+Enter: Stand at a building and press Enter to bring up the building menu.
+Z: Fire ray gun at any time.
+D: Stand in another player's base and press D to attack.
+1/2/3: When attacking another player's base, stand at the building you wish to attack and press 1, 2 or 3.
+F9: Forfeit battle
+F11: Toggle fullscreen
+Quit the game at any time with Alt+F4, or by closing the window.
+
 Command line options:
    --small: 400x300 window (default is 800x600)
    --large: 1200x900 window
