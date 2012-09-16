@@ -286,8 +286,6 @@ class Attacker(Sprite):
 					self.waypoint = self.x + fdir[0], self.y + fdir[1]
 				else:
 					fdir = d0 if fdir == d1 else d1
-					if self.cango(scene.empty_tile, self.x + fdir[0], self.y + fdir[1], self.target):
-						util.verboseprint("WARNING! Can't go in any of 3 directions?!?!", self.x, self.y)
 					self.waypoint = self.x + fdir[0], self.y + fdir[1]
 		dx, dy = self.waypoint[0] - self.x, self.waypoint[1] - self.y
 		if dx**2 + dy**2 < self.v**2:
