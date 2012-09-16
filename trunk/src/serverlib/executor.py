@@ -12,6 +12,9 @@ def do_things(action, args):
 	
 	if action == 'echo':
 		return { 'success': True, 'data': args.get('data', None) }
+	elif action == 'api_users':
+		from serverlib import api
+		return api.get_user_info()
 	elif action == 'authenticate':
 		return authenticate.heavy_authenticate(args.get('user', ''), args.get('password', ''), True)
 	elif action == 'getuser':
