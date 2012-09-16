@@ -21,7 +21,7 @@ class Tutorial:
 		_tutorial = self
 		
 		self.research_unlocked = {}
-		self.resources = {}
+		self.resources = {'food': 100, 'water': 100, 'aluminum': 100, 'copper': 100, 'silicon': 100, 'oil': 100 }
 		self.research = 10
 		self.bots = [0, 0, 0]
 		self.last_poll = time.time()
