@@ -49,8 +49,6 @@ playmusic = "--nomusic" not in sys.argv
 playsfx = "--nosfx" not in sys.argv
 
 
-attackblake = "--attackblake" in sys.argv
-
 cursorgridsize = 4
 
 trackvalue = 0.4

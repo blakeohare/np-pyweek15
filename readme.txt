@@ -16,6 +16,12 @@ have to type it the next time you log in.
 
 It is recommended you start with the tutorial. 
 
+Command line options:
+   --small: 400x300 window (default is 800x600)
+   --large: 1200x900 window
+   --nosfx: disable sound effects and voiceover
+   --nomusic: disable music
+
 Contributors
 - Blake O'Hare - Programming - server, menus, and data
 - Christopher Night - Programming - terrain, battle
