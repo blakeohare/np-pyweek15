@@ -145,6 +145,9 @@ class Battle:
 			if b.btype == "beacon" and b.hp > 0:
 				self.hq.attackable = False
 
+		if self.nbytes >= 10000:
+			self.hq.attackable = True
+
 
 	def update(self, scene):
 		self.t += 1
@@ -182,6 +185,13 @@ class Battle:
 	# aliens, seeker bots, projectiles
 	def get_sprites(self):
 		return self.attackers
+	
+	def forfeit(self):
+		if self.is_computer_attacking():
+			self.hq.hp = 0
+		else:
+			self.nbots = 0, 0, 0
+			self.attackers = []
 	
 	def is_complete(self, playscene):
 		# HQ disabled

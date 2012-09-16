@@ -544,6 +544,8 @@ class PlayScene:
 						elif event.down and event.action == 'b3':
 							if not self.battle.is_computer_attacking():
 								attack_building = 2
+						elif event.down and event.action == 'f9':
+							self.battle.forfeit()
 			else:
 				for event in events:
 					if event.type == 'mouseleft':
@@ -709,12 +711,15 @@ class PlayScene:
 				self.poll = self.poll[:i] + self.poll[i + 1:]
 			else:
 				i += 1
-		
+
 		if self.potato.queue_epic_battle and not self.potato.epic_battle_won and self.pendingbattle == None and self.battle == None:
 		
 			buildings = self.potato.get_all_buildings_of_player_SLOW(self.user_id)
-			bord = self.potato.borders_by_user[self.user_id]
-			self.pendingbattle = battle.Battle(self.user_id, buildings, bord, None, nbytes=10000)
+			if not any(b.btype == "launchsite" for b in buildings):
+				self.potato.queue_epic_battle = False
+			else:
+				bord = self.potato.borders_by_user[self.user_id]
+				self.pendingbattle = battle.Battle(self.user_id, buildings, bord, None, nbytes=10000)
 			
 		
 		if len(self.poll) == 0 and self.poll_countdown < 0:
@@ -774,7 +779,14 @@ class PlayScene:
 								self.blow_stuff_up(*building.getModelXY())
 							if building.btype == "fireturret":
 								building.cleartargets()
-						if self.battle.is_computer_attacking():
+						if self.battle.nbytes >= 10000:
+							if self.battle.hq.hp == 0:
+								self.blow_stuff_up(*self.battle.hq.getModelXY())
+								jukebox.play_voice("research_failed")
+							for building in self.battle.buildings:
+								if building.hp > 0:
+									building.healfull()
+						elif self.battle.is_computer_attacking():
 							for building in self.battle.buildings:
 								if building.hp > 0:
 									building.healfull()

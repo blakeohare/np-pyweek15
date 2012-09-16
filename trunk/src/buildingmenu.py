@@ -80,6 +80,7 @@ class BuildingMenu(UiScene):
 	def pressed_launch(self):
 		from src import playscene
 		self.playscene.next = self.playscene
+		self.playscene.player.visible = False
 		self.dismiss()
 		
 		self.next = playscene.RocketLaunchScene(self.playscene)

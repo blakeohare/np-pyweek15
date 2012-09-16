@@ -16,6 +16,7 @@ class Sprite(object):
 	reelstep = None
 	awardnumber = None
 	freerange = False  # can only exist outside borders
+	visible = True
 	def __init__(self, x, y, z=None):
 		self.vx, self.vy = 0, 0
 		self.x, self.y = terrain.toCenterRender(x, y)
@@ -161,6 +162,7 @@ class You(Sprite):
 		self.setheight()
 
 	def render(self, screen):
+		if not self.visible: return
 		if not little_yous:
 			little_yous.update(images.spritesheet('playersprite.png', 8, 3))
 		i = 0
@@ -185,9 +187,9 @@ class You(Sprite):
 # Laser beam from your ray gun
 class Ray(Sprite):
 	v = 1.0
-	lifetime = 7
+	lifetime = 14
 	strength = 8
-	harmrange = 1.0
+	harmrange = 1.5
 	t = 0
 
 	def update(self, scene):

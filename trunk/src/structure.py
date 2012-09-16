@@ -184,6 +184,8 @@ class LaunchSite(Structure):
 	btype = "launchsite"
 	size = 2
 	fnumber = 0
+	attackable = True
+	hp0 = 30
 	
 	def render(self, screen, looker=None):
 		looker = looker or camera
@@ -281,8 +283,8 @@ class FireTurret(Turret):
 
 class LazorTurret(Turret):
 	btype = "lazorturret"
-	strength = 2
-	chargetime = 20
+	strength = 5
+	chargetime = 10
 	nbytes = 3
 	def addeffect(self, target):
 		effects.add(effects.LaserBeam(self.x, self.y, self.z + 22, target.x, target.y, target.z + 2))

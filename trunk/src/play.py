@@ -168,6 +168,8 @@ def main():
 					scene = None
 				elif event.key == pygame.K_F1:
 					events.append(MyEvent('key', 'debug', down, 0, 0))
+				elif event.key == pygame.K_F9:
+					events.append(MyEvent('key', 'f9', down, 0, 0))
 				elif event.key == pygame.K_F11 and down:
 					rscreen, vscreen = toggle_full_screen()
 				elif event.key == pygame.K_LEFT:
